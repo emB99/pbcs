@@ -1,0 +1,711 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --canvas:#F2EBE0;
+    --surface:#FFFCF7;
+    --surface-2:#FAF5EC;
+    --ink:#1F1B16;
+    --ink-mid:#5C5348;
+    --ink-soft:#8B8175;
+    --line:#E9DFD0;
+    --line-soft:#F1E8DA;
+
+    --crust:#B8651A;
+    --crust-deep:#8F4C11;
+    --crust-tint:#FAEBD9;
+
+    --sage:#E7EFE3;
+    --sage-ink:#4A6146;
+    --sky:#E3E9F4;
+    --sky-ink:#3F5375;
+    --butter:#FBF0D3;
+    --butter-ink:#7A6220;
+    --rose:#F8E6E2;
+    --rose-ink:#9C4433;
+
+    --danger:#A33A28;
+
+    --r-lg:20px;
+    --r-md:14px;
+    --r-sm:9px;
+  }
+
+  *{box-sizing:border-box;}
+
+  .pbcs{
+    font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+    background:var(--canvas);
+    color:var(--ink);
+    padding:22px;
+    display:flex;
+    gap:18px;
+    align-items:flex-start;
+    min-height:100%;
+    font-size:14px;
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .pbcs button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+
+  /* ---------- icon rail ---------- */
+  .rail{
+    width:94px;
+    flex:0 0 94px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--r-lg);
+    padding:20px 10px 14px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    position:sticky;
+    top:22px;
+  }
+  .rail-mark{
+    width:44px;height:44px;border-radius:13px;
+    background:var(--crust);
+    display:grid;place-items:center;
+    margin-bottom:18px;
+    box-shadow:0 3px 10px rgba(184,101,26,.28);
+  }
+  .rail-mark svg{width:23px;height:23px;}
+
+  .rail-item{
+    width:100%;
+    padding:11px 4px 9px;
+    border-radius:var(--r-md);
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    color:var(--ink-soft);
+    font-size:10.5px;font-weight:600;letter-spacing:.01em;
+    text-align:center;
+    transition:background .15s,color .15s;
+  }
+  .rail-item svg{width:20px;height:20px;stroke-width:1.7;}
+  .rail-item:hover{background:var(--surface-2);color:var(--ink-mid);}
+  .rail-item.is-active{background:var(--crust-tint);color:var(--crust-deep);}
+  .rail-item:focus-visible{outline:2px solid var(--crust);outline-offset:2px;}
+  .rail-spacer{flex:1;min-height:14px;}
+
+  /* ---------- shell ---------- */
+  .shell{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px;}
+
+  .topbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:2px 4px;}
+  .greet h1{
+    font-family:'Fraunces',Georgia,serif;
+    font-size:25px;font-weight:600;margin:0;letter-spacing:-.01em;
+  }
+  .greet p{margin:2px 0 0;color:var(--ink-soft);font-size:12.5px;}
+  .topbar-fill{flex:1;min-width:20px;}
+
+  .search{
+    display:flex;align-items:center;gap:9px;
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:999px;padding:9px 16px;width:270px;
+    color:var(--ink-soft);font-size:13px;
+  }
+  .search svg{width:15px;height:15px;flex:0 0 15px;}
+
+  .who{
+    display:flex;align-items:center;gap:10px;
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:999px;padding:5px 14px 5px 5px;
+  }
+  .who .av{
+    width:32px;height:32px;border-radius:50%;
+    background:var(--crust);color:#fff;
+    display:grid;place-items:center;
+    font-size:11.5px;font-weight:700;letter-spacing:.02em;
+  }
+  .who b{display:block;font-size:12.5px;font-weight:600;line-height:1.2;}
+  .who span{display:block;font-size:10.5px;color:var(--ink-soft);}
+
+  /* ---------- layout ---------- */
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start;}
+  .stack{display:flex;flex-direction:column;gap:16px;min-width:0;}
+
+  /* ---------- stats ---------- */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .stat{
+    border-radius:var(--r-lg);
+    border:1px solid var(--line);
+    padding:16px 18px 17px;
+    position:relative;overflow:hidden;
+  }
+  .stat--money{background:var(--crust-tint);border-color:#F0DCC3;}
+  .stat--people{background:var(--sage);border-color:#D9E4D3;}
+  .stat--intake{background:var(--sky);border-color:#D5DDEC;}
+
+  .stat-top{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+  .stat-top svg{width:16px;height:16px;stroke-width:1.8;}
+  .stat-top span{font-size:11.5px;font-weight:650;letter-spacing:.03em;text-transform:uppercase;}
+  .stat--money .stat-top{color:var(--crust-deep);}
+  .stat--people .stat-top{color:var(--sage-ink);}
+  .stat--intake .stat-top{color:var(--sky-ink);}
+
+  .stat-num{
+    font-family:'Fraunces',Georgia,serif;
+    font-size:31px;font-weight:600;letter-spacing:-.02em;line-height:1;
+    font-variant-numeric:tabular-nums;
+  }
+  .stat-sub{margin-top:7px;font-size:12px;color:var(--ink-mid);}
+
+  /* ---------- cards ---------- */
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--r-lg);
+    overflow:hidden;
+  }
+  .card-head{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    padding:17px 20px 15px;
+  }
+  .card-head h2{
+    font-size:15.5px;font-weight:650;margin:0;letter-spacing:-.005em;
+  }
+  .card-head .note{font-size:12px;color:var(--ink-soft);margin:2px 0 0;}
+  .head-fill{flex:1;min-width:12px;}
+
+  .mini-search{
+    display:flex;align-items:center;gap:8px;
+    background:var(--surface-2);border:1px solid var(--line-soft);
+    border-radius:999px;padding:7px 14px;
+    color:var(--ink-soft);font-size:12.5px;min-width:190px;
+  }
+  .mini-search svg{width:14px;height:14px;flex:0 0 14px;}
+
+  .chip{
+    font-size:11.5px;font-weight:600;
+    background:var(--surface-2);border:1px solid var(--line);
+    border-radius:999px;padding:6px 12px;color:var(--ink-mid);
+  }
+
+  /* ---------- table ---------- */
+  .tbl-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:660px;}
+  thead th{
+    background:var(--surface-2);
+    text-align:left;
+    font-size:11px;font-weight:650;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--ink-soft);
+    padding:10px 14px;
+    border-top:1px solid var(--line-soft);
+    border-bottom:1px solid var(--line-soft);
+    white-space:nowrap;
+  }
+  thead th.num,tbody td.num{text-align:right;}
+  tbody td{
+    padding:13px 14px;
+    border-bottom:1px solid var(--line-soft);
+    vertical-align:middle;
+  }
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover td{background:#FFF9F0;}
+
+  .who-cell{display:flex;align-items:center;gap:11px;}
+  .ini{
+    width:34px;height:34px;flex:0 0 34px;border-radius:11px;
+    display:grid;place-items:center;
+    font-size:11.5px;font-weight:700;letter-spacing:.02em;
+  }
+  .ini.a{background:var(--butter);color:var(--butter-ink);}
+  .ini.b{background:var(--sage);color:var(--sage-ink);}
+  .ini.c{background:var(--sky);color:var(--sky-ink);}
+  .ini.d{background:var(--rose);color:var(--rose-ink);}
+  .ini.e{background:var(--crust-tint);color:var(--crust-deep);}
+
+  .who-cell b{display:block;font-weight:600;font-size:13.5px;line-height:1.3;}
+  .who-cell span{display:block;font-size:11.5px;color:var(--ink-soft);}
+
+  .course{font-size:13px;}
+  .course span{display:block;font-size:11.5px;color:var(--ink-soft);}
+
+  .money{font-variant-numeric:tabular-nums;font-weight:600;}
+  .money.muted{font-weight:500;color:var(--ink-mid);}
+  .money.owing{color:var(--danger);font-weight:700;}
+
+  /* signature: paid-progress under the balance */
+  .bal{display:inline-flex;flex-direction:column;align-items:flex-end;gap:5px;}
+  .bar{width:74px;height:4px;border-radius:2px;background:var(--line);overflow:hidden;}
+  .bar i{display:block;height:100%;background:var(--crust);border-radius:2px;}
+  .bar.done i{background:var(--sage-ink);}
+  .bar-lbl{font-size:10px;color:var(--ink-soft);letter-spacing:.02em;}
+
+  .tag{
+    display:inline-block;font-size:11px;font-weight:600;
+    padding:4px 9px;border-radius:999px;white-space:nowrap;
+  }
+  .tag.late{background:#F6E3DF;color:var(--danger);}
+  .tag.due{background:var(--butter);color:var(--butter-ink);}
+  .tag.ok{background:var(--sage);color:var(--sage-ink);}
+
+  .card-foot{
+    padding:13px 20px;border-top:1px solid var(--line-soft);
+    display:flex;align-items:center;gap:12px;
+    font-size:12.5px;color:var(--ink-soft);
+  }
+  .link{color:var(--crust-deep);font-weight:600;font-size:12.5px;}
+  .link:hover{text-decoration:underline;}
+
+  /* ---------- actions ---------- */
+  .actions{display:flex;flex-direction:column;gap:9px;}
+  .btn{
+    display:flex;align-items:center;gap:11px;
+    padding:13px 15px;border-radius:var(--r-md);
+    font-size:13.5px;font-weight:600;
+    border:1px solid var(--line);background:var(--surface);
+    transition:transform .12s,box-shadow .12s;
+    width:100%;text-align:left;
+  }
+  .btn svg{width:17px;height:17px;stroke-width:1.9;flex:0 0 17px;}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(31,27,22,.07);}
+  .btn:focus-visible{outline:2px solid var(--crust);outline-offset:2px;}
+  .btn--primary{
+    background:var(--crust);color:#fff;border-color:var(--crust);
+    box-shadow:0 3px 10px rgba(184,101,26,.26);
+  }
+  .btn--primary:hover{box-shadow:0 6px 16px rgba(184,101,26,.32);}
+
+  /* ---------- feed ---------- */
+  .feed{padding:4px 0 6px;}
+  .feed-row{
+    display:flex;align-items:flex-start;gap:11px;
+    padding:10px 20px;
+  }
+  .feed-row + .feed-row{border-top:1px solid var(--line-soft);}
+  .feed-row .ini{width:30px;height:30px;flex:0 0 30px;border-radius:9px;font-size:10.5px;}
+  .feed-body{flex:1;min-width:0;}
+  .feed-body b{font-weight:600;font-size:13px;}
+  .feed-body p{margin:1px 0 0;font-size:11.5px;color:var(--ink-soft);}
+  .feed-amt{font-size:13px;font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .feed-amt.rev{color:var(--danger);}
+
+  /* ---------- intakes ---------- */
+  .intake{padding:12px 20px;}
+  .intake + .intake{border-top:1px solid var(--line-soft);}
+  .intake-top{display:flex;align-items:baseline;gap:10px;}
+  .intake-top b{font-size:13px;font-weight:600;flex:1;min-width:0;}
+  .intake-top span{font-size:11.5px;color:var(--ink-soft);white-space:nowrap;}
+  .intake-meta{margin-top:6px;display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--ink-soft);}
+  .dot{width:4px;height:4px;border-radius:50%;background:var(--line);}
+
+  @media (max-width:1080px){
+    .grid{grid-template-columns:1fr;}
+    .stats{grid-template-columns:1fr;}
+  }
+  @media (max-width:680px){
+    .pbcs{flex-direction:column;padding:14px;}
+    .rail{width:100%;flex:none;flex-direction:row;overflow-x:auto;position:static;padding:10px;gap:4px;}
+    .rail-mark{margin-bottom:0;flex:0 0 44px;}
+    .rail-item{width:auto;flex:0 0 auto;padding:9px 12px;}
+    .rail-spacer{display:none;}
+    .search{width:100%;order:3;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .pbcs *{transition:none !important;}
+  }
+</style>
+
+<div class="pbcs">
+
+  <!-- ================= icon rail ================= -->
+  <aside class="rail">
+    <div class="rail-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 15h16a0 0 0 0 1 0 0 4 4 0 0 1-4 4H8a4 4 0 0 1-4-4Z"/>
+        <path d="M12 11V8"/><path d="M9 11V9"/><path d="M15 11V9"/>
+      </svg>
+    </div>
+
+    <button class="rail-item is-active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Dashboard
+    </button>
+    <button class="rail-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
+      Students
+    </button>
+    <button class="rail-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H5.5A1.5 1.5 0 0 1 4 15.5Z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h4.5a1.5 1.5 0 0 0 1.5-1.5Z"/></svg>
+      Courses
+    </button>
+    <button class="rail-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      Intakes
+    </button>
+    <button class="rail-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>
+      Payments
+    </button>
+    <button class="rail-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>
+      Reports
+    </button>
+
+    <div class="rail-spacer"></div>
+
+    <button class="rail-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .33 1.76l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.6 1.6 0 0 0-1.76-.33 1.6 1.6 0 0 0-1 1.46V21a2 2 0 1 1-4 0v-.11a1.6 1.6 0 0 0-1.05-1.46 1.6 1.6 0 0 0-1.76.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.6 1.6 0 0 0 .33-1.76 1.6 1.6 0 0 0-1.46-1H3a2 2 0 1 1 0-4h.11a1.6 1.6 0 0 0 1.46-1.05 1.6 1.6 0 0 0-.33-1.76l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.6 1.6 0 0 0 1.76.33H9a1.6 1.6 0 0 0 1-1.46V3a2 2 0 1 1 4 0v.11a1.6 1.6 0 0 0 1 1.46 1.6 1.6 0 0 0 1.76-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.6 1.6 0 0 0-.33 1.76V9a1.6 1.6 0 0 0 1.46 1H21a2 2 0 1 1 0 4h-.11a1.6 1.6 0 0 0-1.46 1Z"/></svg>
+      Settings
+    </button>
+  </aside>
+
+  <!-- ================= shell ================= -->
+  <div class="shell">
+
+    <div class="topbar">
+      <div class="greet">
+        <h1>Good morning, Rutendo</h1>
+        <p>Friday, 7 August 2026 &middot; 3 payments recorded yesterday</p>
+      </div>
+      <div class="topbar-fill"></div>
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+        Find a student or receipt
+      </div>
+      <div class="who">
+        <div class="av">RM</div>
+        <div>
+          <b>Rutendo Marufu</b>
+          <span>Administrator</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+
+      <!-- ============ main column ============ -->
+      <div class="stack">
+
+        <div class="stats">
+          <div class="stat stat--money">
+            <div class="stat-top">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 6.5c0-2-2.2-3-5-3s-5 1-5 3.2c0 4.6 10 2.4 10 7 0 2.3-2.2 3.3-5 3.3s-5-1-5-3"/></svg>
+              <span>Outstanding</span>
+            </div>
+            <div class="stat-num">$4,280</div>
+            <div class="stat-sub">across 23 students &middot; $1,150 over 30 days</div>
+          </div>
+
+          <div class="stat stat--people">
+            <div class="stat-top">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 19a6 6 0 0 1 12 0"/><path d="M16.5 5.2a3.2 3.2 0 0 1 0 5.6M18 19a6 6 0 0 0-2.4-4.8"/></svg>
+              <span>Active students</span>
+            </div>
+            <div class="stat-num">47</div>
+            <div class="stat-sub">9 enrolled this month</div>
+          </div>
+
+          <div class="stat stat--intake">
+            <div class="stat-top">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+              <span>Running intakes</span>
+            </div>
+            <div class="stat-num">4</div>
+            <div class="stat-sub">1 finishes in 12 days</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h2>Who owes money</h2>
+              <p class="note">Largest balances first &middot; all amounts USD</p>
+            </div>
+            <div class="head-fill"></div>
+            <div class="mini-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+              Search by name or phone
+            </div>
+            <span class="chip">Export CSV</span>
+          </div>
+
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Enrolled in</th>
+                  <th class="num">Agreed</th>
+                  <th class="num">Paid</th>
+                  <th class="num">Balance</th>
+                  <th>Last payment</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="who-cell">
+                      <div class="ini a">TM</div>
+                      <div><b>Tendai Mukwena</b><span>077 412 8830</span></div>
+                    </div>
+                  </td>
+                  <td class="course">Professional Cookery (NC)<span>Intake Jan 2026</span></td>
+                  <td class="num money muted">$980.00</td>
+                  <td class="num money muted">$340.00</td>
+                  <td class="num">
+                    <div class="bal">
+                      <span class="money owing">$640.00</span>
+                      <span class="bar"><i style="width:35%"></i></span>
+                      <span class="bar-lbl">35% paid</span>
+                    </div>
+                  </td>
+                  <td><span class="tag late">62 days ago</span></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="who-cell">
+                      <div class="ini c">NM</div>
+                      <div><b>Nyasha Moyo</b><span>071 903 5514</span></div>
+                    </div>
+                  </td>
+                  <td class="course">Hospitality Management (NC)<span>Intake Jan 2026</span></td>
+                  <td class="num money muted">$980.00</td>
+                  <td class="num money muted">$490.00</td>
+                  <td class="num">
+                    <div class="bal">
+                      <span class="money owing">$490.00</span>
+                      <span class="bar"><i style="width:50%"></i></span>
+                      <span class="bar-lbl">50% paid</span>
+                    </div>
+                  </td>
+                  <td><span class="tag late">41 days ago</span></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="who-cell">
+                      <div class="ini b">FN</div>
+                      <div><b>Farai Nyathi</b><span>078 220 1147</span></div>
+                    </div>
+                  </td>
+                  <td class="course">Food &amp; Beverages (NFC)<span>Intake May 2026</span></td>
+                  <td class="num money muted">$720.00</td>
+                  <td class="num money muted">$300.00</td>
+                  <td class="num">
+                    <div class="bal">
+                      <span class="money owing">$420.00</span>
+                      <span class="bar"><i style="width:42%"></i></span>
+                      <span class="bar-lbl">42% paid</span>
+                    </div>
+                  </td>
+                  <td><span class="tag due">18 days ago</span></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="who-cell">
+                      <div class="ini d">CM</div>
+                      <div><b>Chiedza Marufu</b><span>077 655 2093</span></div>
+                    </div>
+                  </td>
+                  <td class="course">Professional Cookery (NC)<span>Intake May 2026</span></td>
+                  <td class="num money muted">$980.00</td>
+                  <td class="num money muted">$620.00</td>
+                  <td class="num">
+                    <div class="bal">
+                      <span class="money owing">$360.00</span>
+                      <span class="bar"><i style="width:63%"></i></span>
+                      <span class="bar-lbl">63% paid</span>
+                    </div>
+                  </td>
+                  <td><span class="tag due">22 days ago</span></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="who-cell">
+                      <div class="ini e">AG</div>
+                      <div><b>Anesu Gwatidzo</b><span>073 118 7742</span></div>
+                    </div>
+                  </td>
+                  <td class="course">Executive Baking<span>Short course &middot; Aug 2026</span></td>
+                  <td class="num money muted">$310.00</td>
+                  <td class="num money muted">$100.00</td>
+                  <td class="num">
+                    <div class="bal">
+                      <span class="money owing">$210.00</span>
+                      <span class="bar"><i style="width:32%"></i></span>
+                      <span class="bar-lbl">32% paid</span>
+                    </div>
+                  </td>
+                  <td><span class="tag ok">6 days ago</span></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="who-cell">
+                      <div class="ini a">KM</div>
+                      <div><b>Kudzai Mapfumo</b><span>071 447 6621</span></div>
+                    </div>
+                  </td>
+                  <td class="course">Wedding Cakes<span>Short course &middot; Aug 2026</span></td>
+                  <td class="num money muted">$185.00</td>
+                  <td class="num money muted">$60.00</td>
+                  <td class="num">
+                    <div class="bal">
+                      <span class="money owing">$125.00</span>
+                      <span class="bar"><i style="width:32%"></i></span>
+                      <span class="bar-lbl">32% paid</span>
+                    </div>
+                  </td>
+                  <td><span class="tag ok">3 days ago</span></td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="who-cell">
+                      <div class="ini b">SN</div>
+                      <div><b>Simba Ncube</b><span>078 902 3318</span></div>
+                    </div>
+                  </td>
+                  <td class="course">Food Preparation<span>Short course &middot; Jul 2026</span></td>
+                  <td class="num money muted">$150.00</td>
+                  <td class="num money muted">$90.00</td>
+                  <td class="num">
+                    <div class="bal">
+                      <span class="money owing">$60.00</span>
+                      <span class="bar"><i style="width:60%"></i></span>
+                      <span class="bar-lbl">60% paid</span>
+                    </div>
+                  </td>
+                  <td><span class="tag due">15 days ago</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card-foot">
+            <span>Showing 7 of 23 students with a balance</span>
+            <div class="head-fill"></div>
+            <a class="link" href="#">See all 23</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ side column ============ -->
+      <div class="stack">
+
+        <div class="actions">
+          <button class="btn btn--primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M2.5 10h19"/><path d="M7 15h3"/></svg>
+            Record a payment
+          </button>
+          <button class="btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="3.2"/><path d="M4 19a6 6 0 0 1 11-3.3"/><path d="M18 14v6M15 17h6"/></svg>
+            Enrol a student
+          </button>
+          <button class="btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>
+            Print a statement
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-head" style="padding-bottom:9px">
+            <div>
+              <h2>Recent payments</h2>
+              <p class="note">Everything posted, including reversals</p>
+            </div>
+          </div>
+          <div class="feed">
+            <div class="feed-row">
+              <div class="ini b">SN</div>
+              <div class="feed-body">
+                <b>Simba Ncube</b>
+                <p>EcoCash &middot; ref 8841203 &middot; today, 09:12</p>
+              </div>
+              <div class="feed-amt">$40.00</div>
+            </div>
+            <div class="feed-row">
+              <div class="ini a">KM</div>
+              <div class="feed-body">
+                <b>Kudzai Mapfumo</b>
+                <p>Cash &middot; receipt 0264 &middot; yesterday</p>
+              </div>
+              <div class="feed-amt">$60.00</div>
+            </div>
+            <div class="feed-row">
+              <div class="ini d">BS</div>
+              <div class="feed-body">
+                <b>Blessing Sibanda</b>
+                <p>Reversed — wrong student &middot; yesterday</p>
+              </div>
+              <div class="feed-amt rev">&minus;$75.00</div>
+            </div>
+            <div class="feed-row">
+              <div class="ini c">TC</div>
+              <div class="feed-body">
+                <b>Tanaka Chirwa</b>
+                <p>Bank transfer &middot; ref CBZ-99412 &middot; 2 days ago</p>
+              </div>
+              <div class="feed-amt">$245.00</div>
+            </div>
+          </div>
+          <div class="card-foot">
+            <div class="head-fill"></div>
+            <a class="link" href="#">All payments</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head" style="padding-bottom:9px">
+            <div>
+              <h2>Intakes running</h2>
+              <p class="note">Chase balances before they finish</p>
+            </div>
+          </div>
+          <div>
+            <div class="intake">
+              <div class="intake-top">
+                <b>Executive Baking</b>
+                <span>ends 19 Aug</span>
+              </div>
+              <div class="intake-meta">
+                <span>8 students</span><span class="dot"></span>
+                <span style="color:var(--danger);font-weight:600">$690 outstanding</span>
+              </div>
+            </div>
+            <div class="intake">
+              <div class="intake-top">
+                <b>Wedding Cakes</b>
+                <span>ends 4 Sep</span>
+              </div>
+              <div class="intake-meta">
+                <span>11 students</span><span class="dot"></span>
+                <span style="color:var(--danger);font-weight:600">$430 outstanding</span>
+              </div>
+            </div>
+            <div class="intake">
+              <div class="intake-top">
+                <b>Professional Cookery (NC)</b>
+                <span>ends 27 Nov</span>
+              </div>
+              <div class="intake-meta">
+                <span>16 students</span><span class="dot"></span>
+                <span style="color:var(--danger);font-weight:600">$2,180 outstanding</span>
+              </div>
+            </div>
+            <div class="intake">
+              <div class="intake-top">
+                <b>Food &amp; Beverages (NFC)</b>
+                <span>ends 11 Dec</span>
+              </div>
+              <div class="intake-meta">
+                <span>12 students</span><span class="dot"></span>
+                <span style="color:var(--danger);font-weight:600">$980 outstanding</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

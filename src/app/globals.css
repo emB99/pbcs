@@ -1,26 +1,150 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens extracted from the approved dashboard mockup
+ * (pbcs-dashboard-mockup.html). These are the source of truth — edit here,
+ * not per-component.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --canvas: #F2EBE0;
+  --surface: #FFFCF7;
+  --surface-2: #FAF5EC;
+  --ink: #1F1B16;
+  --ink-mid: #5C5348;
+  --ink-soft: #8B8175;
+  --line: #E9DFD0;
+  --line-soft: #F1E8DA;
+
+  --crust: #B8651A;
+  --crust-deep: #8F4C11;
+  --crust-tint: #FAEBD9;
+
+  --sage: #E7EFE3;
+  --sage-ink: #4A6146;
+  --sky: #E3E9F4;
+  --sky-ink: #3F5375;
+  --butter: #FBF0D3;
+  --butter-ink: #7A6220;
+  --rose: #F8E6E2;
+  --rose-ink: #9C4433;
+
+  --danger: #A33A28;
+
+  --r-lg: 20px;
+  --r-md: 14px;
+  --r-sm: 9px;
+
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-body: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
+/* Tailwind v4 CSS-first theme: turns the tokens above into utilities
+ * (bg-canvas, text-ink-soft, rounded-lg, font-display, ...). */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-mid: var(--ink-mid);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+
+  --color-crust: var(--crust);
+  --color-crust-deep: var(--crust-deep);
+  --color-crust-tint: var(--crust-tint);
+
+  --color-sage: var(--sage);
+  --color-sage-ink: var(--sage-ink);
+  --color-sky: var(--sky);
+  --color-sky-ink: var(--sky-ink);
+  --color-butter: var(--butter);
+  --color-butter-ink: var(--butter-ink);
+  --color-rose: var(--rose);
+  --color-rose-ink: var(--rose-ink);
+
+  --color-danger: var(--danger);
+
+  --radius-lg: var(--r-lg);
+  --radius-md: var(--r-md);
+  --radius-sm: var(--r-sm);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Page titles and stat numbers only — never body text. */
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Money is always tabular so columns of numbers align. */
+.money,
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--crust);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/*
+ * Print stylesheet — targets the outstanding list and student statements.
+ * White background, black text, no rail, no buttons, tabular numbers,
+ * rows don't split across a page break.
+ */
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  .no-print,
+  .rail,
+  button:not(.print-visible) {
+    display: none !important;
+  }
+
+  table tr,
+  .statement-line {
+    break-inside: avoid;
+  }
+
+  .money {
+    font-variant-numeric: tabular-nums;
+  }
 }
