@@ -23,7 +23,9 @@ export async function createCourse(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.from("courses").insert(parsed.data);
+  const { error } = await supabase
+    .from("courses")
+    .insert({ ...parsed.data, default_price: Number(parsed.data.default_price) });
   if (error) {
     return { message: "Couldn't save the course. Try again." };
   }
@@ -49,7 +51,10 @@ export async function updateCourse(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.from("courses").update(parsed.data).eq("id", courseId);
+  const { error } = await supabase
+    .from("courses")
+    .update({ ...parsed.data, default_price: Number(parsed.data.default_price) })
+    .eq("id", courseId);
   if (error) {
     return { message: "Couldn't save the course. Try again." };
   }

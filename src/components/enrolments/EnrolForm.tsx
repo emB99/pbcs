@@ -10,7 +10,7 @@ export type EnrolStudentOption = { id: string; full_name: string; phone: string 
 export type EnrolIntakeOption = {
   id: string;
   label: string;
-  course_default_price: string;
+  course_default_price: number;
 };
 
 export function EnrolForm({
@@ -33,14 +33,16 @@ export function EnrolForm({
     () => intakes.find((i) => i.id === intakeId),
     [intakes, intakeId],
   );
-  const [price, setPrice] = useState(selectedIntake?.course_default_price ?? "");
+  const [price, setPrice] = useState(
+    selectedIntake ? String(selectedIntake.course_default_price) : "",
+  );
   const [priceTouched, setPriceTouched] = useState(false);
 
   function handleIntakeChange(id: string) {
     setIntakeId(id);
     if (!priceTouched) {
       const intake = intakes.find((i) => i.id === id);
-      setPrice(intake?.course_default_price ?? "");
+      setPrice(intake ? String(intake.course_default_price) : "");
     }
   }
 

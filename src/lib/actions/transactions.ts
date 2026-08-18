@@ -18,7 +18,7 @@ export type RecordPaymentResult =
       transactionId: string;
       enrolmentId: string;
       studentId: string;
-      balance: string;
+      balance: number;
     }
   | { ok: false; errors?: Record<string, string[]>; message?: string };
 
@@ -47,8 +47,9 @@ export async function recordPayment(input: RecordPaymentInput): Promise<RecordPa
     return { ok: false, message: "That enrolment couldn't be found." };
   }
 
-  // SIGN CONVENTION: payment < 0.
-  const negativeAmount = `-${parsed.data.amount}`;
+  // SIGN CONVENTION: payment < 0. Number() only at this DB-write boundary —
+  // parsed.data.amount stays a validated 2-decimal string everywhere else.
+  const negativeAmount = -Number(parsed.data.amount);
 
   const { data: txn, error } = await supabase
     .from("transactions")
@@ -57,7 +58,7 @@ export async function recordPayment(input: RecordPaymentInput): Promise<RecordPa
       kind: "payment",
       amount: negativeAmount,
       currency: parsed.data.currency,
-      rate_to_usd: parsed.data.rate_to_usd,
+      rate_to_usd: Number(parsed.data.rate_to_usd),
       occurred_on: parsed.data.occurred_on,
       method: parsed.data.method,
       reference: parsed.data.reference,
@@ -83,7 +84,7 @@ export async function recordPayment(input: RecordPaymentInput): Promise<RecordPa
     transactionId: txn.id,
     enrolmentId: parsed.data.enrolment_id,
     studentId: enrolment.student_id,
-    balance: balanceRow?.balance ?? "0",
+    balance: balanceRow?.balance ?? 0,
   };
 }
 
@@ -148,7 +149,7 @@ export async function reverseTransaction(input: {
   const { error } = await supabase.from("transactions").insert({
     enrolment_id: original.enrolment_id,
     kind: "adjustment",
-    amount: (-Number(original.amount)).toFixed(2),
+    amount: Number((-original.amount).toFixed(2)),
     currency: original.currency,
     rate_to_usd: original.rate_to_usd,
     occurred_on: new Date().toISOString().slice(0, 10),

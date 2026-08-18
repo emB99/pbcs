@@ -15,8 +15,12 @@ export default async function OutstandingPrintPage() {
 
   const owingRows = (enrolmentBalances ?? []).filter((r) => Number(r.balance) > 0);
 
-  const studentIds = [...new Set(owingRows.map((r) => r.student_id))];
-  const intakeIds = [...new Set(owingRows.map((r) => r.intake_id))];
+  const studentIds = [
+    ...new Set(owingRows.map((r) => r.student_id).filter((id): id is string => id !== null)),
+  ];
+  const intakeIds = [
+    ...new Set(owingRows.map((r) => r.intake_id).filter((id): id is string => id !== null)),
+  ];
   const [{ data: students }, { data: intakes }] = await Promise.all([
     supabase.from("students").select("id, full_name, phone").in("id", studentIds.length ? studentIds : [""]),
     supabase
@@ -29,18 +33,18 @@ export default async function OutstandingPrintPage() {
 
   const rows = owingRows
     .map((r) => {
-      const s = studentById.get(r.student_id);
-      const i = intakeById.get(r.intake_id);
+      const s = studentById.get(r.student_id ?? "");
+      const i = intakeById.get(r.intake_id ?? "");
       return {
-        id: r.enrolment_id,
+        id: r.enrolment_id ?? "",
         full_name: s?.full_name ?? "Unknown",
         phone: s?.phone ?? "",
         course_name: i?.course?.name ?? "—",
         intake_label: i?.label || (i?.start_date ? monthYearLabel(i.start_date) : "—"),
-        agreed_price: r.agreed_price,
-        paid: r.paid,
-        balance: r.balance,
-        charged: r.charged,
+        agreed_price: r.agreed_price ?? 0,
+        paid: r.paid ?? 0,
+        balance: r.balance ?? 0,
+        charged: r.charged ?? 0,
         last_payment_on: r.last_payment_on,
       };
     })

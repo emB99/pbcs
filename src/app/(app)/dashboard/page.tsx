@@ -4,28 +4,10 @@ import { createClient } from "@/lib/supabase/server";
 import { StatCard } from "@/components/ui/StatCard";
 import { Card, CardHead, CardFoot } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { DataTable, type Column } from "@/components/ui/DataTable";
 import { AvatarInitials } from "@/components/ui/AvatarInitials";
-import { MoneyCell } from "@/components/ui/MoneyCell";
-import { BalanceWithBar } from "@/components/ui/BalanceWithBar";
-import { Tag } from "@/components/ui/Tag";
-import { CsvExportButton } from "@/components/ui/CsvExportButton";
-import { relativeDays, recencyTagVariant, monthYearLabel, formatDate } from "@/lib/dates";
+import { WhoOwesTable, type WhoOwesRow } from "@/components/dashboard/WhoOwesTable";
+import { monthYearLabel, formatDate } from "@/lib/dates";
 import { todayIsoDate } from "@/lib/dates";
-
-type WhoOwesRow = {
-  enrolment_id: string;
-  student_id: string;
-  full_name: string;
-  phone: string;
-  course_name: string;
-  intake_label: string;
-  agreed_price: string;
-  charged: string;
-  paid: string;
-  balance: string;
-  last_payment_on: string | null;
-};
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -71,8 +53,14 @@ export default async function DashboardPage() {
 
   // "Who owes money" needs student + course/intake labels — enrolment_balances
   // is a view with no FK metadata to embed through, so fetch those flat and merge.
-  const owingStudentIds = [...new Set(owingRows.map((r) => r.student_id))];
-  const owingIntakeIds = [...new Set(owingRows.map((r) => r.intake_id))];
+  // student_id/intake_id are non-null in practice (NOT NULL on the base
+  // tables); the view's generated type just doesn't carry that constraint.
+  const owingStudentIds = [
+    ...new Set(owingRows.map((r) => r.student_id).filter((id): id is string => id !== null)),
+  ];
+  const owingIntakeIds = [
+    ...new Set(owingRows.map((r) => r.intake_id).filter((id): id is string => id !== null)),
+  ];
   const [{ data: owingStudents }, { data: owingIntakes }] = await Promise.all([
     supabase.from("students").select("id, full_name, phone").in("id", owingStudentIds.length ? owingStudentIds : [""]),
     supabase
@@ -85,25 +73,23 @@ export default async function DashboardPage() {
 
   const whoOwesRows: WhoOwesRow[] = owingRows
     .map((r) => {
-      const s = studentById.get(r.student_id);
-      const i = intakeById.get(r.intake_id);
+      const s = studentById.get(r.student_id ?? "");
+      const i = intakeById.get(r.intake_id ?? "");
       return {
-        enrolment_id: r.enrolment_id,
-        student_id: r.student_id,
+        enrolment_id: r.enrolment_id ?? "",
+        student_id: r.student_id ?? "",
         full_name: s?.full_name ?? "Unknown",
         phone: s?.phone ?? "",
         course_name: i?.course?.name ?? "—",
         intake_label: i?.label || (i?.start_date ? monthYearLabel(i.start_date) : "—"),
-        agreed_price: r.agreed_price,
-        charged: r.charged,
-        paid: r.paid,
-        balance: r.balance,
+        agreed_price: r.agreed_price ?? 0,
+        charged: r.charged ?? 0,
+        paid: r.paid ?? 0,
+        balance: r.balance ?? 0,
         last_payment_on: r.last_payment_on,
       };
     })
     .sort((a, b) => Number(b.balance) - Number(a.balance));
-
-  const topWhoOwes = whoOwesRows.slice(0, 7);
 
   // Recent payments feed: payments and reversals, most recent first.
   const { data: recentTxns } = await supabase
@@ -124,62 +110,6 @@ export default async function DashboardPage() {
     .select("id, full_name")
     .in("id", recentStudentIds.length ? recentStudentIds : [""]);
   const recentStudentNameById = new Map((recentStudents ?? []).map((s) => [s.id, s.full_name]));
-
-  const columns: Column<WhoOwesRow>[] = [
-    {
-      key: "student",
-      header: "Student",
-      sortValue: (r) => r.full_name.toLowerCase(),
-      render: (r) => (
-        <Link href={`/students/${r.student_id}`} className="flex items-center gap-2.5 hover:underline">
-          <AvatarInitials id={r.student_id} name={r.full_name} />
-          <div>
-            <div className="font-semibold">{r.full_name}</div>
-            <div className="text-[11.5px] text-ink-soft">{r.phone}</div>
-          </div>
-        </Link>
-      ),
-    },
-    {
-      key: "course",
-      header: "Enrolled in",
-      render: (r) => (
-        <div>
-          <div>{r.course_name}</div>
-          <div className="text-[11.5px] text-ink-soft">{r.intake_label}</div>
-        </div>
-      ),
-    },
-    {
-      key: "agreed",
-      header: "Agreed",
-      align: "right",
-      sortValue: (r) => Number(r.agreed_price),
-      render: (r) => <MoneyCell amount={r.agreed_price} variant="muted" />,
-    },
-    {
-      key: "paid",
-      header: "Paid",
-      align: "right",
-      sortValue: (r) => Number(r.paid),
-      render: (r) => <MoneyCell amount={r.paid} variant="muted" />,
-    },
-    {
-      key: "balance",
-      header: "Balance",
-      align: "right",
-      sortValue: (r) => Number(r.balance),
-      render: (r) => <BalanceWithBar balance={r.balance} charged={r.charged} paid={r.paid} />,
-    },
-    {
-      key: "last_payment",
-      header: "Last payment",
-      sortValue: (r) => r.last_payment_on ?? "",
-      render: (r) => (
-        <Tag variant={recencyTagVariant(r.last_payment_on)}>{relativeDays(r.last_payment_on)}</Tag>
-      ),
-    },
-  ];
 
   return (
     <div className="flex flex-col gap-4">
@@ -219,46 +149,7 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="flex min-w-0 flex-col gap-4">
-          <Card>
-            <CardHead title="Who owes money" note="Largest balances first · all amounts USD">
-              <Link
-                href="/print/outstanding"
-                className="rounded-full border border-line bg-surface-2 px-3 py-[6px] text-[11.5px] font-semibold text-ink-mid hover:bg-surface"
-              >
-                Print list
-              </Link>
-              <CsvExportButton
-                rows={whoOwesRows}
-                filename="who-owes-money.csv"
-                columns={[
-                  { header: "Student", value: (r) => r.full_name },
-                  { header: "Phone", value: (r) => r.phone },
-                  { header: "Course", value: (r) => r.course_name },
-                  { header: "Intake", value: (r) => r.intake_label },
-                  { header: "Agreed", value: (r) => r.agreed_price },
-                  { header: "Paid", value: (r) => r.paid },
-                  { header: "Balance", value: (r) => r.balance },
-                ]}
-              />
-            </CardHead>
-            <DataTable
-              columns={columns}
-              rows={topWhoOwes}
-              getRowId={(r) => r.enrolment_id}
-              emptyMessage="No one owes anything right now."
-            />
-            {whoOwesRows.length > topWhoOwes.length && (
-              <CardFoot>
-                <span>
-                  Showing {topWhoOwes.length} of {whoOwesRows.length} students with a balance
-                </span>
-                <div className="min-w-3 flex-1" />
-                <Link href="/students" className="font-semibold text-crust-deep hover:underline">
-                  See all
-                </Link>
-              </CardFoot>
-            )}
-          </Card>
+          <WhoOwesTable rows={whoOwesRows} />
         </div>
 
         <div className="flex flex-col gap-4">

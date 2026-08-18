@@ -48,7 +48,7 @@ export default async function NewPaymentPage(props: PageProps<"/payments/new">) 
     id: s.id,
     full_name: s.full_name,
     phone: s.phone,
-    balance: studentBalanceById.get(s.id) ?? "0",
+    balance: studentBalanceById.get(s.id) ?? 0,
   }));
 
   const enrolmentOptions: EnrolmentOption[] = (enrolments ?? []).map((e) => ({
@@ -56,7 +56,7 @@ export default async function NewPaymentPage(props: PageProps<"/payments/new">) 
     student_id: e.student_id,
     course_name: e.intake?.course?.name ?? "—",
     intake_label: e.intake?.label || (e.intake?.start_date ? monthYearLabel(e.intake.start_date) : "—"),
-    balance: enrolmentBalanceById.get(e.id) ?? "0",
+    balance: enrolmentBalanceById.get(e.id) ?? 0,
   }));
 
   return (

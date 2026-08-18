@@ -18,7 +18,7 @@ export type StudentRow = {
   id: string;
   full_name: string;
   phone: string;
-  balance: string;
+  balance: number;
   last_payment_on: string | null;
 };
 

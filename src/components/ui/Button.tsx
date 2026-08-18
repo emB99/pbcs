@@ -5,12 +5,15 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "default" | "primary" | "danger";
   icon?: ReactNode;
   fullWidth?: boolean;
+  /** Center icon+label instead of the default left-aligned row (quick-action lists want left; standalone form buttons want centered). */
+  center?: boolean;
 };
 
 export function Button({
   variant = "default",
   icon,
   fullWidth,
+  center,
   className,
   children,
   ...props
@@ -21,7 +24,8 @@ export function Button({
         "flex items-center gap-[11px] rounded-md border px-[15px] py-[13px] text-[13.5px] font-semibold transition-[transform,box-shadow] duration-[120ms]",
         "hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(31,27,22,0.07)]",
         "disabled:pointer-events-none disabled:opacity-60",
-        fullWidth && "w-full text-left",
+        fullWidth && "w-full",
+        fullWidth && (center ? "justify-center text-center" : "text-left"),
         variant === "default" &&
           "border-line bg-surface text-ink",
         variant === "primary" &&

@@ -18,7 +18,7 @@ export type StudentOption = {
   id: string;
   full_name: string;
   phone: string;
-  balance: string;
+  balance: number;
 };
 
 export type EnrolmentOption = {
@@ -26,7 +26,7 @@ export type EnrolmentOption = {
   student_id: string;
   course_name: string;
   intake_label: string;
-  balance: string;
+  balance: number;
 };
 
 const METHOD_OPTIONS: { label: string; value: PaymentMethod }[] = [
@@ -51,7 +51,7 @@ export function PaymentForm({
 }: {
   students: StudentOption[];
   enrolments: EnrolmentOption[];
-  lastZwgRate: string | null;
+  lastZwgRate: number | null;
   initialStudentId?: string;
 }) {
   const initialStudent = students.find((s) => s.id === initialStudentId) ?? null;
@@ -61,7 +61,7 @@ export function PaymentForm({
 
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState<"USD" | "ZWG">("USD");
-  const [rate, setRate] = useState(lastZwgRate ?? "1");
+  const [rate, setRate] = useState(String(lastZwgRate ?? "1"));
   const [date, setDate] = useState(todayIsoDate());
   const [method, setMethod] = useState<PaymentMethod>("cash");
   const [reference, setReference] = useState("");
@@ -70,7 +70,7 @@ export function PaymentForm({
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [message, setMessage] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  const [result, setResult] = useState<{ balance: string } | null>(null);
+  const [result, setResult] = useState<{ balance: number } | null>(null);
 
   const normalizedQuery = query.trim().toLowerCase();
   const matches = useMemo(() => {
@@ -102,7 +102,7 @@ export function PaymentForm({
     setEnrolmentId(null);
     setAmount("");
     setCurrency("USD");
-    setRate(lastZwgRate ?? "1");
+    setRate(String(lastZwgRate ?? "1"));
     setDate(todayIsoDate());
     setMethod("cash");
     setReference("");
@@ -256,7 +256,7 @@ export function PaymentForm({
                   const next = e.target.value as "USD" | "ZWG";
                   setCurrency(next);
                   if (next === "USD") setRate("1");
-                  else setRate(lastZwgRate ?? "");
+                  else setRate(lastZwgRate !== null ? String(lastZwgRate) : "");
                 }}
                 className={inputClass}
               >

@@ -27,7 +27,7 @@ export default async function NewEnrolmentPage(
   const intakeOptions = (intakes ?? []).map((i) => ({
     id: i.id,
     label: `${i.course?.name ?? "—"} — ${i.label || monthYearLabel(i.start_date)}`,
-    course_default_price: i.course?.default_price ?? "0",
+    course_default_price: i.course?.default_price ?? 0,
   }));
 
   return (

@@ -24,7 +24,7 @@ export default async function StudentsPage() {
     id: s.id,
     full_name: s.full_name,
     phone: s.phone,
-    balance: balanceById.get(s.id)?.balance ?? "0",
+    balance: balanceById.get(s.id)?.balance ?? 0,
     last_payment_on: balanceById.get(s.id)?.last_payment_on ?? null,
   }));
 

@@ -4,22 +4,12 @@ import { UserPlus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardHead } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { DataTable, type Column } from "@/components/ui/DataTable";
-import { AvatarInitials } from "@/components/ui/AvatarInitials";
-import { BalanceWithBar } from "@/components/ui/BalanceWithBar";
 import { LabelAboveValue } from "@/components/ui/FieldGroup";
 import { formatDate, monthYearLabel } from "@/lib/dates";
-
-type EnrolledStudentRow = {
-  enrolment_id: string;
-  student_id: string;
-  full_name: string;
-  phone: string;
-  agreed_price: string;
-  charged: string;
-  paid: string;
-  balance: string;
-};
+import {
+  EnrolledStudentsTable,
+  type EnrolledStudentRow,
+} from "@/components/intakes/EnrolledStudentsTable";
 
 export default async function IntakeDetailPage(
   props: PageProps<"/intakes/[intakeId]">,
@@ -59,44 +49,11 @@ export default async function IntakeDetailPage(
       full_name: student?.full_name ?? "Unknown",
       phone: student?.phone ?? "",
       agreed_price: e.agreed_price,
-      charged: bal?.charged ?? "0",
-      paid: bal?.paid ?? "0",
-      balance: bal?.balance ?? "0",
+      charged: bal?.charged ?? 0,
+      paid: bal?.paid ?? 0,
+      balance: bal?.balance ?? 0,
     };
   });
-
-  const columns: Column<EnrolledStudentRow>[] = [
-    {
-      key: "student",
-      header: "Student",
-      sortValue: (r) => r.full_name.toLowerCase(),
-      render: (r) => (
-        <Link href={`/students/${r.student_id}`} className="flex items-center gap-2.5 hover:underline">
-          <AvatarInitials id={r.student_id} name={r.full_name} />
-          <div>
-            <div className="font-semibold">{r.full_name}</div>
-            <div className="text-[11.5px] text-ink-soft">{r.phone}</div>
-          </div>
-        </Link>
-      ),
-    },
-    {
-      key: "agreed_price",
-      header: "Agreed",
-      align: "right",
-      sortValue: (r) => Number(r.agreed_price),
-      render: (r) => <span className="money text-ink-mid">${Number(r.agreed_price).toFixed(2)}</span>,
-    },
-    {
-      key: "balance",
-      header: "Balance",
-      align: "right",
-      sortValue: (r) => Number(r.balance),
-      render: (r) => (
-        <BalanceWithBar balance={r.balance} charged={r.charged} paid={r.paid} />
-      ),
-    },
-  ];
 
   const outstandingTotal = rows.reduce((sum, r) => sum + Number(r.balance), 0);
 
@@ -130,19 +87,7 @@ export default async function IntakeDetailPage(
           title="Enrolled students"
           note={`${rows.length} active · $${outstandingTotal.toFixed(2)} outstanding`}
         />
-        <DataTable
-          columns={columns}
-          rows={rows}
-          getRowId={(r) => r.enrolment_id}
-          emptyMessage="No one is enrolled in this intake yet."
-          emptyAction={
-            <Link href={`/enrolments/new?intakeId=${intake.id}`}>
-              <Button variant="primary" icon={<UserPlus />}>
-                Enrol a student
-              </Button>
-            </Link>
-          }
-        />
+        <EnrolledStudentsTable rows={rows} intakeId={intake.id} />
       </Card>
     </div>
   );

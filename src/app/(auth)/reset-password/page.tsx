@@ -66,7 +66,7 @@ export default function ResetPasswordPage() {
 
       {error && <p className="text-xs text-danger">{error}</p>}
 
-      <Button type="submit" variant="primary" fullWidth disabled={pending}>
+      <Button type="submit" variant="primary" fullWidth center disabled={pending}>
         {pending ? "Saving…" : "Save password"}
       </Button>
     </form>

@@ -48,7 +48,7 @@ export async function createEnrolment(
     .insert({
       student_id: studentId!,
       intake_id: parsed.data.intake_id,
-      agreed_price: parsed.data.agreed_price,
+      agreed_price: Number(parsed.data.agreed_price),
       price_note: parsed.data.price_note,
     })
     .select("id")
@@ -114,9 +114,9 @@ export async function withdrawEnrolment(
       const { error: adjustmentError } = await supabase.from("transactions").insert({
         enrolment_id: enrolmentId,
         kind: "adjustment",
-        amount: (-remaining).toFixed(2),
+        amount: Number((-remaining).toFixed(2)),
         currency: "USD",
-        rate_to_usd: "1",
+        rate_to_usd: 1,
         occurred_on: new Date().toISOString().slice(0, 10),
         note: "Write-off on withdrawal",
       });

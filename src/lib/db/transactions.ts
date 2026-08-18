@@ -17,9 +17,12 @@ export async function insertCharge(
   return supabase.from("transactions").insert({
     enrolment_id: params.enrolment_id,
     kind: "charge",
-    amount: params.amount,
+    // Validated 2-decimal string in, Number() only at this DB-write
+    // boundary to match the numeric column's wire type — never used for
+    // arithmetic, and reads still flow through as string|number everywhere.
+    amount: Number(params.amount),
     currency: "USD",
-    rate_to_usd: "1",
+    rate_to_usd: 1,
     occurred_on: todayIsoDate(),
     note: params.note ?? null,
   });

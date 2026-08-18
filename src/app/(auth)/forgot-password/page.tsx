@@ -40,7 +40,7 @@ export default function ForgotPasswordPage() {
 
       {state.status === "error" && <p className="text-xs text-danger">{state.message}</p>}
 
-      <Button type="submit" variant="primary" fullWidth disabled={pending}>
+      <Button type="submit" variant="primary" fullWidth center disabled={pending}>
         {pending ? "Sending…" : "Send reset link"}
       </Button>
 

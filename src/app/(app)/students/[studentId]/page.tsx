@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Pencil, Archive, UserPlus, CreditCard, FileText } from "lucide-react";
+import { Pencil, UserPlus, CreditCard, FileText } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardHead } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -8,7 +8,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { LabelAboveValue } from "@/components/ui/FieldGroup";
 import { BalanceWithBar } from "@/components/ui/BalanceWithBar";
 import { Tag } from "@/components/ui/Tag";
-import { formatDate, monthYearLabel } from "@/lib/dates";
+import { monthYearLabel } from "@/lib/dates";
 import { StudentArchiveButton } from "@/components/students/StudentArchiveButton";
 import { WithdrawButton } from "@/components/enrolments/WithdrawButton";
 import { AddChargeButton } from "@/components/enrolments/AddChargeButton";
