@@ -1,7 +1,5 @@
-import Link from "next/link";
-import { Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { Button } from "@/components/ui/Button";
+import { AddInstructorModal } from "@/components/instructors/AddInstructorModal";
 import { InstructorsTable } from "@/components/instructors/InstructorsTable";
 import type { Instructor } from "@/lib/types";
 
@@ -18,11 +16,7 @@ export default async function InstructorsPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-xl font-semibold">Instructors</h1>
-        <Link href="/instructors/new">
-          <Button variant="primary" icon={<Plus />}>
-            Add instructor
-          </Button>
-        </Link>
+        <AddInstructorModal />
       </div>
 
       <InstructorsTable rows={instructors ?? []} />

@@ -1,8 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
-import { AddStudentModal } from "@/components/students/AddStudentModal";
-import { StudentsTable, type StudentRow } from "@/components/students/StudentsTable";
+import { StudentListPanel, type StudentRow } from "@/components/students/StudentListPanel";
 
-export default async function StudentsPage() {
+/**
+ * Scoped to /students/[studentId]/* only — the list "sidebar" appears once
+ * you're inside a specific student's record, not on the plain /students
+ * list (which stays the full sortable/exportable table).
+ */
+export default async function StudentDetailLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
 
   const { data: students } = await supabase
@@ -27,12 +31,9 @@ export default async function StudentsPage() {
   }));
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-xl font-semibold">Students</h1>
-        <AddStudentModal />
-      </div>
-      <StudentsTable rows={rows} />
+    <div className="flex items-start gap-4 max-[900px]:flex-col">
+      <StudentListPanel rows={rows} />
+      <div className="min-w-0 flex-1">{children}</div>
     </div>
   );
 }

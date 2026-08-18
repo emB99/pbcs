@@ -2,13 +2,16 @@
 
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, DollarSign, TrendingUp, Hash, MessageSquare } from "lucide-react";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { AvatarInitials } from "@/components/ui/AvatarInitials";
 import { MoneyCell } from "@/components/ui/MoneyCell";
 import { FieldGroup, inputClass } from "@/components/ui/FieldGroup";
+import { IconField } from "@/components/ui/IconField";
+import { IconSelect } from "@/components/ui/IconSelect";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { PrintButton } from "@/components/ui/PrintButton";
 import { todayIsoDate } from "@/lib/dates";
 import { recordPayment } from "@/lib/actions/transactions";
@@ -139,7 +142,7 @@ export function PaymentForm({
 
   if (result && student) {
     return (
-      <div className="flex max-w-lg flex-col items-center gap-4 rounded-lg border border-line bg-surface p-8 text-center">
+      <Card className="flex max-w-lg flex-col items-center gap-4 p-8 text-center">
         <CheckCircle2 className="h-10 w-10 text-sage-ink" />
         <div>
           <h2 className="font-display text-lg font-semibold">Payment recorded</h2>
@@ -157,12 +160,13 @@ export function PaymentForm({
             <Button>View student</Button>
           </Link>
         </div>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex max-w-lg flex-col gap-4">
+    <Card className="max-w-lg">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-6">
       {!student ? (
         <FieldGroup label="Find a student">
           <SearchInput value={query} onChange={setQuery} placeholder="Search by name or phone" />
@@ -238,18 +242,19 @@ export function PaymentForm({
         <>
           <div className="grid grid-cols-2 gap-4">
             <FieldGroup label="Amount" htmlFor="amount" error={errors.amount?.[0]}>
-              <input
+              <IconField
+                icon={<DollarSign />}
                 id="amount"
                 inputMode="decimal"
                 placeholder="50"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 required
-                className={inputClass}
               />
             </FieldGroup>
             <FieldGroup label="Currency" htmlFor="currency">
-              <select
+              <IconSelect
+                icon={<DollarSign />}
                 id="currency"
                 value={currency}
                 onChange={(e) => {
@@ -258,23 +263,22 @@ export function PaymentForm({
                   if (next === "USD") setRate("1");
                   else setRate(lastZwgRate !== null ? String(lastZwgRate) : "");
                 }}
-                className={inputClass}
               >
                 <option value="USD">USD</option>
                 <option value="ZWG">ZWG</option>
-              </select>
+              </IconSelect>
             </FieldGroup>
           </div>
 
           {currency === "ZWG" && (
             <FieldGroup label="Rate to USD" htmlFor="rate" error={errors.rate_to_usd?.[0]}>
-              <input
+              <IconField
+                icon={<TrendingUp />}
                 id="rate"
                 inputMode="decimal"
                 value={rate}
                 onChange={(e) => setRate(e.target.value)}
                 required
-                className={inputClass}
               />
             </FieldGroup>
           )}
@@ -300,21 +304,21 @@ export function PaymentForm({
           </FieldGroup>
 
           <FieldGroup label={REFERENCE_LABEL[method]} htmlFor="reference" error={errors.reference?.[0]}>
-            <input
+            <IconField
+              icon={<Hash />}
               id="reference"
               value={reference}
               onChange={(e) => setReference(e.target.value)}
-              className={inputClass}
             />
           </FieldGroup>
 
           <FieldGroup label="Note" htmlFor="note" error={errors.note?.[0]}>
-            <input
+            <IconField
+              icon={<MessageSquare />}
               id="note"
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Optional"
-              className={inputClass}
             />
           </FieldGroup>
 
@@ -325,6 +329,7 @@ export function PaymentForm({
           </Button>
         </>
       )}
-    </form>
+      </form>
+    </Card>
   );
 }

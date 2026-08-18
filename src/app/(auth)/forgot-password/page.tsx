@@ -2,8 +2,10 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
+import { Mail } from "lucide-react";
 import { requestPasswordReset } from "@/lib/actions/auth";
-import { FieldGroup, inputClass } from "@/components/ui/FieldGroup";
+import { FieldGroup } from "@/components/ui/FieldGroup";
+import { IconField } from "@/components/ui/IconField";
 import { Button } from "@/components/ui/Button";
 
 export default function ForgotPasswordPage() {
@@ -35,7 +37,7 @@ export default function ForgotPasswordPage() {
       </div>
 
       <FieldGroup label="Email" htmlFor="email">
-        <input id="email" name="email" type="email" autoComplete="email" required className={inputClass} />
+        <IconField icon={<Mail />} id="email" name="email" type="email" autoComplete="email" required />
       </FieldGroup>
 
       {state.status === "error" && <p className="text-xs text-danger">{state.message}</p>}

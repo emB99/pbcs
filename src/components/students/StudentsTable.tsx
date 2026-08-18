@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Plus } from "lucide-react";
 import { Card, CardHead } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { DataTable, type Column } from "@/components/ui/DataTable";
 import { AvatarInitials } from "@/components/ui/AvatarInitials";
 import { MoneyCell } from "@/components/ui/MoneyCell";
@@ -12,6 +10,7 @@ import { Tag } from "@/components/ui/Tag";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { CsvExportButton } from "@/components/ui/CsvExportButton";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { AddStudentModal } from "@/components/students/AddStudentModal";
 import { relativeDays, recencyTagVariant } from "@/lib/dates";
 
 export type StudentRow = {
@@ -21,14 +20,6 @@ export type StudentRow = {
   balance: number;
   last_payment_on: string | null;
 };
-
-const AddStudentButton = () => (
-  <Link href="/students/new">
-    <Button variant="primary" icon={<Plus />}>
-      Add student
-    </Button>
-  </Link>
-);
 
 export function StudentsTable({ rows }: { rows: StudentRow[] }) {
   const [search, setSearch] = useState("");
@@ -99,7 +90,7 @@ export function StudentsTable({ rows }: { rows: StudentRow[] }) {
         />
       </CardHead>
       {rows.length === 0 ? (
-        <EmptyState message="No students yet. Add your first student." action={<AddStudentButton />} />
+        <EmptyState message="No students yet. Add your first student." action={<AddStudentModal />} />
       ) : filtered.length === 0 ? (
         <EmptyState message="No students match that search." />
       ) : (

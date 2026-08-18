@@ -1,19 +1,31 @@
-import Link from "next/link";
-import { Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { Button } from "@/components/ui/Button";
+import { AddIntakeModal } from "@/components/intakes/AddIntakeModal";
 import { IntakesTable, type IntakeRow } from "@/components/intakes/IntakesTable";
+import type { Course, Instructor } from "@/lib/types";
 
 export default async function IntakesPage() {
   const supabase = await createClient();
 
-  const [{ data: intakes }, { data: summary }] = await Promise.all([
-    supabase
-      .from("intakes")
-      .select("id, label, start_date, end_date, course:courses(name, kind), instructor:instructors(full_name)")
-      .order("start_date", { ascending: false }),
-    supabase.from("intake_summary").select("*"),
-  ]);
+  const [{ data: intakes }, { data: summary }, { data: courses }, { data: instructors }] =
+    await Promise.all([
+      supabase
+        .from("intakes")
+        .select("id, label, start_date, end_date, course:courses(name, kind), instructor:instructors(full_name)")
+        .order("start_date", { ascending: false }),
+      supabase.from("intake_summary").select("*"),
+      supabase
+        .from("courses")
+        .select("*")
+        .is("archived_at", null)
+        .order("name")
+        .returns<Course[]>(),
+      supabase
+        .from("instructors")
+        .select("*")
+        .is("archived_at", null)
+        .order("full_name")
+        .returns<Instructor[]>(),
+    ]);
 
   const summaryById = new Map((summary ?? []).map((s) => [s.intake_id, s]));
 
@@ -35,14 +47,10 @@ export default async function IntakesPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-xl font-semibold">Intakes</h1>
-        <Link href="/intakes/new">
-          <Button variant="primary" icon={<Plus />}>
-            Create intake
-          </Button>
-        </Link>
+        <AddIntakeModal courses={courses ?? []} instructors={instructors ?? []} />
       </div>
 
-      <IntakesTable rows={rows} />
+      <IntakesTable rows={rows} courses={courses ?? []} instructors={instructors ?? []} />
     </div>
   );
 }

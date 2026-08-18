@@ -22,7 +22,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="flex min-h-full items-start gap-[18px] bg-canvas p-[22px] max-[680px]:flex-col max-[680px]:p-3.5">
       <Rail />
       <div className="flex min-w-0 flex-1 flex-col gap-4">
-        <Topbar userId={user.id} displayName={displayName} />
+        <Topbar userId={user.id} displayName={displayName} email={user.email} />
         {children}
       </div>
     </div>

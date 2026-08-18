@@ -2,8 +2,10 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
+import { User, Mail, Lock } from "lucide-react";
 import { signUp } from "@/lib/actions/auth";
-import { FieldGroup, inputClass } from "@/components/ui/FieldGroup";
+import { FieldGroup } from "@/components/ui/FieldGroup";
+import { IconField } from "@/components/ui/IconField";
 import { Button } from "@/components/ui/Button";
 import { GoogleButton } from "@/components/auth/GoogleButton";
 
@@ -30,28 +32,28 @@ export default function SignUpPage() {
         <h2 className="font-display text-xl font-semibold">Create an account</h2>
 
         <FieldGroup label="Full name" htmlFor="fullName">
-          <input id="fullName" name="fullName" autoComplete="name" required className={inputClass} />
+          <IconField icon={<User />} id="fullName" name="fullName" autoComplete="name" required />
         </FieldGroup>
 
         <FieldGroup label="Email" htmlFor="email">
-          <input
+          <IconField
+            icon={<Mail />}
             id="email"
             name="email"
             type="email"
             autoComplete="email"
             required
-            className={inputClass}
           />
         </FieldGroup>
 
         <FieldGroup label="Password" htmlFor="password">
-          <input
+          <IconField
+            icon={<Lock />}
             id="password"
             name="password"
             type="password"
             autoComplete="new-password"
             required
-            className={inputClass}
           />
         </FieldGroup>
 

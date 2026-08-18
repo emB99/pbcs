@@ -20,14 +20,22 @@ export default async function NewEnrolmentPage(
       .order("full_name"),
     supabase
       .from("intakes")
-      .select("id, label, start_date, course:courses(name, default_price)")
+      .select(
+        "id, label, start_date, end_date, capacity, course:courses(name, kind, default_price), instructor:instructors(full_name)",
+      )
       .order("start_date", { ascending: false }),
   ]);
 
   const intakeOptions = (intakes ?? []).map((i) => ({
     id: i.id,
-    label: `${i.course?.name ?? "—"} — ${i.label || monthYearLabel(i.start_date)}`,
+    intake_label: i.label || monthYearLabel(i.start_date),
+    course_name: i.course?.name ?? "Unassigned course",
+    course_kind: i.course?.kind ?? null,
     course_default_price: i.course?.default_price ?? 0,
+    start_date: i.start_date,
+    end_date: i.end_date,
+    instructor_name: i.instructor?.full_name ?? null,
+    capacity: i.capacity,
   }));
 
   return (

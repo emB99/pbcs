@@ -1,5 +1,5 @@
 import { Search } from "lucide-react";
-import { AvatarInitials } from "@/components/ui/AvatarInitials";
+import { UserMenu } from "@/components/rail/UserMenu";
 
 function greeting(): string {
   const hour = new Date().getHours();
@@ -18,9 +18,11 @@ const dateFormatter = new Intl.DateTimeFormat("en-GB", {
 export function Topbar({
   userId,
   displayName,
+  email,
 }: {
   userId: string;
   displayName: string;
+  email?: string;
 }) {
   const firstName = displayName.split(" ")[0] || displayName;
 
@@ -35,7 +37,7 @@ export function Topbar({
         </p>
       </div>
       <div className="min-w-5 flex-1" />
-      <label className="flex w-[270px] items-center gap-2.5 rounded-full border border-line bg-surface px-4 py-[9px] text-[13px] text-ink-soft max-[680px]:order-3 max-[680px]:w-full">
+      <label className="flex w-[270px] items-center gap-2.5 rounded-full border border-line bg-surface px-4 py-[9px] text-[13px] text-ink-soft shadow-[0_1px_2px_rgba(31,27,22,0.04)] max-[680px]:order-3 max-[680px]:w-full">
         <Search className="h-[15px] w-[15px] flex-none" />
         <input
           type="search"
@@ -43,15 +45,7 @@ export function Topbar({
           className="w-full bg-transparent outline-none placeholder:text-ink-soft"
         />
       </label>
-      <div className="flex items-center gap-2.5 rounded-full border border-line bg-surface py-[5px] pr-3.5 pl-[5px]">
-        <AvatarInitials id={userId} name={displayName} size="lg" round />
-        <div>
-          <b className="block text-[12.5px] leading-[1.2] font-semibold">
-            {displayName}
-          </b>
-          <span className="block text-[10.5px] text-ink-soft">Administrator</span>
-        </div>
-      </div>
+      <UserMenu userId={userId} displayName={displayName} email={email} />
     </div>
   );
 }

@@ -1,8 +1,16 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { loginSchema, forgotPasswordSchema, signUpSchema } from "@/lib/validation/auth";
+import {
+  loginSchema,
+  forgotPasswordSchema,
+  signUpSchema,
+  updateProfileSchema,
+  changePasswordSchema,
+} from "@/lib/validation/auth";
+import type { DialogResult } from "@/lib/types";
 
 function siteOrigin() {
   return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -112,6 +120,53 @@ export async function signUp(
   }
 
   return { status: "sent" };
+}
+
+export type ProfileFormState =
+  | { status: "idle" }
+  | { status: "error"; message: string }
+  | { status: "saved" };
+
+export async function updateProfile(
+  _prevState: ProfileFormState,
+  formData: FormData,
+): Promise<ProfileFormState> {
+  const parsed = updateProfileSchema.safeParse({ fullName: formData.get("fullName") });
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? "Enter your name.",
+    };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({
+    data: { full_name: parsed.data.fullName },
+  });
+  if (error) {
+    return { status: "error", message: "Couldn't save your name. Try again." };
+  }
+
+  revalidatePath("/", "layout");
+  return { status: "saved" };
+}
+
+export async function changePassword(input: {
+  password: string;
+  confirmPassword: string;
+}): Promise<DialogResult> {
+  const parsed = changePasswordSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, message: parsed.error.issues[0]?.message ?? "Check your password." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
+  if (error) {
+    return { ok: false, message: "Couldn't update your password. Try again." };
+  }
+
+  return { ok: true };
 }
 
 export async function signInWithGoogle() {

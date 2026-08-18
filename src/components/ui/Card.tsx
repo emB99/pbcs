@@ -11,7 +11,7 @@ export function Card({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-lg border border-line bg-surface",
+        "overflow-hidden rounded-lg border border-line bg-surface shadow-[0_1px_2px_rgba(31,27,22,0.04),0_12px_28px_-16px_rgba(31,27,22,0.18)]",
         className,
       )}
     >

@@ -1,12 +1,10 @@
 "use client";
 
-import Link from "next/link";
-import { Plus } from "lucide-react";
 import { Card, CardHead } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { DataTable, type Column } from "@/components/ui/DataTable";
 import { CsvExportButton } from "@/components/ui/CsvExportButton";
 import { InstructorRowActions } from "@/components/instructors/InstructorRowActions";
+import { AddInstructorModal } from "@/components/instructors/AddInstructorModal";
 import type { Instructor } from "@/lib/types";
 
 export function InstructorsTable({ rows }: { rows: Instructor[] }) {
@@ -53,13 +51,7 @@ export function InstructorsTable({ rows }: { rows: Instructor[] }) {
         rows={rows}
         getRowId={(i) => i.id}
         emptyMessage="No instructors yet. Add your first instructor."
-        emptyAction={
-          <Link href="/instructors/new">
-            <Button variant="primary" icon={<Plus />}>
-              Add instructor
-            </Button>
-          </Link>
-        }
+        emptyAction={<AddInstructorModal />}
       />
     </Card>
   );

@@ -1,52 +1,58 @@
 "use client";
 
 import { useActionState } from "react";
-import { FieldGroup, inputClass } from "@/components/ui/FieldGroup";
+import { User, Phone, Mail } from "lucide-react";
+import { FieldGroup, textareaClass } from "@/components/ui/FieldGroup";
+import { IconField } from "@/components/ui/IconField";
 import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import type { FormState, Instructor } from "@/lib/types";
 
 export function InstructorForm({
   action,
   defaultValues,
   submitLabel,
+  bare = false,
 }: {
   action: (state: FormState, formData: FormData) => Promise<FormState>;
   defaultValues?: Partial<Instructor>;
   submitLabel: string;
+  /** Skip the outer Card — used when already rendered inside a Dialog. */
+  bare?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
   const errors = state?.errors ?? {};
 
-  return (
-    <form action={formAction} className="flex max-w-lg flex-col gap-4">
+  const fields = (
+    <form action={formAction} className={bare ? "flex flex-col gap-4" : "flex flex-col gap-4 p-6"}>
       <FieldGroup label="Full name" htmlFor="full_name" error={errors.full_name?.[0]}>
-        <input
+        <IconField
+          icon={<User />}
           id="full_name"
           name="full_name"
           required
           defaultValue={defaultValues?.full_name}
-          className={inputClass}
         />
       </FieldGroup>
 
       <FieldGroup label="Phone" htmlFor="phone" error={errors.phone?.[0]}>
-        <input
+        <IconField
+          icon={<Phone />}
           id="phone"
           name="phone"
           placeholder="Optional"
           defaultValue={defaultValues?.phone ?? ""}
-          className={inputClass}
         />
       </FieldGroup>
 
       <FieldGroup label="Email" htmlFor="email" error={errors.email?.[0]}>
-        <input
+        <IconField
+          icon={<Mail />}
           id="email"
           name="email"
           type="email"
           placeholder="Optional"
           defaultValue={defaultValues?.email ?? ""}
-          className={inputClass}
         />
       </FieldGroup>
 
@@ -57,7 +63,7 @@ export function InstructorForm({
           rows={2}
           placeholder="Optional"
           defaultValue={defaultValues?.notes ?? ""}
-          className={inputClass}
+          className={textareaClass}
         />
       </FieldGroup>
 
@@ -68,4 +74,7 @@ export function InstructorForm({
       </Button>
     </form>
   );
+
+  if (bare) return fields;
+  return <Card className="max-w-lg">{fields}</Card>;
 }

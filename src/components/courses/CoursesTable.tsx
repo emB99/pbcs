@@ -1,14 +1,12 @@
 "use client";
 
-import Link from "next/link";
-import { Plus } from "lucide-react";
 import { Card, CardHead } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { DataTable, type Column } from "@/components/ui/DataTable";
 import { MoneyCell } from "@/components/ui/MoneyCell";
 import { Tag } from "@/components/ui/Tag";
 import { CsvExportButton } from "@/components/ui/CsvExportButton";
 import { CourseRowActions } from "@/components/courses/CourseRowActions";
+import { AddCourseModal } from "@/components/courses/AddCourseModal";
 import type { Course } from "@/lib/types";
 
 export function CoursesTable({ rows }: { rows: Course[] }) {
@@ -81,13 +79,7 @@ export function CoursesTable({ rows }: { rows: Course[] }) {
         rows={rows}
         getRowId={(c) => c.id}
         emptyMessage="No courses yet. Add your first course."
-        emptyAction={
-          <Link href="/courses/new">
-            <Button variant="primary" icon={<Plus />}>
-              Add course
-            </Button>
-          </Link>
-        }
+        emptyAction={<AddCourseModal />}
       />
     </Card>
   );

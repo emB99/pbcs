@@ -2,8 +2,10 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
+import { Mail, Lock } from "lucide-react";
 import { signIn } from "@/lib/actions/auth";
-import { FieldGroup, inputClass } from "@/components/ui/FieldGroup";
+import { FieldGroup } from "@/components/ui/FieldGroup";
+import { IconField } from "@/components/ui/IconField";
 import { Button } from "@/components/ui/Button";
 import { GoogleButton } from "@/components/auth/GoogleButton";
 
@@ -16,24 +18,24 @@ export default function LoginPage() {
         <h2 className="font-display text-xl font-semibold">Sign in</h2>
 
         <FieldGroup label="Email" htmlFor="email">
-          <input
+          <IconField
+            icon={<Mail />}
             id="email"
             name="email"
             type="email"
             autoComplete="email"
             required
-            className={inputClass}
           />
         </FieldGroup>
 
         <FieldGroup label="Password" htmlFor="password">
-          <input
+          <IconField
+            icon={<Lock />}
             id="password"
             name="password"
             type="password"
             autoComplete="current-password"
             required
-            className={inputClass}
           />
         </FieldGroup>
 

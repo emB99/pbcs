@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Lock } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { resetPasswordSchema } from "@/lib/validation/auth";
-import { FieldGroup, inputClass } from "@/components/ui/FieldGroup";
+import { FieldGroup } from "@/components/ui/FieldGroup";
+import { IconField } from "@/components/ui/IconField";
 import { Button } from "@/components/ui/Button";
 
 export default function ResetPasswordPage() {
@@ -53,14 +55,14 @@ export default function ResetPasswordPage() {
       <h2 className="font-display text-xl font-semibold">Choose a new password</h2>
 
       <FieldGroup label="New password" htmlFor="password">
-        <input
+        <IconField
+          icon={<Lock />}
           id="password"
           type="password"
           autoComplete="new-password"
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className={inputClass}
         />
       </FieldGroup>
 

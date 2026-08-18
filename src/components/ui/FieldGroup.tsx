@@ -33,7 +33,7 @@ export function FieldGroup({
 }) {
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
-      <label htmlFor={htmlFor} className="text-[12.5px] font-semibold text-ink-mid">
+      <label htmlFor={htmlFor} className="block w-full text-left text-[12.5px] font-semibold text-ink-mid">
         {label}
       </label>
       {children}
@@ -43,4 +43,8 @@ export function FieldGroup({
 }
 
 export const inputClass =
-  "w-full rounded-md border border-line bg-surface px-3.5 py-2.5 text-[13.5px] text-ink outline-none placeholder:text-ink-soft focus-visible:border-crust";
+  "w-full rounded-full border border-line bg-surface px-4 py-[10px] text-[13.5px] text-ink shadow-[0_1px_2px_rgba(31,27,22,0.04)] outline-none transition-shadow duration-150 placeholder:text-ink-soft focus-visible:border-crust focus-visible:shadow-[0_0_0_3px_rgba(184,101,26,0.14)]";
+
+/** Multi-line fields stay softly rounded rather than a pill, which reads badly on a tall box. */
+export const textareaClass =
+  "w-full rounded-lg border border-line bg-surface px-4 py-3 text-[13.5px] text-ink shadow-[0_1px_2px_rgba(31,27,22,0.04)] outline-none transition-shadow duration-150 placeholder:text-ink-soft focus-visible:border-crust focus-visible:shadow-[0_0_0_3px_rgba(184,101,26,0.14)]";

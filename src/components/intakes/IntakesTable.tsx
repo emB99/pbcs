@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Plus } from "lucide-react";
 import { Card, CardHead } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { DataTable, type Column } from "@/components/ui/DataTable";
 import { MoneyCell } from "@/components/ui/MoneyCell";
 import { Tag } from "@/components/ui/Tag";
 import { CsvExportButton } from "@/components/ui/CsvExportButton";
+import { AddIntakeModal } from "@/components/intakes/AddIntakeModal";
 import { formatDate, monthYearLabel } from "@/lib/dates";
+import type { Course, Instructor } from "@/lib/types";
 
 export type IntakeRow = {
   id: string;
@@ -21,7 +21,15 @@ export type IntakeRow = {
   outstanding: number;
 };
 
-export function IntakesTable({ rows }: { rows: IntakeRow[] }) {
+export function IntakesTable({
+  rows,
+  courses = [],
+  instructors = [],
+}: {
+  rows: IntakeRow[];
+  courses?: Course[];
+  instructors?: Instructor[];
+}) {
   const columns: Column<IntakeRow>[] = [
     {
       key: "label",
@@ -101,13 +109,7 @@ export function IntakesTable({ rows }: { rows: IntakeRow[] }) {
         rows={rows}
         getRowId={(r) => r.id}
         emptyMessage="No intakes yet. Create your first intake."
-        emptyAction={
-          <Link href="/intakes/new">
-            <Button variant="primary" icon={<Plus />}>
-              Create intake
-            </Button>
-          </Link>
-        }
+        emptyAction={<AddIntakeModal courses={courses} instructors={instructors} />}
       />
     </Card>
   );

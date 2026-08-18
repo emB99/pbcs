@@ -21,7 +21,14 @@ const METHOD_LABEL: Record<string, string> = {
   other: "Other",
 };
 
-export function TransactionLedger({ transactions }: { transactions: Transaction[] }) {
+export function TransactionLedger({
+  transactions,
+  readOnly = false,
+}: {
+  transactions: Transaction[];
+  /** Hides "Reverse this" — used in the student-facing preview. */
+  readOnly?: boolean;
+}) {
   const [reversingId, setReversingId] = useState<string | null>(null);
 
   if (transactions.length === 0) {
@@ -38,7 +45,7 @@ export function TransactionLedger({ transactions }: { transactions: Transaction[
         const isReversed = reversedIds.has(t.id);
         const isReversal = Boolean(t.reverses_id);
         const amountNum = Number(t.amount_usd);
-        const canReverse = !isReversed && !isReversal;
+        const canReverse = !readOnly && !isReversed && !isReversal;
 
         return (
           <div

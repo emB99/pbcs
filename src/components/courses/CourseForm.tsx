@@ -1,8 +1,12 @@
 "use client";
 
 import { useActionState } from "react";
-import { FieldGroup, inputClass } from "@/components/ui/FieldGroup";
+import { BookOpen, DollarSign, Clock, Layers } from "lucide-react";
+import { FieldGroup, textareaClass } from "@/components/ui/FieldGroup";
+import { IconField } from "@/components/ui/IconField";
+import { IconSelect } from "@/components/ui/IconSelect";
 import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import type { FormState } from "@/lib/types";
 import type { Course } from "@/lib/types";
 
@@ -10,57 +14,54 @@ export function CourseForm({
   action,
   defaultValues,
   submitLabel,
+  bare = false,
 }: {
   action: (state: FormState, formData: FormData) => Promise<FormState>;
   defaultValues?: Partial<Course>;
   submitLabel: string;
+  /** Skip the outer Card — used when already rendered inside a Dialog. */
+  bare?: boolean;
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
   const errors = state?.errors ?? {};
 
-  return (
-    <form action={formAction} className="flex max-w-lg flex-col gap-4">
+  const fields = (
+    <form action={formAction} className={bare ? "flex flex-col gap-4" : "flex flex-col gap-4 p-6"}>
       <FieldGroup label="Course name" htmlFor="name" error={errors.name?.[0]}>
-        <input
-          id="name"
-          name="name"
-          required
-          defaultValue={defaultValues?.name}
-          className={inputClass}
-        />
+        <IconField icon={<BookOpen />} id="name" name="name" required defaultValue={defaultValues?.name} />
       </FieldGroup>
 
       <FieldGroup label="Kind" htmlFor="kind" error={errors.kind?.[0]}>
-        <select
+        <IconSelect
+          icon={<Layers />}
           id="kind"
           name="kind"
           defaultValue={defaultValues?.kind ?? "short_course"}
-          className={inputClass}
         >
           <option value="short_course">Short course</option>
           <option value="programme">Programme</option>
-        </select>
+        </IconSelect>
       </FieldGroup>
 
       <FieldGroup label="Default price (USD)" htmlFor="default_price" error={errors.default_price?.[0]}>
-        <input
+        <IconField
+          icon={<DollarSign />}
           id="default_price"
           name="default_price"
           inputMode="decimal"
           placeholder="0"
           defaultValue={defaultValues?.default_price ?? "0"}
-          className={inputClass}
         />
       </FieldGroup>
 
       <FieldGroup label="Default length (weeks)" htmlFor="default_weeks" error={errors.default_weeks?.[0]}>
-        <input
+        <IconField
+          icon={<Clock />}
           id="default_weeks"
           name="default_weeks"
           inputMode="numeric"
           placeholder="Optional"
           defaultValue={defaultValues?.default_weeks ?? ""}
-          className={inputClass}
         />
       </FieldGroup>
 
@@ -71,7 +72,7 @@ export function CourseForm({
           rows={3}
           placeholder="Optional"
           defaultValue={defaultValues?.description ?? ""}
-          className={inputClass}
+          className={textareaClass}
         />
       </FieldGroup>
 
@@ -82,4 +83,7 @@ export function CourseForm({
       </Button>
     </form>
   );
+
+  if (bare) return fields;
+  return <Card className="max-w-lg">{fields}</Card>;
 }
