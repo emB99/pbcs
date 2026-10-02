@@ -6,8 +6,10 @@ import { CsvExportButton } from "@/components/ui/CsvExportButton";
 import { InstructorRowActions } from "@/components/instructors/InstructorRowActions";
 import { AddInstructorModal } from "@/components/instructors/AddInstructorModal";
 import type { Instructor } from "@/lib/types";
+import { useTerms } from "@/components/school/SchoolProvider";
 
 export function InstructorsTable({ rows }: { rows: Instructor[] }) {
+  const t = useTerms();
   const columns: Column<Instructor>[] = [
     {
       key: "full_name",
@@ -35,7 +37,7 @@ export function InstructorsTable({ rows }: { rows: Instructor[] }) {
 
   return (
     <Card>
-      <CardHead title="All instructors" note={`${rows.length} active`}>
+      <CardHead title={`All ${t.instructor.many.toLowerCase()}`} note={`${rows.length} active`}>
         <CsvExportButton
           rows={rows}
           filename="instructors.csv"
@@ -50,7 +52,7 @@ export function InstructorsTable({ rows }: { rows: Instructor[] }) {
         columns={columns}
         rows={rows}
         getRowId={(i) => i.id}
-        emptyMessage="No instructors yet. Add your first instructor."
+        emptyMessage={`No ${t.instructor.many.toLowerCase()} yet. Add your first ${t.instructor.one.toLowerCase()}.`}
         emptyAction={<AddInstructorModal />}
       />
     </Card>

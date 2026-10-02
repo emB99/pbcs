@@ -6,7 +6,6 @@ import { createClient } from "@/lib/supabase/server";
 import {
   loginSchema,
   forgotPasswordSchema,
-  signUpSchema,
   updateProfileSchema,
   changePasswordSchema,
 } from "@/lib/validation/auth";
@@ -69,56 +68,6 @@ export async function requestPasswordReset(
 
   // Always report success, whether or not the address has an account —
   // don't leak which emails exist.
-  return { status: "sent" };
-}
-
-export type SignUpState =
-  | { status: "idle" }
-  | { status: "error"; message: string }
-  | { status: "sent" };
-
-export async function signUp(
-  _prevState: SignUpState,
-  formData: FormData,
-): Promise<SignUpState> {
-  const parsed = signUpSchema.safeParse({
-    fullName: formData.get("fullName"),
-    email: formData.get("email"),
-    password: formData.get("password"),
-  });
-  if (!parsed.success) {
-    return {
-      status: "error",
-      message: parsed.error.issues[0]?.message ?? "Check your details and try again.",
-    };
-  }
-
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signUp({
-    email: parsed.data.email,
-    password: parsed.data.password,
-    options: {
-      data: { full_name: parsed.data.fullName },
-      emailRedirectTo: `${siteOrigin()}/dashboard`,
-    },
-  });
-
-  if (error) {
-    return {
-      status: "error",
-      message: error.message.toLowerCase().includes("already registered")
-        ? "An account with that email already exists."
-        : "Couldn't create the account. Try again.",
-    };
-  }
-
-  // If email confirmation is off in the Supabase project, signUp returns an
-  // active session immediately — go straight in instead of asking them to
-  // check an email that was never sent.
-  if (data.session) {
-    redirect("/dashboard");
-  }
-
   return { status: "sent" };
 }
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ChefHat, FileText } from "lucide-react";
+import { ArrowLeft, GraduationCap, FileText } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardHead } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -10,11 +10,13 @@ import { Tag } from "@/components/ui/Tag";
 import { TransactionLedger } from "@/components/payments/TransactionLedger";
 import { monthYearLabel } from "@/lib/dates";
 import type { Student, Transaction } from "@/lib/types";
+import { requireSchool } from "@/lib/school";
 
 export default async function StudentPortalPreviewPage(
   props: PageProps<"/preview/student/[studentId]">,
 ) {
   const { studentId } = await props.params;
+  const { settings: school } = await requireSchool();
   const supabase = await createClient();
 
   const { data: student } = await supabase
@@ -74,10 +76,10 @@ export default async function StudentPortalPreviewPage(
         />
         <div className="relative flex items-center gap-4">
           <div className="grid h-11 w-11 flex-none place-items-center rounded-[13px] bg-crust">
-            <ChefHat className="h-5 w-5 text-white" strokeWidth={1.8} />
+            <GraduationCap className="h-5 w-5 text-white" strokeWidth={1.8} />
           </div>
           <div>
-            <p className="text-[12.5px] text-surface/70">Premium Baking and Culinary School</p>
+            <p className="text-[12.5px] text-surface/70">{school.name}</p>
             <h1 className="font-display text-xl font-semibold text-surface">Hi, {firstName}</h1>
           </div>
         </div>

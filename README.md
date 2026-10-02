@@ -1,6 +1,6 @@
-# PBCS — Premium Baking and Culinary School admin tool
+# School Admin
 
-Internal admin tool for office staff: who's enrolled, what they agreed to pay, what they've paid, what they owe. See [PBCS-HANDOFF.md](./PBCS-HANDOFF.md) for the full spec this was built from.
+School administration for colleges and primary/secondary schools: students, courses/classes, teachers, enrolments and fees. One deployment serves one school; the first person to sign in completes `/setup`, becomes the owner, and invites everyone else from Settings → Team. The original spec this grew from is in [PBCS-HANDOFF.md](./PBCS-HANDOFF.md).
 
 ## Stack
 
@@ -23,8 +23,10 @@ Next.js 16 (App Router) · TypeScript · Tailwind v4 · Supabase (Postgres + Aut
    ```bash
    npx supabase gen types typescript --project-id <ref> > src/lib/database.types.ts
    ```
-6. Create the first staff login: Supabase dashboard → Authentication → Add user (email + password). There's no public sign-up screen by design — every user is office staff.
-7. `npm install && npm run dev`
+6. In the Supabase dashboard: Authentication → Sign In / Providers → turn **off** "Allow new users to sign up" once the owner exists (the app has no public sign-up; staff are invited from Settings → Team). Then, in Authentication → Email Templates, set the **Invite user** and **Reset password** links to
+   `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=invite` (and `type=recovery` for reset), so the app can verify them server-side.
+7. Create the first login: Authentication → Add user (email + password), or sign in with Google while sign-ups are still enabled. Open `/setup` to name the school, choose its type and become the owner.
+8. `npm install && npm run dev`
 
 ## Verifying the append-only ledger
 

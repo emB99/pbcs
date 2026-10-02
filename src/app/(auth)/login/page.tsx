@@ -60,13 +60,6 @@ export default function LoginPage() {
       </div>
 
       <GoogleButton />
-
-      <p className="text-center text-[12.5px] text-ink-soft">
-        Don&apos;t have an account?{" "}
-        <Link href="/signup" className="font-semibold text-crust-deep hover:underline">
-          Sign up
-        </Link>
-      </p>
     </div>
   );
 }

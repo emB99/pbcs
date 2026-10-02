@@ -10,11 +10,13 @@ import {
   EnrolledStudentsTable,
   type EnrolledStudentRow,
 } from "@/components/intakes/EnrolledStudentsTable";
+import { requireSchool } from "@/lib/school";
 
 export default async function IntakeDetailPage(
   props: PageProps<"/intakes/[intakeId]">,
 ) {
   const { intakeId } = await props.params;
+  const { terms: t } = await requireSchool();
   const supabase = await createClient();
 
   const { data: intake } = await supabase
@@ -77,7 +79,7 @@ export default async function IntakeDetailPage(
         <div className="grid grid-cols-2 gap-4 p-5 sm:grid-cols-4">
           <LabelAboveValue label="Start date" value={formatDate(intake.start_date)} />
           <LabelAboveValue label="End date" value={formatDate(intake.end_date)} />
-          <LabelAboveValue label="Instructor" value={intake.instructor?.full_name} />
+          <LabelAboveValue label={t.instructor.one} value={intake.instructor?.full_name} />
           <LabelAboveValue label="Capacity" value={intake.capacity?.toString()} />
         </div>
       </Card>

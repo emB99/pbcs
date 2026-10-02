@@ -7,6 +7,7 @@ import { AvatarInitials } from "@/components/ui/AvatarInitials";
 import { CsvExportButton } from "@/components/ui/CsvExportButton";
 import { formatDate } from "@/lib/dates";
 import type { Transaction } from "@/lib/types";
+import { useTerms } from "@/components/school/SchoolProvider";
 
 export type PaymentRow = Transaction & {
   student_id: string;
@@ -21,6 +22,7 @@ const KIND_LABEL: Record<Transaction["kind"], string> = {
 };
 
 export function PaymentsTable({ rows }: { rows: PaymentRow[] }) {
+  const t = useTerms();
   const columns: Column<PaymentRow>[] = [
     {
       key: "student",
@@ -89,7 +91,7 @@ export function PaymentsTable({ rows }: { rows: PaymentRow[] }) {
           columns={[
             { header: "Date", value: (r) => r.occurred_on },
             { header: "Student", value: (r) => r.student_name },
-            { header: "Course", value: (r) => r.course_name },
+            { header: t.course.one, value: (r) => r.course_name },
             { header: "Kind", value: (r) => r.kind },
             { header: "Method", value: (r) => r.method ?? "" },
             { header: "Reference", value: (r) => r.reference ?? "" },

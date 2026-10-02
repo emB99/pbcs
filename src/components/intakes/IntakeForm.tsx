@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { BookOpen, Tag, ChefHat, Users } from "lucide-react";
+import { BookOpen, Tag, Presentation, Users } from "lucide-react";
 import { FieldGroup, inputClass } from "@/components/ui/FieldGroup";
 import { IconField } from "@/components/ui/IconField";
 import { IconSelect } from "@/components/ui/IconSelect";
@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { createIntake } from "@/lib/actions/intakes";
 import type { Course, Instructor } from "@/lib/types";
+import { useTerms } from "@/components/school/SchoolProvider";
+import { a, lower } from "@/lib/terminology";
 
 export function IntakeForm({
   courses,
@@ -20,14 +22,15 @@ export function IntakeForm({
   /** Skip the outer Card — used when already rendered inside a Dialog. */
   bare?: boolean;
 }) {
+  const t = useTerms();
   const [state, formAction, pending] = useActionState(createIntake, undefined);
   const errors = state?.errors ?? {};
 
   const fields = (
     <form action={formAction} className={bare ? "flex flex-col gap-4" : "flex flex-col gap-4 p-6"}>
-      <FieldGroup label="Course" htmlFor="course_id" error={errors.course_id?.[0]}>
+      <FieldGroup label={t.course.one} htmlFor="course_id" error={errors.course_id?.[0]}>
         <IconSelect icon={<BookOpen />} id="course_id" name="course_id" required defaultValue="">
-          <option value="">Choose a course…</option>
+          <option value="">Choose {a(t.course.one)}…</option>
           {courses.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
@@ -54,8 +57,8 @@ export function IntakeForm({
         </FieldGroup>
       </div>
 
-      <FieldGroup label="Instructor" htmlFor="instructor_id" error={errors.instructor_id?.[0]}>
-        <IconSelect icon={<ChefHat />} id="instructor_id" name="instructor_id" defaultValue="">
+      <FieldGroup label={t.instructor.one} htmlFor="instructor_id" error={errors.instructor_id?.[0]}>
+        <IconSelect icon={<Presentation />} id="instructor_id" name="instructor_id" defaultValue="">
           <option value="">Unassigned</option>
           {instructors.map((i) => (
             <option key={i.id} value={i.id}>
@@ -78,7 +81,7 @@ export function IntakeForm({
       {state?.message && <p className="text-xs text-danger">{state.message}</p>}
 
       <Button type="submit" variant="primary" disabled={pending}>
-        {pending ? "Saving…" : "Create intake"}
+        {pending ? "Saving…" : `Create ${lower(t.intake).one}`}
       </Button>
     </form>
   );

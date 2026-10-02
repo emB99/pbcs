@@ -27,3 +27,8 @@ export type FormState =
 
 /** Returned by dialog-driven actions (archive, reverse, withdraw) that stay on the page. */
 export type DialogResult = { ok: boolean; message?: string };
+
+export type SchoolSettings = Database["public"]["Tables"]["school_settings"]["Row"];
+export type Membership = Database["public"]["Tables"]["memberships"]["Row"];
+export type AppRole = Database["public"]["Enums"]["app_role"];
+export type SchoolType = Database["public"]["Enums"]["school_type"];

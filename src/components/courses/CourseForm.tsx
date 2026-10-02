@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import type { FormState } from "@/lib/types";
 import type { Course } from "@/lib/types";
+import { useTerms, useSchoolType } from "@/components/school/SchoolProvider";
 
 export function CourseForm({
   action,
@@ -22,26 +23,33 @@ export function CourseForm({
   /** Skip the outer Card — used when already rendered inside a Dialog. */
   bare?: boolean;
 }) {
+  const t = useTerms();
+  const isK12 = useSchoolType() === "k12";
   const [state, formAction, pending] = useActionState(action, undefined);
   const errors = state?.errors ?? {};
 
   const fields = (
     <form action={formAction} className={bare ? "flex flex-col gap-4" : "flex flex-col gap-4 p-6"}>
-      <FieldGroup label="Course name" htmlFor="name" error={errors.name?.[0]}>
+      <FieldGroup label={`${t.course.one} name`} htmlFor="name" error={errors.name?.[0]}>
         <IconField icon={<BookOpen />} id="name" name="name" required defaultValue={defaultValues?.name} />
       </FieldGroup>
 
-      <FieldGroup label="Kind" htmlFor="kind" error={errors.kind?.[0]}>
-        <IconSelect
-          icon={<Layers />}
-          id="kind"
-          name="kind"
-          defaultValue={defaultValues?.kind ?? "short_course"}
-        >
-          <option value="short_course">Short course</option>
-          <option value="programme">Programme</option>
-        </IconSelect>
-      </FieldGroup>
+      {isK12 ? (
+        // Grade levels have no short-course/programme split.
+        <input type="hidden" name="kind" value="programme" />
+      ) : (
+        <FieldGroup label="Kind" htmlFor="kind" error={errors.kind?.[0]}>
+          <IconSelect
+            icon={<Layers />}
+            id="kind"
+            name="kind"
+            defaultValue={defaultValues?.kind ?? "short_course"}
+          >
+            <option value="short_course">Short course</option>
+            <option value="programme">Programme</option>
+          </IconSelect>
+        </FieldGroup>
+      )}
 
       <FieldGroup label="Default price (USD)" htmlFor="default_price" error={errors.default_price?.[0]}>
         <IconField

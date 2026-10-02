@@ -5,8 +5,10 @@ import Link from "next/link";
 import { Pencil, Archive } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { archiveInstructor } from "@/lib/actions/instructors";
+import { useTerms } from "@/components/school/SchoolProvider";
 
 export function InstructorRowActions({ id, name }: { id: string; name: string }) {
+  const t = useTerms();
   const [open, setOpen] = useState(false);
 
   return (
@@ -25,7 +27,7 @@ export function InstructorRowActions({ id, name }: { id: string; name: string })
       <ConfirmDialog
         open={open}
         onClose={() => setOpen(false)}
-        title="Archive this instructor?"
+        title={`Archive this ${t.instructor.one.toLowerCase()}?`}
         description={`"${name}" will drop off the active list. Nothing is deleted.`}
         confirmLabel="Archive"
         variant="danger"

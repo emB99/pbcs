@@ -2,8 +2,10 @@ import { createClient } from "@/lib/supabase/server";
 import { AddIntakeModal } from "@/components/intakes/AddIntakeModal";
 import { IntakesTable, type IntakeRow } from "@/components/intakes/IntakesTable";
 import type { Course, Instructor } from "@/lib/types";
+import { requireSchool } from "@/lib/school";
 
 export default async function IntakesPage() {
+  const { terms: t } = await requireSchool();
   const supabase = await createClient();
 
   const [{ data: intakes }, { data: summary }, { data: courses }, { data: instructors }] =
@@ -46,7 +48,7 @@ export default async function IntakesPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-xl font-semibold">Intakes</h1>
+        <h1 className="font-display text-xl font-semibold">{t.intake.many}</h1>
         <AddIntakeModal courses={courses ?? []} instructors={instructors ?? []} />
       </div>
 

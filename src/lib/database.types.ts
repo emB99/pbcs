@@ -193,6 +193,66 @@ export type Database = {
           },
         ]
       }
+      memberships: {
+        Row: {
+          created_at: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      school_settings: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          id: boolean
+          logo_path: string | null
+          name: string
+          next_student_number: number
+          phone: string | null
+          school_type: Database["public"]["Enums"]["school_type"]
+          student_number_prefix: string
+          terminology: Json
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: boolean
+          logo_path?: string | null
+          name: string
+          next_student_number?: number
+          phone?: string | null
+          school_type?: Database["public"]["Enums"]["school_type"]
+          student_number_prefix?: string
+          terminology?: Json
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: boolean
+          logo_path?: string | null
+          name?: string
+          next_student_number?: number
+          phone?: string | null
+          school_type?: Database["public"]["Enums"]["school_type"]
+          student_number_prefix?: string
+          terminology?: Json
+        }
+        Relationships: []
+      }
       students: {
         Row: {
           address: string | null
@@ -374,8 +434,10 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      app_role: "owner" | "admin" | "staff" | "teacher"
       course_kind: "short_course" | "programme"
       enrolment_status: "enrolled" | "completed" | "withdrawn"
+      school_type: "college" | "k12"
       txn_kind: "charge" | "payment" | "adjustment"
     }
     CompositeTypes: {
@@ -504,8 +566,10 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["owner", "admin", "staff", "teacher"],
       course_kind: ["short_course", "programme"],
       enrolment_status: ["enrolled", "completed", "withdrawn"],
+      school_type: ["college", "k12"],
       txn_kind: ["charge", "payment", "adjustment"],
     },
   },

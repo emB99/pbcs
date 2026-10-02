@@ -4,10 +4,10 @@ import type { Database } from "@/lib/database.types";
 
 const PUBLIC_PATHS = [
   "/login",
-  "/signup",
   "/forgot-password",
   "/reset-password",
   "/auth/callback",
+  "/auth/confirm",
 ];
 
 /**

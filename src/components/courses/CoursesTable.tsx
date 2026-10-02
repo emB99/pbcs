@@ -8,12 +8,15 @@ import { CsvExportButton } from "@/components/ui/CsvExportButton";
 import { CourseRowActions } from "@/components/courses/CourseRowActions";
 import { AddCourseModal } from "@/components/courses/AddCourseModal";
 import type { Course } from "@/lib/types";
+import { useTerms, useSchoolType } from "@/components/school/SchoolProvider";
 
 export function CoursesTable({ rows }: { rows: Course[] }) {
-  const columns: Column<Course>[] = [
+  const t = useTerms();
+  const isK12 = useSchoolType() === "k12";
+  const allColumns: Column<Course>[] = [
     {
       key: "name",
-      header: "Course",
+      header: t.course.one,
       sortValue: (c) => c.name.toLowerCase(),
       render: (c) => (
         <div>
@@ -59,6 +62,7 @@ export function CoursesTable({ rows }: { rows: Course[] }) {
       render: (c) => <CourseRowActions id={c.id} name={c.name} />,
     },
   ];
+  const columns = allColumns.filter((col) => !(isK12 && col.key === "kind"));
 
   return (
     <Card>
@@ -78,7 +82,7 @@ export function CoursesTable({ rows }: { rows: Course[] }) {
         columns={columns}
         rows={rows}
         getRowId={(c) => c.id}
-        emptyMessage="No courses yet. Add your first course."
+        emptyMessage={`No ${t.course.many.toLowerCase()} yet. Add your first ${t.course.one.toLowerCase()}.`}
         emptyAction={<AddCourseModal />}
       />
     </Card>

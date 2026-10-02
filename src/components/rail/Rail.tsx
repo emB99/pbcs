@@ -8,22 +8,25 @@ import {
   BookOpen,
   CalendarDays,
   CreditCard,
-  ChefHat,
+  GraduationCap,
+  Presentation,
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
-
-const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
-  { href: "/students", label: "Students", icon: Users },
-  { href: "/courses", label: "Courses", icon: BookOpen },
-  { href: "/intakes", label: "Intakes", icon: CalendarDays },
-  { href: "/payments", label: "Payments", icon: CreditCard },
-  { href: "/instructors", label: "Instructors", icon: ChefHat },
-] as const;
+import { useTerms } from "@/components/school/SchoolProvider";
 
 export function Rail() {
   const pathname = usePathname();
+  const terms = useTerms();
+
+  const NAV_ITEMS = [
+    { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
+    { href: "/students", label: "Students", icon: Users },
+    { href: "/courses", label: terms.course.many, icon: BookOpen },
+    { href: "/intakes", label: terms.intake.many, icon: CalendarDays },
+    { href: "/payments", label: "Payments", icon: CreditCard },
+    { href: "/instructors", label: terms.instructor.many, icon: Presentation },
+  ];
 
   return (
     <aside className="no-print sticky top-[22px] flex w-[94px] flex-none flex-col items-center gap-1.5 rounded-lg border border-line bg-surface px-2.5 pt-5 pb-3.5 shadow-[0_1px_2px_rgba(31,27,22,0.04),0_16px_32px_-18px_rgba(31,27,22,0.16)] max-[680px]:static max-[680px]:w-full max-[680px]:flex-none max-[680px]:flex-row max-[680px]:gap-1 max-[680px]:overflow-x-auto max-[680px]:p-2.5">
@@ -31,7 +34,7 @@ export function Rail() {
         className="mb-[18px] grid h-11 w-11 flex-none place-items-center rounded-[13px] bg-crust shadow-[0_3px_10px_rgba(184,101,26,0.28)] max-[680px]:mb-0"
         aria-hidden="true"
       >
-        <ChefHat className="h-[23px] w-[23px] text-white" strokeWidth={1.8} />
+        <GraduationCap className="h-[23px] w-[23px] text-white" strokeWidth={1.8} />
       </div>
 
       {NAV_ITEMS.map((item) => {

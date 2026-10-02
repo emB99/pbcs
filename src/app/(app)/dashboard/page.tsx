@@ -8,8 +8,10 @@ import { AvatarInitials } from "@/components/ui/AvatarInitials";
 import { WhoOwesTable, type WhoOwesRow } from "@/components/dashboard/WhoOwesTable";
 import { monthYearLabel, formatDate } from "@/lib/dates";
 import { todayIsoDate } from "@/lib/dates";
+import { requireSchool } from "@/lib/school";
 
 export default async function DashboardPage() {
+  const { terms: t } = await requireSchool();
   const supabase = await createClient();
   const today = todayIsoDate();
 
@@ -135,7 +137,7 @@ export default async function DashboardPage() {
         <StatCard
           variant="intake"
           icon={<CalendarDays />}
-          label="Running intakes"
+          label={`Running ${t.intake.many.toLowerCase()}`}
           value={String(runningIntakes.length)}
           sub={
             daysToSoonestEnd !== null ? (
@@ -216,10 +218,10 @@ export default async function DashboardPage() {
           </Card>
 
           <Card>
-            <CardHead title="Intakes running" note="Chase balances before they finish" />
+            <CardHead title={`${t.intake.many} running`} note="Chase balances before they finish" />
             <div>
               {runningIntakes.length === 0 && (
-                <p className="px-5 pb-4 text-[13px] text-ink-soft">No intakes running right now.</p>
+                <p className="px-5 pb-4 text-[13px] text-ink-soft">No {t.intake.many.toLowerCase()} running right now.</p>
               )}
               {runningIntakes.map((i) => {
                 const summary = summaryByIntake.get(i.id);

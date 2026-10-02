@@ -9,6 +9,7 @@ import { CsvExportButton } from "@/components/ui/CsvExportButton";
 import { AddIntakeModal } from "@/components/intakes/AddIntakeModal";
 import { formatDate, monthYearLabel } from "@/lib/dates";
 import type { Course, Instructor } from "@/lib/types";
+import { useTerms, useSchoolType } from "@/components/school/SchoolProvider";
 
 export type IntakeRow = {
   id: string;
@@ -30,10 +31,12 @@ export function IntakesTable({
   courses?: Course[];
   instructors?: Instructor[];
 }) {
-  const columns: Column<IntakeRow>[] = [
+  const t = useTerms();
+  const isK12 = useSchoolType() === "k12";
+  const allColumns: Column<IntakeRow>[] = [
     {
       key: "label",
-      header: "Intake",
+      header: t.intake.one,
       sortValue: (r) => r.start_date,
       render: (r) => (
         <Link href={`/intakes/${r.id}`} className="block hover:underline">
@@ -65,7 +68,7 @@ export function IntakesTable({
     },
     {
       key: "instructor",
-      header: "Instructor",
+      header: t.instructor.one,
       sortValue: (r) => r.instructor?.full_name ?? "",
       render: (r) => <span className="text-ink-mid">{r.instructor?.full_name ?? "—"}</span>,
     },
@@ -86,19 +89,20 @@ export function IntakesTable({
       ),
     },
   ];
+  const columns = allColumns.filter((col) => !(isK12 && col.key === "kind"));
 
   return (
     <Card>
-      <CardHead title="All intakes" note={`${rows.length} total`}>
+      <CardHead title={`All ${t.intake.many.toLowerCase()}`} note={`${rows.length} total`}>
         <CsvExportButton
           rows={rows}
           filename="intakes.csv"
           columns={[
-            { header: "Intake", value: (r) => r.label || monthYearLabel(r.start_date) },
-            { header: "Course", value: (r) => r.course?.name ?? "" },
+            { header: t.intake.one, value: (r) => r.label || monthYearLabel(r.start_date) },
+            { header: t.course.one, value: (r) => r.course?.name ?? "" },
             { header: "Start date", value: (r) => r.start_date },
             { header: "End date", value: (r) => r.end_date ?? "" },
-            { header: "Instructor", value: (r) => r.instructor?.full_name ?? "" },
+            { header: t.instructor.one, value: (r) => r.instructor?.full_name ?? "" },
             { header: "Active students", value: (r) => r.active_students },
             { header: "Outstanding", value: (r) => r.outstanding },
           ]}
@@ -108,7 +112,7 @@ export function IntakesTable({
         columns={columns}
         rows={rows}
         getRowId={(r) => r.id}
-        emptyMessage="No intakes yet. Create your first intake."
+        emptyMessage={`No ${t.intake.many.toLowerCase()} yet. Create your first ${t.intake.one.toLowerCase()}.`}
         emptyAction={<AddIntakeModal courses={courses} instructors={instructors} />}
       />
     </Card>

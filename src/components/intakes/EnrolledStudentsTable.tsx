@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { DataTable, type Column } from "@/components/ui/DataTable";
 import { AvatarInitials } from "@/components/ui/AvatarInitials";
 import { BalanceWithBar } from "@/components/ui/BalanceWithBar";
+import { useTerms } from "@/components/school/SchoolProvider";
 
 export type EnrolledStudentRow = {
   enrolment_id: string;
@@ -25,6 +26,7 @@ export function EnrolledStudentsTable({
   rows: EnrolledStudentRow[];
   intakeId: string;
 }) {
+  const t = useTerms();
   const columns: Column<EnrolledStudentRow>[] = [
     {
       key: "student",
@@ -61,7 +63,7 @@ export function EnrolledStudentsTable({
       columns={columns}
       rows={rows}
       getRowId={(r) => r.enrolment_id}
-      emptyMessage="No one is enrolled in this intake yet."
+      emptyMessage={`No one is enrolled in this ${t.intake.one.toLowerCase()} yet.`}
       emptyAction={
         <Link href={`/enrolments/new?intakeId=${intakeId}`}>
           <Button variant="primary" icon={<UserPlus />}>

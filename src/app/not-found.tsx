@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { ChefHat } from "lucide-react";
+import { GraduationCap } from "lucide-react";
 
 export default function NotFound() {
   return (
     <div className="flex min-h-full flex-col items-center justify-center gap-4 bg-canvas px-4 py-16 text-center">
       <div className="grid h-12 w-12 place-items-center rounded-[13px] bg-crust shadow-[0_3px_10px_rgba(184,101,26,0.28)]">
-        <ChefHat className="h-6 w-6 text-white" strokeWidth={1.8} />
+        <GraduationCap className="h-6 w-6 text-white" strokeWidth={1.8} />
       </div>
       <div>
         <h1 className="font-display text-xl font-semibold">We can&apos;t find that page</h1>

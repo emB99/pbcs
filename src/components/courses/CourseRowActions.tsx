@@ -5,8 +5,10 @@ import Link from "next/link";
 import { Pencil, Archive } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { archiveCourse } from "@/lib/actions/courses";
+import { useTerms } from "@/components/school/SchoolProvider";
 
 export function CourseRowActions({ id, name }: { id: string; name: string }) {
+  const t = useTerms();
   const [open, setOpen] = useState(false);
 
   return (
@@ -29,7 +31,7 @@ export function CourseRowActions({ id, name }: { id: string; name: string }) {
       <ConfirmDialog
         open={open}
         onClose={() => setOpen(false)}
-        title="Archive this course?"
+        title={`Archive this ${t.course.one.toLowerCase()}?`}
         description={`"${name}" will drop off the active list. Nothing is deleted — you can still see it on any intake or enrolment it's already used on.`}
         confirmLabel="Archive"
         variant="danger"

@@ -9,6 +9,7 @@ import { BalanceWithBar } from "@/components/ui/BalanceWithBar";
 import { Tag } from "@/components/ui/Tag";
 import { CsvExportButton } from "@/components/ui/CsvExportButton";
 import { relativeDays, recencyTagVariant } from "@/lib/dates";
+import { useTerms } from "@/components/school/SchoolProvider";
 
 export type WhoOwesRow = {
   enrolment_id: string;
@@ -25,6 +26,7 @@ export type WhoOwesRow = {
 };
 
 export function WhoOwesTable({ rows }: { rows: WhoOwesRow[] }) {
+  const t = useTerms();
   const topRows = rows.slice(0, 7);
 
   const columns: Column<WhoOwesRow>[] = [
@@ -98,8 +100,8 @@ export function WhoOwesTable({ rows }: { rows: WhoOwesRow[] }) {
           columns={[
             { header: "Student", value: (r) => r.full_name },
             { header: "Phone", value: (r) => r.phone },
-            { header: "Course", value: (r) => r.course_name },
-            { header: "Intake", value: (r) => r.intake_label },
+            { header: t.course.one, value: (r) => r.course_name },
+            { header: t.intake.one, value: (r) => r.intake_label },
             { header: "Agreed", value: (r) => r.agreed_price },
             { header: "Paid", value: (r) => r.paid },
             { header: "Balance", value: (r) => r.balance },

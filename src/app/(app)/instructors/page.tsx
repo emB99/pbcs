@@ -2,8 +2,10 @@ import { createClient } from "@/lib/supabase/server";
 import { AddInstructorModal } from "@/components/instructors/AddInstructorModal";
 import { InstructorsTable } from "@/components/instructors/InstructorsTable";
 import type { Instructor } from "@/lib/types";
+import { requireSchool } from "@/lib/school";
 
 export default async function InstructorsPage() {
+  const { terms: t } = await requireSchool();
   const supabase = await createClient();
   const { data: instructors } = await supabase
     .from("instructors")
@@ -15,7 +17,7 @@ export default async function InstructorsPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-xl font-semibold">Instructors</h1>
+        <h1 className="font-display text-xl font-semibold">{t.instructor.many}</h1>
         <AddInstructorModal />
       </div>
 

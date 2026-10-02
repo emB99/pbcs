@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PrintButton } from "@/components/ui/PrintButton";
 import { formatDate } from "@/lib/dates";
 import type { Student, Transaction } from "@/lib/types";
+import { requireSchool } from "@/lib/school";
 
 const KIND_LABEL: Record<Transaction["kind"], string> = {
   charge: "Charge",
@@ -16,6 +17,7 @@ export default async function StudentStatementPage(
   props: PageProps<"/print/statement/[studentId]">,
 ) {
   const { studentId } = await props.params;
+  const { terms: t, settings: school } = await requireSchool();
   const supabase = await createClient();
 
   const { data: student } = await supabase
@@ -62,7 +64,7 @@ export default async function StudentStatementPage(
         <header className="mb-8 flex items-start justify-between border-b border-line-soft pb-6">
           <div>
             <h1 className="font-display text-lg font-semibold">
-              Premium Baking and Culinary School
+              {school.name}
             </h1>
             <p className="text-[12.5px] text-ink-soft">Statement of account</p>
           </div>
@@ -83,7 +85,7 @@ export default async function StudentStatementPage(
           <thead>
             <tr className="border-b border-line-soft text-left text-[11px] font-semibold tracking-[0.05em] text-ink-soft uppercase">
               <th className="py-2">Date</th>
-              <th className="py-2">Course</th>
+              <th className="py-2">{t.course.one}</th>
               <th className="py-2">Description</th>
               <th className="py-2 text-right">Amount</th>
             </tr>

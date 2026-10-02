@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
+import { getPublicSchoolName } from "@/lib/school";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -14,10 +15,10 @@ const inter = Inter({
   weight: ["400", "500", "600", "700"],
 });
 
-export const metadata: Metadata = {
-  title: "PBCS",
-  description: "Premium Baking and Culinary School — office admin",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const name = await getPublicSchoolName();
+  return { title: name, description: `${name} — school administration` };
+}
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useMemo, useState } from "react";
-import { User, Phone, DollarSign, MessageSquare, CalendarDays, ChefHat, Users } from "lucide-react";
+import { User, Phone, DollarSign, MessageSquare, CalendarDays, Presentation, Users } from "lucide-react";
 import { FieldGroup } from "@/components/ui/FieldGroup";
 import { IconField } from "@/components/ui/IconField";
 import { IconSelect } from "@/components/ui/IconSelect";
@@ -11,6 +11,8 @@ import { Tag } from "@/components/ui/Tag";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { createEnrolment } from "@/lib/actions/enrolments";
 import { formatDate } from "@/lib/dates";
+import { useTerms } from "@/components/school/SchoolProvider";
+import { a } from "@/lib/terminology";
 
 export type EnrolStudentOption = { id: string; full_name: string; phone: string };
 export type EnrolIntakeOption = {
@@ -36,6 +38,7 @@ export function EnrolForm({
   initialStudentId?: string;
   initialIntakeId?: string;
 }) {
+  const t = useTerms();
   const [state, formAction, pending] = useActionState(createEnrolment, undefined);
   const errors = state?.errors ?? {};
 
@@ -121,7 +124,7 @@ export function EnrolForm({
           </div>
         )}
 
-        <FieldGroup label="Intake" htmlFor="intake_id" error={errors.intake_id?.[0]}>
+        <FieldGroup label={t.intake.one} htmlFor="intake_id" error={errors.intake_id?.[0]}>
           <IconSelect
             icon={<CalendarDays />}
             id="intake_id"
@@ -129,7 +132,7 @@ export function EnrolForm({
             value={intakeId}
             onChange={(e) => handleIntakeChange(e.target.value)}
           >
-            <option value="">Choose an intake…</option>
+            <option value="">Choose {a(t.intake.one)}…</option>
             {groupedIntakes.map(([courseName, group]) => (
               <optgroup key={courseName} label={courseName}>
                 {group.map((i) => (
@@ -158,8 +161,8 @@ export function EnrolForm({
               {selectedIntake.end_date ? ` – ${formatDate(selectedIntake.end_date)}` : ""}
             </div>
             <div className="flex items-center gap-1.5 text-ink-soft">
-              <ChefHat className="h-3.5 w-3.5 flex-none" />
-              {selectedIntake.instructor_name ?? "No instructor assigned"}
+              <Presentation className="h-3.5 w-3.5 flex-none" />
+              {selectedIntake.instructor_name ?? `No ${t.instructor.one.toLowerCase()} assigned`}
             </div>
             {selectedIntake.capacity !== null && (
               <div className="flex items-center gap-1.5 text-ink-soft">
@@ -186,7 +189,7 @@ export function EnrolForm({
 
         {priceDiffers && (
           <FieldGroup
-            label="Why does the price differ from the course default?"
+            label={`Why does the price differ from the ${t.course.one.toLowerCase()} default?`}
             htmlFor="price_note"
             error={errors.price_note?.[0]}
           >
