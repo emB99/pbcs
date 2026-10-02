@@ -140,7 +140,15 @@ export type Database = {
           id?: string
           to_status?: Database["public"]["Enums"]["enrolment_status"]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "enrolment_status_events_enrolment_id_fkey"
+            columns: ["enrolment_id"]
+            isOneToOne: false
+            referencedRelation: "enrolments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       guardians: {
         Row: {
@@ -176,7 +184,15 @@ export type Database = {
           relationship?: string | null
           student_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "guardians_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       student_documents: {
         Row: {
@@ -209,7 +225,15 @@ export type Database = {
           student_id?: string
           uploaded_by?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "student_documents_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       instructors: {
         Row: {
@@ -285,6 +309,52 @@ export type Database = {
             columns: ["instructor_id"]
             isOneToOne: false
             referencedRelation: "instructors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      intake_subjects: {
+        Row: {
+          created_at: string
+          id: string
+          instructor_id: string | null
+          intake_id: string
+          subject_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          instructor_id?: string | null
+          intake_id: string
+          subject_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          instructor_id?: string | null
+          intake_id?: string
+          subject_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intake_subjects_instructor_id_fkey"
+            columns: ["instructor_id"]
+            isOneToOne: false
+            referencedRelation: "instructors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intake_subjects_intake_id_fkey"
+            columns: ["intake_id"]
+            isOneToOne: false
+            referencedRelation: "intakes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intake_subjects_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
             referencedColumns: ["id"]
           },
         ]
@@ -397,6 +467,74 @@ export type Database = {
           photo_path?: string | null
           status?: Database["public"]["Enums"]["student_status"]
           student_number?: string
+        }
+        Relationships: []
+      }
+      subjects: {
+        Row: {
+          archived_at: string | null
+          code: string | null
+          course_id: string
+          created_at: string
+          id: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          archived_at?: string | null
+          code?: string | null
+          course_id: string
+          created_at?: string
+          id?: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          archived_at?: string | null
+          code?: string | null
+          course_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subjects_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      terms: {
+        Row: {
+          academic_year: string
+          created_at: string
+          end_date: string
+          id: string
+          name: string
+          results_locked: boolean
+          start_date: string
+        }
+        Insert: {
+          academic_year: string
+          created_at?: string
+          end_date: string
+          id?: string
+          name: string
+          results_locked?: boolean
+          start_date: string
+        }
+        Update: {
+          academic_year?: string
+          created_at?: string
+          end_date?: string
+          id?: string
+          name?: string
+          results_locked?: boolean
+          start_date?: string
         }
         Relationships: []
       }

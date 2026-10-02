@@ -11,9 +11,11 @@ import { ProfileForm } from "@/components/settings/ProfileForm";
 import { ChangePasswordForm } from "@/components/settings/ChangePasswordForm";
 import { SchoolSettingsForm } from "@/components/settings/SchoolSettingsForm";
 import { TeamPanel, type TeamMember } from "@/components/settings/TeamPanel";
+import { TermsPanel } from "@/components/settings/TermsPanel";
 import { cn } from "@/lib/cn";
+import type { Term } from "@/lib/types";
 
-type Tab = "account" | "school" | "team";
+type Tab = "account" | "school" | "terms" | "team";
 
 export default async function SettingsPage(props: PageProps<"/settings">) {
   const ctx = await requireSchool();
@@ -21,13 +23,14 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
 
   const { tab: rawTab } = await props.searchParams;
   const requested = Array.isArray(rawTab) ? rawTab[0] : rawTab;
-  const tab: Tab = isAdmin && (requested === "school" || requested === "team") ? requested : "account";
+  const tab: Tab = isAdmin && (requested === "school" || requested === "terms" || requested === "team") ? requested : "account";
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "account", label: "Account" },
     ...(isAdmin
       ? [
           { key: "school" as const, label: "School" },
+          { key: "terms" as const, label: ctx.terms.term.many },
           { key: "team" as const, label: "Team" },
         ]
       : []),
@@ -65,6 +68,16 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
         </Card>
       )}
 
+      {tab === "terms" && (
+        <Card>
+          <CardHead
+            title={ctx.terms.term.many}
+            note={`The academic calendar: ${ctx.terms.term.many.toLowerCase()} and when results close`}
+          />
+          <TermsPanel terms={await loadTerms()} />
+        </Card>
+      )}
+
       {tab === "team" && (
         <Card>
           <CardHead title="Team" note="Who can sign in, and what they can do" />
@@ -77,6 +90,16 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
       )}
     </div>
   );
+}
+
+async function loadTerms(): Promise<Term[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("terms")
+    .select("*")
+    .order("start_date", { ascending: false })
+    .returns<Term[]>();
+  return data ?? [];
 }
 
 async function loadTeam(): Promise<TeamMember[]> {

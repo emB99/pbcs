@@ -57,7 +57,7 @@ export function IntakeForm({
         </FieldGroup>
       </div>
 
-      <FieldGroup label={t.instructor.one} htmlFor="instructor_id" error={errors.instructor_id?.[0]}>
+      <FieldGroup label={`${t.instructor.one} in charge`} htmlFor="instructor_id" error={errors.instructor_id?.[0]}>
         <IconSelect icon={<Presentation />} id="instructor_id" name="instructor_id" defaultValue="">
           <option value="">Unassigned</option>
           {instructors.map((i) => (

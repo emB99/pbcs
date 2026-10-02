@@ -68,7 +68,7 @@ export function IntakesTable({
     },
     {
       key: "instructor",
-      header: t.instructor.one,
+      header: `${t.instructor.one} in charge`,
       sortValue: (r) => r.instructor?.full_name ?? "",
       render: (r) => <span className="text-ink-mid">{r.instructor?.full_name ?? "—"}</span>,
     },
