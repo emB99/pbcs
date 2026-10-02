@@ -36,6 +36,8 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
       : []),
   ];
 
+  const teamMembers = tab === "team" ? await loadTeamSafely() : null;
+
   return (
     <div className="flex flex-col gap-4">
       <h1 className="font-display text-xl font-semibold">Settings</h1>
@@ -81,11 +83,13 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
       {tab === "team" && (
         <Card>
           <CardHead title="Team" note="Who can sign in, and what they can do" />
-          <TeamPanel
-            members={await loadTeam()}
-            currentUserId={ctx.userId}
-            currentRole={ctx.role}
-          />
+          {teamMembers ? (
+            <TeamPanel members={teamMembers} currentUserId={ctx.userId} currentRole={ctx.role} />
+          ) : (
+            <p className="px-6 pb-6 text-[13px] text-danger">
+              The team list needs SUPABASE_SERVICE_ROLE_KEY in .env.local. Add it and restart the dev server.
+            </p>
+          )}
         </Card>
       )}
     </div>
@@ -100,6 +104,16 @@ async function loadTerms(): Promise<Term[]> {
     .order("start_date", { ascending: false })
     .returns<Term[]>();
   return data ?? [];
+}
+
+/** Null when the service-role key is not configured (or the lookup fails). */
+async function loadTeamSafely(): Promise<TeamMember[] | null> {
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return null;
+  try {
+    return await loadTeam();
+  } catch {
+    return null;
+  }
 }
 
 async function loadTeam(): Promise<TeamMember[]> {
