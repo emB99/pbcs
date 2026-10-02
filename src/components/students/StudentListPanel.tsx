@@ -15,7 +15,8 @@ import { cn } from "@/lib/cn";
 export type StudentRow = {
   id: string;
   full_name: string;
-  phone: string;
+  student_number: string;
+  phone: string | null;
   balance: number;
   last_payment_on: string | null;
 };
@@ -30,7 +31,8 @@ export function StudentListPanel({ rows }: { rows: StudentRow[] }) {
     ? rows.filter(
         (r) =>
           r.full_name.toLowerCase().includes(normalized) ||
-          r.phone.replace(/\s+/g, "").includes(normalized.replace(/\s+/g, "")),
+          (r.phone ?? "").replace(/\s+/g, "").includes(normalized.replace(/\s+/g, "")) ||
+          r.student_number.toLowerCase().includes(normalized),
       )
     : rows;
 
@@ -41,8 +43,9 @@ export function StudentListPanel({ rows }: { rows: StudentRow[] }) {
           rows={filtered}
           filename="students.csv"
           columns={[
+            { header: "Number", value: (r) => r.student_number },
             { header: "Name", value: (r) => r.full_name },
-            { header: "Phone", value: (r) => r.phone },
+            { header: "Phone", value: (r) => r.phone ?? "" },
             { header: "Balance", value: (r) => r.balance },
             { header: "Last payment", value: (r) => r.last_payment_on ?? "" },
           ]}
@@ -53,7 +56,7 @@ export function StudentListPanel({ rows }: { rows: StudentRow[] }) {
         <SearchInput
           value={search}
           onChange={setSearch}
-          placeholder="Search by name or phone"
+          placeholder="Search by name, number or phone"
           size="mini"
         />
       </div>
@@ -80,7 +83,10 @@ export function StudentListPanel({ rows }: { rows: StudentRow[] }) {
               <AvatarInitials id={r.id} name={r.full_name} />
               <div className="min-w-0 flex-1">
                 <div className="truncate text-[13px] font-semibold">{r.full_name}</div>
-                <div className="truncate text-[11px] text-ink-soft">{r.phone}</div>
+                <div className="truncate text-[11px] text-ink-soft">
+                  {r.student_number}
+                  {r.phone ? ` · ${r.phone}` : ""}
+                </div>
               </div>
               <MoneyCell amount={r.balance} variant={r.balance > 0 ? "owing" : "muted"} />
             </Link>

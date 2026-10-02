@@ -2,25 +2,36 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Pencil, UserPlus, CreditCard, FileText, Eye } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { requireSchool } from "@/lib/school";
 import { Card, CardHead } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LabelAboveValue } from "@/components/ui/FieldGroup";
 import { BalanceWithBar } from "@/components/ui/BalanceWithBar";
 import { Tag } from "@/components/ui/Tag";
-import { monthYearLabel } from "@/lib/dates";
+import { formatDate, monthYearLabel } from "@/lib/dates";
 import { StudentArchiveButton } from "@/components/students/StudentArchiveButton";
 import { StudentBanner } from "@/components/students/StudentBanner";
 import { StudentDetailTabs } from "@/components/students/StudentDetailTabs";
+import { GuardiansPanel } from "@/components/students/GuardiansPanel";
+import { DocumentsPanel, type DocumentRow } from "@/components/students/DocumentsPanel";
+import { PhotoButton } from "@/components/students/PhotoButton";
 import { WithdrawButton } from "@/components/enrolments/WithdrawButton";
+import { CompleteButton } from "@/components/enrolments/CompleteButton";
 import { AddChargeButton } from "@/components/enrolments/AddChargeButton";
 import { TransactionLedger } from "@/components/payments/TransactionLedger";
-import type { Student, Transaction } from "@/lib/types";
+import type { Guardian, Student, StudentDocument, Transaction } from "@/lib/types";
 
-export default async function StudentDetailPage(
-  props: PageProps<"/students/[studentId]">,
-) {
+const SIGNED_URL_SECONDS = 60 * 60;
+
+const GENDER_LABEL: Record<string, string> = { female: "Female", male: "Male", other: "Other" };
+
+const EVENT_LABEL = { enrolled: "Enrolled", completed: "Completed", withdrawn: "Withdrawn" } as const;
+
+export default async function StudentDetailPage(props: PageProps<"/students/[studentId]">) {
   const { studentId } = await props.params;
+  const { guardian: guardianFlag } = await props.searchParams;
+  const { terms: t } = await requireSchool();
   const supabase = await createClient();
 
   const { data: student } = await supabase
@@ -40,23 +51,70 @@ export default async function StudentDetailPage(
     .order("enrolled_on", { ascending: false });
 
   const enrolmentIds = (enrolments ?? []).map((e) => e.id);
+  const idFilter = enrolmentIds.length > 0 ? enrolmentIds : [""];
 
-  const [{ data: balances }, { data: transactions }] = await Promise.all([
+  const [
+    { data: balances },
+    { data: transactions },
+    { data: events },
+    { data: guardians },
+    { data: documents },
+  ] = await Promise.all([
     supabase
       .from("enrolment_balances")
       .select("enrolment_id, charged, paid, balance")
-      .in("enrolment_id", enrolmentIds.length > 0 ? enrolmentIds : [""]),
+      .in("enrolment_id", idFilter),
     supabase
       .from("transactions")
       .select("*")
-      .in("enrolment_id", enrolmentIds.length > 0 ? enrolmentIds : [""])
+      .in("enrolment_id", idFilter)
       .order("occurred_on", { ascending: false })
       .order("created_at", { ascending: false })
       .returns<Transaction[]>(),
+    supabase
+      .from("enrolment_status_events")
+      .select("enrolment_id, to_status, changed_at")
+      .in("enrolment_id", idFilter)
+      .order("changed_at"),
+    supabase
+      .from("guardians")
+      .select("*")
+      .eq("student_id", studentId)
+      .order("is_primary", { ascending: false })
+      .order("created_at")
+      .returns<Guardian[]>(),
+    supabase
+      .from("student_documents")
+      .select("*")
+      .eq("student_id", studentId)
+      .order("created_at", { ascending: false })
+      .returns<StudentDocument[]>(),
   ]);
+
+  // Private buckets: hand the browser short-lived signed URLs.
+  const photoUrl = student.photo_path
+    ? ((await supabase.storage.from("student-photos").createSignedUrl(student.photo_path, SIGNED_URL_SECONDS))
+        .data?.signedUrl ?? null)
+    : null;
+  const docPaths = (documents ?? []).map((d) => d.storage_path);
+  const signed =
+    docPaths.length > 0
+      ? (await supabase.storage.from("student-documents").createSignedUrls(docPaths, SIGNED_URL_SECONDS)).data
+      : [];
+  const urlByPath = new Map((signed ?? []).map((s) => [s.path, s.signedUrl]));
+  const documentRows: DocumentRow[] = (documents ?? []).map((d) => ({
+    ...d,
+    url: urlByPath.get(d.storage_path) ?? null,
+  }));
 
   const balanceByEnrolment = new Map((balances ?? []).map((b) => [b.enrolment_id, b]));
   const studentBalance = (balances ?? []).reduce((sum, b) => sum + Number(b.balance), 0);
+  const eventsByEnrolment = new Map<string, { to_status: keyof typeof EVENT_LABEL; changed_at: string }[]>();
+  for (const ev of events ?? []) {
+    const list = eventsByEnrolment.get(ev.enrolment_id) ?? [];
+    list.push(ev);
+    eventsByEnrolment.set(ev.enrolment_id, list);
+  }
 
   const enrolmentsContent = (
     <div className="flex flex-col">
@@ -75,6 +133,7 @@ export default async function StudentDetailPage(
       {(enrolments ?? []).map((e) => {
         const bal = balanceByEnrolment.get(e.id);
         const intake = e.intake;
+        const history = eventsByEnrolment.get(e.id) ?? [];
         return (
           <div
             key={e.id}
@@ -92,6 +151,13 @@ export default async function StudentDetailPage(
                   {e.status}
                 </Tag>
               </div>
+              {history.length > 0 && (
+                <div className="mt-1 text-[11px] text-ink-soft">
+                  {history
+                    .map((h) => `${EVENT_LABEL[h.to_status]} ${formatDate(h.changed_at.slice(0, 10))}`)
+                    .join(" · ")}
+                </div>
+              )}
             </Link>
             {e.status === "enrolled" && (
               <div className="flex flex-col items-end gap-1">
@@ -99,6 +165,7 @@ export default async function StudentDetailPage(
                   enrolmentId={e.id}
                   courseName={intake?.course?.name ?? "this enrolment"}
                 />
+                <CompleteButton enrolmentId={e.id} studentName={student.full_name} />
                 <WithdrawButton
                   enrolmentId={e.id}
                   studentName={student.full_name}
@@ -122,10 +189,20 @@ export default async function StudentDetailPage(
       <StudentBanner
         id={student.id}
         name={student.full_name}
+        studentNumber={student.student_number}
+        status={student.status}
+        photoUrl={photoUrl}
         phone={student.phone}
         enrolmentCount={enrolments?.length ?? 0}
         balance={studentBalance}
       />
+
+      {guardianFlag === "failed" && (
+        <p className="rounded-md bg-butter px-4 py-3 text-[13px] text-butter-ink">
+          The student was saved, but the {t.guardian.one.toLowerCase()} could not be. Add them from the{" "}
+          {t.guardian.many} tab below.
+        </p>
+      )}
 
       <div className="flex flex-wrap gap-2">
         <Link href={`/payments/new?studentId=${student.id}`}>
@@ -142,6 +219,7 @@ export default async function StudentDetailPage(
         <Link href={`/preview/student/${student.id}`}>
           <Button icon={<Eye />}>Preview student view</Button>
         </Link>
+        <PhotoButton studentId={student.id} hasPhoto={Boolean(student.photo_path)} />
         <Link href={`/students/${student.id}/edit`}>
           <Button icon={<Pencil />}>Edit</Button>
         </Link>
@@ -150,19 +228,38 @@ export default async function StudentDetailPage(
 
       <Card>
         <CardHead title="Basic details" />
-        <div className="grid grid-cols-2 gap-4 p-5">
+        <div className="grid grid-cols-2 gap-4 p-5 max-[520px]:grid-cols-1 sm:grid-cols-3">
+          <LabelAboveValue label="Date of birth" value={student.date_of_birth ? formatDate(student.date_of_birth) : null} />
+          <LabelAboveValue label="Gender" value={student.gender ? GENDER_LABEL[student.gender] : null} />
+          <LabelAboveValue label="Phone" value={student.phone} />
           <LabelAboveValue label="Email" value={student.email} />
           <LabelAboveValue label="National ID" value={student.national_id} />
           <LabelAboveValue label="Address" value={student.address} />
-          <LabelAboveValue label="Notes" value={student.notes} />
+          <div className="col-span-full">
+            <LabelAboveValue label="Notes" value={student.notes} />
+          </div>
         </div>
       </Card>
 
       <StudentDetailTabs
-        enrolmentsCount={enrolments?.length ?? 0}
-        transactionsCount={transactions?.length ?? 0}
-        enrolmentsContent={enrolmentsContent}
-        ledgerContent={<TransactionLedger transactions={transactions ?? []} />}
+        tabs={[
+          { key: "enrolments", label: `${t.enrolment.many} (${enrolments?.length ?? 0})`, content: enrolmentsContent },
+          {
+            key: "guardians",
+            label: `${t.guardian.many} (${guardians?.length ?? 0})`,
+            content: <GuardiansPanel studentId={student.id} guardians={guardians ?? []} />,
+          },
+          {
+            key: "documents",
+            label: `Documents (${documentRows.length})`,
+            content: <DocumentsPanel studentId={student.id} documents={documentRows} />,
+          },
+          {
+            key: "ledger",
+            label: `Ledger (${transactions?.length ?? 0})`,
+            content: <TransactionLedger transactions={transactions ?? []} />,
+          },
+        ]}
       />
     </div>
   );

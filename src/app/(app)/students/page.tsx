@@ -7,7 +7,7 @@ export default async function StudentsPage() {
 
   const { data: students } = await supabase
     .from("students")
-    .select("id, full_name, phone, archived_at")
+    .select("id, full_name, student_number, phone, archived_at")
     .is("archived_at", null)
     .order("full_name");
 
@@ -21,6 +21,7 @@ export default async function StudentsPage() {
   const rows: StudentRow[] = (students ?? []).map((s) => ({
     id: s.id,
     full_name: s.full_name,
+    student_number: s.student_number,
     phone: s.phone,
     balance: balanceById.get(s.id)?.balance ?? 0,
     last_payment_on: balanceById.get(s.id)?.last_payment_on ?? null,

@@ -20,7 +20,8 @@ import type { PaymentMethod } from "@/lib/types";
 export type StudentOption = {
   id: string;
   full_name: string;
-  phone: string;
+  phone: string | null;
+  student_number: string;
   balance: number;
 };
 
@@ -82,7 +83,8 @@ export function PaymentForm({
       .filter(
         (s) =>
           s.full_name.toLowerCase().includes(normalizedQuery) ||
-          s.phone.replace(/\s+/g, "").includes(normalizedQuery.replace(/\s+/g, "")),
+          (s.phone ?? "").replace(/\s+/g, "").includes(normalizedQuery.replace(/\s+/g, "")) ||
+          s.student_number.toLowerCase().includes(normalizedQuery),
       )
       .slice(0, 8);
   }, [students, normalizedQuery]);
@@ -169,7 +171,7 @@ export function PaymentForm({
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-6">
       {!student ? (
         <FieldGroup label="Find a student">
-          <SearchInput value={query} onChange={setQuery} placeholder="Search by name or phone" />
+          <SearchInput value={query} onChange={setQuery} placeholder="Search by name, number or phone" />
           {matches.length > 0 && (
             <div className="mt-2 flex flex-col overflow-hidden rounded-md border border-line">
               {matches.map((s) => (
@@ -183,7 +185,7 @@ export function PaymentForm({
                     <AvatarInitials id={s.id} name={s.full_name} size="sm" />
                     <span>
                       <span className="block text-[13px] font-semibold">{s.full_name}</span>
-                      <span className="block text-[11.5px] text-ink-soft">{s.phone}</span>
+                      <span className="block text-[11.5px] text-ink-soft">{s.student_number}{s.phone ? ` · ${s.phone}` : ""}</span>
                     </span>
                   </span>
                   <MoneyCell amount={s.balance} variant={Number(s.balance) > 0 ? "owing" : "muted"} />
@@ -198,7 +200,7 @@ export function PaymentForm({
             <AvatarInitials id={student.id} name={student.full_name} size="sm" />
             <span>
               <span className="block text-[13px] font-semibold">{student.full_name}</span>
-              <span className="block text-[11.5px] text-ink-soft">{student.phone}</span>
+              <span className="block text-[11.5px] text-ink-soft">{student.student_number}{student.phone ? ` · ${student.phone}` : ""}</span>
             </span>
           </span>
           <button

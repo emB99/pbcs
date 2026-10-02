@@ -1,11 +1,13 @@
 "use client";
 
 import { useActionState } from "react";
-import { User, Phone, Mail, IdCard, MapPin } from "lucide-react";
-import { FieldGroup, textareaClass } from "@/components/ui/FieldGroup";
+import { User, Phone, Mail, IdCard, MapPin, Users, Heart, Activity } from "lucide-react";
+import { FieldGroup, inputClass, textareaClass } from "@/components/ui/FieldGroup";
 import { IconField } from "@/components/ui/IconField";
+import { IconSelect } from "@/components/ui/IconSelect";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { useSchoolType, useTerms } from "@/components/school/SchoolProvider";
 import type { FormState, Student } from "@/lib/types";
 
 export function StudentForm({
@@ -22,6 +24,10 @@ export function StudentForm({
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
   const errors = state?.errors ?? {};
+  const t = useTerms();
+  const isK12 = useSchoolType() === "k12";
+  const isEdit = defaultValues !== undefined;
+  const guardianLabel = t.guardian.one;
 
   const fields = (
     <form action={formAction} className={bare ? "flex flex-col gap-4" : "flex flex-col gap-4 p-6"}>
@@ -35,13 +41,34 @@ export function StudentForm({
         />
       </FieldGroup>
 
+      <div className="grid grid-cols-2 gap-4 max-[520px]:grid-cols-1">
+        <FieldGroup label="Date of birth" htmlFor="date_of_birth" error={errors.date_of_birth?.[0]}>
+          <input
+            id="date_of_birth"
+            name="date_of_birth"
+            type="date"
+            max={new Date().toISOString().slice(0, 10)}
+            defaultValue={defaultValues?.date_of_birth ?? ""}
+            className={inputClass}
+          />
+        </FieldGroup>
+        <FieldGroup label="Gender" htmlFor="gender" error={errors.gender?.[0]}>
+          <IconSelect icon={<Users />} id="gender" name="gender" defaultValue={defaultValues?.gender ?? ""}>
+            <option value="">Not specified</option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+            <option value="other">Other</option>
+          </IconSelect>
+        </FieldGroup>
+      </div>
+
       <FieldGroup label="Phone" htmlFor="phone" error={errors.phone?.[0]}>
         <IconField
           icon={<Phone />}
           id="phone"
           name="phone"
-          required
-          defaultValue={defaultValues?.phone}
+          placeholder={isK12 ? "Optional" : undefined}
+          defaultValue={defaultValues?.phone ?? ""}
         />
       </FieldGroup>
 
@@ -81,6 +108,45 @@ export function StudentForm({
           />
         </div>
       </FieldGroup>
+
+      {isEdit && (
+        <FieldGroup label="Status" htmlFor="status" error={errors.status?.[0]}>
+          <IconSelect icon={<Activity />} id="status" name="status" defaultValue={defaultValues?.status ?? "active"}>
+            <option value="active">Active</option>
+            <option value="suspended">Suspended</option>
+            <option value="graduated">Graduated</option>
+            <option value="withdrawn">Withdrawn</option>
+          </IconSelect>
+        </FieldGroup>
+      )}
+
+      {!isEdit && (
+        <fieldset className="flex flex-col gap-3 rounded-md border border-line-soft bg-surface-2 p-4">
+          <legend className="px-1 text-[12.5px] font-semibold text-ink-mid">
+            {guardianLabel}
+            {isK12 ? "" : " (optional)"}
+          </legend>
+          <FieldGroup label="Name" htmlFor="guardian_full_name" error={errors.guardian_full_name?.[0]}>
+            <IconField icon={<Heart />} id="guardian_full_name" name="guardian_full_name" required={isK12} />
+          </FieldGroup>
+          <div className="grid grid-cols-2 gap-3 max-[520px]:grid-cols-1">
+            <FieldGroup label="Relationship" htmlFor="guardian_relationship">
+              <IconField
+                icon={<Users />}
+                id="guardian_relationship"
+                name="guardian_relationship"
+                placeholder="e.g. Mother"
+              />
+            </FieldGroup>
+            <FieldGroup label="Phone" htmlFor="guardian_phone" error={errors.guardian_phone?.[0]}>
+              <IconField icon={<Phone />} id="guardian_phone" name="guardian_phone" />
+            </FieldGroup>
+          </div>
+          <FieldGroup label="Email" htmlFor="guardian_email" error={errors.guardian_email?.[0]}>
+            <IconField icon={<Mail />} id="guardian_email" name="guardian_email" type="email" placeholder="Optional" />
+          </FieldGroup>
+        </fieldset>
+      )}
 
       <FieldGroup label="Notes" htmlFor="notes" error={errors.notes?.[0]}>
         <textarea

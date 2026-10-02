@@ -11,10 +11,15 @@ import { Tag } from "@/components/ui/Tag";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { createEnrolment } from "@/lib/actions/enrolments";
 import { formatDate } from "@/lib/dates";
-import { useTerms } from "@/components/school/SchoolProvider";
+import { useSchoolType, useTerms } from "@/components/school/SchoolProvider";
 import { a } from "@/lib/terminology";
 
-export type EnrolStudentOption = { id: string; full_name: string; phone: string };
+export type EnrolStudentOption = {
+  id: string;
+  full_name: string;
+  phone: string | null;
+  student_number: string;
+};
 export type EnrolIntakeOption = {
   id: string;
   intake_label: string;
@@ -39,6 +44,7 @@ export function EnrolForm({
   initialIntakeId?: string;
 }) {
   const t = useTerms();
+  const isK12 = useSchoolType() === "k12";
   const [state, formAction, pending] = useActionState(createEnrolment, undefined);
   const errors = state?.errors ?? {};
 
@@ -104,7 +110,7 @@ export function EnrolForm({
               <option value="">Choose a student…</option>
               {students.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {s.full_name} — {s.phone}
+                  {s.full_name} — {s.student_number}
                 </option>
               ))}
             </IconSelect>
@@ -119,8 +125,32 @@ export function EnrolForm({
               <IconField icon={<User />} id="new_student_full_name" name="new_student_full_name" required />
             </FieldGroup>
             <FieldGroup label="Phone" htmlFor="new_student_phone" error={errors.new_student_phone?.[0]}>
-              <IconField icon={<Phone />} id="new_student_phone" name="new_student_phone" required />
+              <IconField
+                icon={<Phone />}
+                id="new_student_phone"
+                name="new_student_phone"
+                placeholder={isK12 ? "Optional" : undefined}
+                required={!isK12}
+              />
             </FieldGroup>
+            {isK12 && (
+              <>
+                <FieldGroup
+                  label={`${t.guardian.one} name`}
+                  htmlFor="new_guardian_full_name"
+                  error={errors.new_guardian_full_name?.[0]}
+                >
+                  <IconField icon={<User />} id="new_guardian_full_name" name="new_guardian_full_name" required />
+                </FieldGroup>
+                <FieldGroup
+                  label={`${t.guardian.one} phone`}
+                  htmlFor="new_guardian_phone"
+                  error={errors.new_guardian_phone?.[0]}
+                >
+                  <IconField icon={<Phone />} id="new_guardian_phone" name="new_guardian_phone" required />
+                </FieldGroup>
+              </>
+            )}
           </div>
         )}
 

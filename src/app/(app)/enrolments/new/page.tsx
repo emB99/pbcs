@@ -15,7 +15,7 @@ export default async function NewEnrolmentPage(
   const [{ data: students }, { data: intakes }] = await Promise.all([
     supabase
       .from("students")
-      .select("id, full_name, phone")
+      .select("id, full_name, phone, student_number")
       .is("archived_at", null)
       .order("full_name"),
     supabase

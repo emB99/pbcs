@@ -122,3 +122,9 @@ export const getPublicSchoolName = cache(async (): Promise<string> => {
     return PRODUCT_NAME;
   }
 });
+
+/** For actions that return FormState/DialogResult: the caller's context if they are office staff, else null. */
+export async function getOfficeContext(): Promise<SchoolContext | null> {
+  const state = await getSessionState();
+  return state.status === "ok" && OFFICE_ROLES.includes(state.context.role) ? state.context : null;
+}

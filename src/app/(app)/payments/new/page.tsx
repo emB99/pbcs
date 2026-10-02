@@ -12,7 +12,7 @@ export default async function NewPaymentPage(props: PageProps<"/payments/new">) 
   const [{ data: students }, { data: enrolments }, { data: lastZwg }] = await Promise.all([
     supabase
       .from("students")
-      .select("id, full_name, phone, archived_at")
+      .select("id, full_name, phone, student_number, archived_at")
       .is("archived_at", null)
       .order("full_name"),
     supabase
@@ -48,6 +48,7 @@ export default async function NewPaymentPage(props: PageProps<"/payments/new">) 
     id: s.id,
     full_name: s.full_name,
     phone: s.phone,
+    student_number: s.student_number,
     balance: studentBalanceById.get(s.id) ?? 0,
   }));
 

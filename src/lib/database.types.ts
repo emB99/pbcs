@@ -115,6 +115,102 @@ export type Database = {
           },
         ]
       }
+      enrolment_status_events: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          enrolment_id: string
+          from_status: Database["public"]["Enums"]["enrolment_status"] | null
+          id: string
+          to_status: Database["public"]["Enums"]["enrolment_status"]
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          enrolment_id: string
+          from_status?: Database["public"]["Enums"]["enrolment_status"] | null
+          id?: string
+          to_status: Database["public"]["Enums"]["enrolment_status"]
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          enrolment_id?: string
+          from_status?: Database["public"]["Enums"]["enrolment_status"] | null
+          id?: string
+          to_status?: Database["public"]["Enums"]["enrolment_status"]
+        }
+        Relationships: []
+      }
+      guardians: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          is_primary: boolean
+          notes: string | null
+          phone: string | null
+          relationship: string | null
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          is_primary?: boolean
+          notes?: string | null
+          phone?: string | null
+          relationship?: string | null
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          is_primary?: boolean
+          notes?: string | null
+          phone?: string | null
+          relationship?: string | null
+          student_id?: string
+        }
+        Relationships: []
+      }
+      student_documents: {
+        Row: {
+          content_type: string | null
+          created_at: string
+          id: string
+          name: string
+          size_bytes: number | null
+          storage_path: string
+          student_id: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          size_bytes?: number | null
+          storage_path: string
+          student_id: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          size_bytes?: number | null
+          storage_path?: string
+          student_id?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       instructors: {
         Row: {
           archived_at: string | null
@@ -263,7 +359,12 @@ export type Database = {
           id: string
           national_id: string | null
           notes: string | null
-          phone: string
+          phone: string | null
+          date_of_birth: string | null
+          gender: string | null
+          photo_path: string | null
+          status: Database["public"]["Enums"]["student_status"]
+          student_number: string
         }
         Insert: {
           address?: string | null
@@ -274,7 +375,12 @@ export type Database = {
           id?: string
           national_id?: string | null
           notes?: string | null
-          phone: string
+          phone?: string | null
+          date_of_birth?: string | null
+          gender?: string | null
+          photo_path?: string | null
+          status?: Database["public"]["Enums"]["student_status"]
+          student_number?: string
         }
         Update: {
           address?: string | null
@@ -285,7 +391,12 @@ export type Database = {
           id?: string
           national_id?: string | null
           notes?: string | null
-          phone?: string
+          phone?: string | null
+          date_of_birth?: string | null
+          gender?: string | null
+          photo_path?: string | null
+          status?: Database["public"]["Enums"]["student_status"]
+          student_number?: string
         }
         Relationships: []
       }
@@ -438,6 +549,7 @@ export type Database = {
       course_kind: "short_course" | "programme"
       enrolment_status: "enrolled" | "completed" | "withdrawn"
       school_type: "college" | "k12"
+      student_status: "active" | "graduated" | "withdrawn" | "suspended"
       txn_kind: "charge" | "payment" | "adjustment"
     }
     CompositeTypes: {
@@ -570,6 +682,7 @@ export const Constants = {
       course_kind: ["short_course", "programme"],
       enrolment_status: ["enrolled", "completed", "withdrawn"],
       school_type: ["college", "k12"],
+      student_status: ["active", "graduated", "withdrawn", "suspended"],
       txn_kind: ["charge", "payment", "adjustment"],
     },
   },

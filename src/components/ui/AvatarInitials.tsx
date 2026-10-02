@@ -14,12 +14,15 @@ export function AvatarInitials({
   name,
   size = "md",
   round = false,
+  src,
 }: {
   id: string;
   name: string;
   size?: "sm" | "md" | "lg";
   /** Circular (topbar "who am I" style) instead of the default rounded square. */
   round?: boolean;
+  /** Signed photo URL; falls back to initials when absent. */
+  src?: string | null;
 }) {
   const tint = tintForId(id);
   const dims =
@@ -28,14 +31,19 @@ export function AvatarInitials({
   return (
     <div
       className={cn(
-        "grid flex-none place-items-center font-bold tracking-[0.02em]",
+        "grid flex-none place-items-center overflow-hidden font-bold tracking-[0.02em]",
         round ? "rounded-full" : "rounded-[11px]",
         dims,
         TINT_CLASSES[tint],
       )}
       aria-hidden="true"
     >
-      {toInitials(name)}
+      {src ? (
+        // eslint-disable-next-line @next/next/no-img-element -- short-lived signed URL, not optimisable
+        <img src={src} alt="" className="h-full w-full object-cover" />
+      ) : (
+        toInitials(name)
+      )}
     </div>
   );
 }

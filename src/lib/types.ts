@@ -5,6 +5,9 @@ export type Instructor = Database["public"]["Tables"]["instructors"]["Row"];
 export type Course = Database["public"]["Tables"]["courses"]["Row"];
 export type Intake = Database["public"]["Tables"]["intakes"]["Row"];
 export type Enrolment = Database["public"]["Tables"]["enrolments"]["Row"];
+export type Guardian = Database["public"]["Tables"]["guardians"]["Row"];
+export type StudentDocument = Database["public"]["Tables"]["student_documents"]["Row"];
+export type StudentStatus = Database["public"]["Enums"]["student_status"];
 export type Transaction = Database["public"]["Tables"]["transactions"]["Row"];
 
 export type EnrolmentBalance =

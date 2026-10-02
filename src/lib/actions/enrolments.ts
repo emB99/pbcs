@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { NOT_ALLOWED, getOfficeContext } from "@/lib/school";
 import { insertCharge } from "@/lib/db/transactions";
 import { enrolmentSchema, withdrawSchema } from "@/lib/validation/enrolments";
 import { fieldErrorsFromZod } from "@/lib/validation/shared";
@@ -12,11 +13,16 @@ export async function createEnrolment(
   _prevState: FormState,
   formData: FormData,
 ): Promise<FormState> {
+  const ctx = await getOfficeContext();
+  if (!ctx) return { message: NOT_ALLOWED };
+
   const parsed = enrolmentSchema.safeParse({
     mode: formData.get("mode"),
     student_id: formData.get("student_id") ?? undefined,
     new_student_full_name: formData.get("new_student_full_name") ?? undefined,
     new_student_phone: formData.get("new_student_phone") ?? undefined,
+    new_guardian_full_name: formData.get("new_guardian_full_name") ?? undefined,
+    new_guardian_phone: formData.get("new_guardian_phone") ?? undefined,
     intake_id: formData.get("intake_id"),
     agreed_price: formData.get("agreed_price"),
     price_note: formData.get("price_note"),
@@ -29,18 +35,37 @@ export async function createEnrolment(
   let studentId = parsed.data.student_id;
 
   if (parsed.data.mode === "new") {
+    // Same contact rules as the full student form.
+    const phone = parsed.data.new_student_phone?.trim() || null;
+    const guardianName = parsed.data.new_guardian_full_name?.trim() || null;
+    const guardianPhone = parsed.data.new_guardian_phone?.trim() || null;
+    if (ctx.settings.school_type === "k12") {
+      if (!guardianName) return { errors: { new_guardian_full_name: ["A guardian is required."] } };
+      if (!guardianPhone) {
+        return { errors: { new_guardian_phone: ["Add a phone number for the guardian."] } };
+      }
+    } else if (!phone && !guardianPhone) {
+      return { errors: { new_student_phone: ["Add a phone number for the student."] } };
+    }
+
     const { data: student, error: studentError } = await supabase
       .from("students")
-      .insert({
-        full_name: parsed.data.new_student_full_name!.trim(),
-        phone: parsed.data.new_student_phone!.trim(),
-      })
+      .insert({ full_name: parsed.data.new_student_full_name!.trim(), phone })
       .select("id")
       .single();
     if (studentError || !student) {
-      return { message: "Couldn't create the student. Try again." };
+      return { message: "Could not create the student. Try again." };
     }
     studentId = student.id;
+
+    if (guardianName) {
+      await supabase.from("guardians").insert({
+        student_id: student.id,
+        full_name: guardianName,
+        phone: guardianPhone,
+        is_primary: true,
+      });
+    }
   }
 
   const { data: enrolment, error: enrolmentError } = await supabase
@@ -128,5 +153,28 @@ export async function withdrawEnrolment(
 
   revalidatePath("/students");
   revalidatePath(`/students/${enrolment.student_id}`);
+  return { ok: true };
+}
+
+export async function completeEnrolment(enrolmentId: string): Promise<DialogResult> {
+  const supabase = await createClient();
+  const { data: enrolment } = await supabase
+    .from("enrolments")
+    .select("id, student_id, status")
+    .eq("id", enrolmentId)
+    .maybeSingle();
+  if (!enrolment) return { ok: false, message: "Enrolment not found." };
+  if (enrolment.status !== "enrolled") {
+    return { ok: false, message: "Only an active enrolment can be marked completed." };
+  }
+
+  const { error } = await supabase
+    .from("enrolments")
+    .update({ status: "completed", ended_on: new Date().toISOString().slice(0, 10) })
+    .eq("id", enrolmentId);
+  if (error) return { ok: false, message: "Could not update the enrolment. Try again." };
+
+  revalidatePath(`/students/${enrolment.student_id}`);
+  revalidatePath("/intakes");
   return { ok: true };
 }
