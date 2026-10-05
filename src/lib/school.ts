@@ -3,7 +3,6 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { PRODUCT_NAME } from "@/lib/brand";
 import { resolveTerms, type TerminologyOverrides, type Terms } from "@/lib/terminology";
 import type { AppRole, SchoolSettings } from "@/lib/types";
@@ -46,10 +45,9 @@ export const getSessionState = cache(async (): Promise<SessionState> => {
   // ambiguous: either the school hasn't been set up yet, or this user isn't
   // a member. Only a member can see the row, so distinguish via the role.
   if (!membership) {
-    const { count } = await createAdminClient()
-      .from("school_settings")
-      .select("id", { count: "exact", head: true });
-    return count && count > 0
+    const { data: status } = await supabase.rpc("school_status");
+    const setUp = (status as { set_up?: boolean } | null)?.set_up === true;
+    return setUp
       ? { status: "no_access", userId: user.id, email: user.email }
       : { status: "needs_setup", userId: user.id, email: user.email };
   }
@@ -107,18 +105,19 @@ export async function hasRole(...roles: AppRole[]): Promise<boolean> {
 export const NOT_ALLOWED = "You don't have permission to do that.";
 
 /**
- * Name shown on pages anyone can see (login, setup). Reads with the service
- * role because RLS hides school_settings from signed-out visitors; only the
- * name leaves this function.
+ * Name shown on pages anyone can see (login, setup). Uses school_status(), a
+ * security-definer function, because RLS hides school_settings from signed-out
+ * visitors; only the name leaves it.
  */
 export const getPublicSchoolName = cache(async (): Promise<string> => {
   // Reads live data, so opt out of static prerendering.
   await connection();
   try {
-    const { data } = await createAdminClient().from("school_settings").select("name").maybeSingle();
-    return data?.name ?? PRODUCT_NAME;
+    const supabase = await createClient();
+    const { data } = await supabase.rpc("school_status");
+    return (data as { name?: string | null } | null)?.name ?? PRODUCT_NAME;
   } catch {
-    // Missing service key or DB hiccup: the login page should still render.
+    // A DB hiccup should not stop the login page rendering.
     return PRODUCT_NAME;
   }
 });

@@ -680,7 +680,18 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      claim_school: {
+        Args: {
+          p_name: string
+          p_prefix: string
+          p_type: Database["public"]["Enums"]["school_type"]
+        }
+        Returns: undefined
+      }
+      school_status: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "owner" | "admin" | "staff" | "teacher"
