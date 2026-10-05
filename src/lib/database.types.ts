@@ -244,6 +244,7 @@ export type Database = {
           id: string
           notes: string | null
           phone: string | null
+          user_id: string | null
         }
         Insert: {
           archived_at?: string | null
@@ -253,6 +254,7 @@ export type Database = {
           id?: string
           notes?: string | null
           phone?: string | null
+          user_id?: string | null
         }
         Update: {
           archived_at?: string | null
@@ -262,6 +264,7 @@ export type Database = {
           id?: string
           notes?: string | null
           phone?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -680,6 +683,41 @@ export type Database = {
       }
     }
     Functions: {
+      class_roster: {
+        Args: { p_intake_subject_id: string }
+        Returns: {
+          enrolment_id: string
+          student_id: string
+          student_number: string
+          full_name: string
+          gender: string | null
+          student_status: Database["public"]["Enums"]["student_status"]
+          guardian_name: string | null
+          guardian_phone: string | null
+        }[]
+      }
+      grant_teacher_access: {
+        Args: { p_instructor_id: string }
+        Returns: string
+      }
+      my_classes: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          intake_subject_id: string
+          subject_name: string
+          subject_code: string | null
+          intake_id: string
+          intake_label: string | null
+          start_date: string
+          end_date: string | null
+          course_name: string
+          student_count: number
+        }[]
+      }
+      revoke_teacher_access: {
+        Args: { p_instructor_id: string }
+        Returns: undefined
+      }
       claim_school: {
         Args: {
           p_name: string

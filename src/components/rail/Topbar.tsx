@@ -19,10 +19,12 @@ export function Topbar({
   userId,
   displayName,
   email,
+  showSearch = true,
 }: {
   userId: string;
   displayName: string;
   email?: string;
+  showSearch?: boolean;
 }) {
   const firstName = displayName.split(" ")[0] || displayName;
 
@@ -37,6 +39,7 @@ export function Topbar({
         </p>
       </div>
       <div className="min-w-5 flex-1" />
+      {showSearch && (
       <label className="flex w-[270px] items-center gap-2.5 rounded-full border border-line bg-surface px-4 py-[9px] text-[13px] text-ink-soft shadow-[0_1px_2px_rgba(31,27,22,0.04)] max-[680px]:order-3 max-[680px]:w-full">
         <Search className="h-[15px] w-[15px] flex-none" />
         <input
@@ -45,6 +48,7 @@ export function Topbar({
           className="w-full bg-transparent outline-none placeholder:text-ink-soft"
         />
       </label>
+      )}
       <UserMenu userId={userId} displayName={displayName} email={email} />
     </div>
   );

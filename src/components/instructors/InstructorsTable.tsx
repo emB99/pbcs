@@ -2,6 +2,7 @@
 
 import { Card, CardHead } from "@/components/ui/Card";
 import { DataTable, type Column } from "@/components/ui/DataTable";
+import { Tag } from "@/components/ui/Tag";
 import { CsvExportButton } from "@/components/ui/CsvExportButton";
 import { InstructorRowActions } from "@/components/instructors/InstructorRowActions";
 import { AddInstructorModal } from "@/components/instructors/AddInstructorModal";
@@ -28,10 +29,18 @@ export function InstructorsTable({ rows }: { rows: Instructor[] }) {
       render: (i) => <span className="text-ink-mid">{i.email ?? "—"}</span>,
     },
     {
+      key: "portal",
+      header: "Portal login",
+      render: (i) =>
+        i.user_id ? <Tag variant="ok">Has access</Tag> : <span className="text-ink-soft">—</span>,
+    },
+    {
       key: "actions",
       header: "",
       align: "right",
-      render: (i) => <InstructorRowActions id={i.id} name={i.full_name} />,
+      render: (i) => (
+        <InstructorRowActions id={i.id} name={i.full_name} email={i.email} hasAccess={i.user_id !== null} />
+      ),
     },
   ];
 

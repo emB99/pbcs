@@ -13,13 +13,14 @@ import {
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { useTerms } from "@/components/school/SchoolProvider";
+import { useRole, useTerms } from "@/components/school/SchoolProvider";
 
 export function Rail() {
   const pathname = usePathname();
   const terms = useTerms();
+  const isTeacher = useRole() === "teacher";
 
-  const NAV_ITEMS = [
+  const OFFICE_ITEMS = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
     { href: "/students", label: "Students", icon: Users },
     { href: "/courses", label: terms.course.many, icon: BookOpen },
@@ -27,6 +28,9 @@ export function Rail() {
     { href: "/payments", label: "Payments", icon: CreditCard },
     { href: "/instructors", label: terms.instructor.many, icon: Presentation },
   ];
+  const TEACHER_ITEMS = [{ href: "/teach", label: "My classes", icon: Presentation }];
+  const NAV_ITEMS = isTeacher ? TEACHER_ITEMS : OFFICE_ITEMS;
+  const settingsHref = isTeacher ? "/teach/account" : "/settings";
 
   return (
     <aside className="no-print sticky top-[22px] flex w-[94px] flex-none flex-col items-center gap-1.5 rounded-lg border border-line bg-surface px-2.5 pt-5 pb-3.5 shadow-[0_1px_2px_rgba(31,27,22,0.04),0_16px_32px_-18px_rgba(31,27,22,0.16)] max-[680px]:static max-[680px]:w-full max-[680px]:flex-none max-[680px]:flex-row max-[680px]:gap-1 max-[680px]:overflow-x-auto max-[680px]:p-2.5">
@@ -39,7 +43,8 @@ export function Rail() {
 
       {NAV_ITEMS.map((item) => {
         const isActive =
-          pathname === item.href || pathname.startsWith(item.href + "/");
+          pathname === item.href ||
+          (pathname.startsWith(item.href + "/") && !(isTeacher && pathname === "/teach/account"));
         const Icon = item.icon;
         return (
           <Link
@@ -61,16 +66,16 @@ export function Rail() {
       <div className="min-h-3.5 flex-1 max-[680px]:hidden" />
 
       <Link
-        href="/settings"
+        href={settingsHref}
         className={cn(
           "flex w-full flex-col items-center gap-1.5 rounded-md px-1 pt-[11px] pb-[9px] text-center text-[10.5px] font-semibold tracking-[0.01em] text-ink-soft transition-colors",
           "hover:bg-surface-2 hover:text-ink-mid",
           "max-[680px]:w-auto max-[680px]:flex-none max-[680px]:px-3 max-[680px]:py-[9px]",
-          pathname === "/settings" && "bg-crust-tint text-crust-deep",
+          pathname === settingsHref && "bg-crust-tint text-crust-deep",
         )}
       >
         <Settings className="h-5 w-5" strokeWidth={1.7} />
-        Settings
+        {isTeacher ? "Account" : "Settings"}
       </Link>
     </aside>
   );

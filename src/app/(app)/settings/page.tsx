@@ -1,15 +1,10 @@
 import Link from "next/link";
-import { LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { signOut } from "@/lib/actions/auth";
 import { ADMIN_ROLES, requireSchool } from "@/lib/school";
 import { Card, CardHead } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Tag } from "@/components/ui/Tag";
-import { ProfileForm } from "@/components/settings/ProfileForm";
-import { ChangePasswordForm } from "@/components/settings/ChangePasswordForm";
 import { SchoolSettingsForm } from "@/components/settings/SchoolSettingsForm";
+import { AccountTab } from "@/components/settings/AccountTab";
 import { TeamPanel, type TeamMember } from "@/components/settings/TeamPanel";
 import { TermsPanel } from "@/components/settings/TermsPanel";
 import { cn } from "@/lib/cn";
@@ -133,45 +128,4 @@ async function loadTeam(): Promise<TeamMember[]> {
       name: (u?.user_metadata?.full_name as string | undefined) ?? email?.split("@")[0] ?? "Unknown",
     };
   });
-}
-
-async function AccountTab() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const displayName = (user?.user_metadata?.full_name as string | undefined) ?? "";
-  const provider = (user?.app_metadata?.provider as string | undefined) ?? "email";
-
-  return (
-    <>
-      <Card>
-        <CardHead title="Profile" note={user?.email ?? undefined}>
-          <Tag variant="ok">{provider === "google" ? "Google" : "Email"}</Tag>
-        </CardHead>
-        <div className="px-6 pb-6">
-          <ProfileForm defaultFullName={displayName} />
-        </div>
-      </Card>
-
-      <Card>
-        <CardHead title="Password" note="Change the password used to sign in" />
-        <div className="px-6 pb-6">
-          <ChangePasswordForm />
-        </div>
-      </Card>
-
-      <Card>
-        <CardHead title="Sign out" note="End your session on this device" />
-        <div className="px-6 pb-6">
-          <form action={signOut}>
-            <Button type="submit" icon={<LogOut />}>
-              Sign out
-            </Button>
-          </form>
-        </div>
-      </Card>
-    </>
-  );
 }

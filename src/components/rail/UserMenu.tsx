@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Settings, LogOut, ChevronDown } from "lucide-react";
 import { AvatarInitials } from "@/components/ui/AvatarInitials";
 import { signOut } from "@/lib/actions/auth";
+import { useRole } from "@/components/school/SchoolProvider";
 
 export function UserMenu({
   userId,
@@ -16,6 +17,7 @@ export function UserMenu({
   email?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const role = useRole();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -63,7 +65,7 @@ export function UserMenu({
             {email && <p className="truncate text-[11.5px] text-ink-soft">{email}</p>}
           </div>
           <Link
-            href="/settings"
+            href={role === "teacher" ? "/teach/account" : "/settings"}
             role="menuitem"
             onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-ink-mid hover:bg-surface-2"

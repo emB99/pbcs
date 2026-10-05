@@ -2,10 +2,10 @@ import { redirect } from "next/navigation";
 import { requireSchool } from "@/lib/school";
 import { AppShell } from "@/components/rail/AppShell";
 
-/** Office area (owner / admin / staff). Teachers live under /teach. */
-export default async function AppLayout({ children }: { children: React.ReactNode }) {
+/** Teacher portal: teachers only. Office users have their own area. */
+export default async function TeacherLayout({ children }: { children: React.ReactNode }) {
   const ctx = await requireSchool();
-  if (ctx.role === "teacher") redirect("/teach");
+  if (ctx.role !== "teacher") redirect("/dashboard");
 
   return <AppShell ctx={ctx}>{children}</AppShell>;
 }

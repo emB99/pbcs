@@ -1,23 +1,14 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { OFFICE_ROLES, requireRole } from "@/lib/school";
 
 /**
  * Staff-only "preview as student" area — testing tool, not a real student
  * login. Deliberately outside the (app) route group so it renders without
  * the admin rail/topbar, closer to what a student view would actually look
- * like. Access is the same as everywhere else in the app right now (any
- * authenticated user) since this is a preview of already-permitted data,
- * not a new access grant.
+ * like. Office roles only.
  */
 export default async function PreviewLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
+  // Office roles only; signed-out visitors go to /login, teachers to their portal.
+  await requireRole(...OFFICE_ROLES);
 
   return <div className="min-h-full bg-canvas">{children}</div>;
 }
