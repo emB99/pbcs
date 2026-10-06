@@ -32,14 +32,22 @@ const ROLE_HELP: Record<AppRole, string> = {
   teacher: "Sees only their own classes (marks and attendance)",
 };
 
+export type PendingSignin = { user_id: string; email: string; name: string; signedUpAt: string };
+
 export function TeamPanel({
   members,
+  pending,
   currentUserId,
   currentRole,
+  canInvite,
 }: {
   members: TeamMember[];
+  /** Accounts that have signed in but have no role yet. */
+  pending: PendingSignin[];
   currentUserId: string;
   currentRole: AppRole;
+  /** Inviting by email needs the service-role key on the server. */
+  canInvite: boolean;
 }) {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [removing, setRemoving] = useState<TeamMember | null>(null);
@@ -47,7 +55,7 @@ export function TeamPanel({
   const [role, setRole] = useState<AppRole>("staff");
   const [error, setError] = useState<string | null>(null);
   const [rowError, setRowError] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
+  const [busy, startTransition] = useTransition();
 
   const assignable: AppRole[] =
     currentRole === "owner" ? ["owner", "admin", "staff", "teacher"] : ["admin", "staff", "teacher"];
@@ -78,12 +86,50 @@ export function TeamPanel({
     <div className="flex flex-col gap-4 px-6 pb-6">
       <div className="flex items-center justify-between gap-3">
         <p className="text-[12.5px] text-ink-soft">
-          People who can sign in to this school. Invited people get an email to set a password.
+          People who can use this school&apos;s app. Anyone who signs in (including with Google) shows up under Waiting for access until you give them a role.
         </p>
-        <Button variant="primary" icon={<UserPlus />} onClick={() => setInviteOpen(true)}>
-          Invite
-        </Button>
+        {canInvite && (
+          <Button variant="primary" icon={<UserPlus />} onClick={() => setInviteOpen(true)}>
+            Invite
+          </Button>
+        )}
       </div>
+
+      {pending.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <h3 className="text-[13px] font-semibold">Waiting for access ({pending.length})</h3>
+          <p className="text-xs text-ink-soft">
+            These people signed in but have no role yet, so they see &ldquo;No access&rdquo;. Choose a role to let them in.
+          </p>
+          <ul className="flex flex-col divide-y divide-line-soft rounded-md border border-warning">
+            {pending.map((p) => (
+              <li key={p.user_id} className="flex flex-wrap items-center gap-3 px-4 py-3">
+                <AvatarInitials id={p.user_id} name={p.name} />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-[13.5px] font-semibold">{p.name}</div>
+                  <div className="truncate text-xs text-ink-soft">{p.email}</div>
+                </div>
+                <select
+                  aria-label={`Give a role to ${p.name}`}
+                  value=""
+                  disabled={busy}
+                  onChange={(e) => e.target.value && changeRole(p.user_id, e.target.value)}
+                  className="rounded-full border border-line bg-surface px-3 py-1.5 text-[12.5px]"
+                >
+                  <option value="">Choose a role…</option>
+                  {assignable.map((r) => (
+                    <option key={r} value={r}>
+                      {ROLE_LABELS[r]}
+                    </option>
+                  ))}
+                </select>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <h3 className="text-[13px] font-semibold">Team ({members.length})</h3>
 
       {rowError && <p className="text-xs text-danger">{rowError}</p>}
 
@@ -106,7 +152,7 @@ export function TeamPanel({
                 <select
                   aria-label={`Role for ${m.name}`}
                   value={m.role}
-                  disabled={pending}
+                  disabled={busy}
                   onChange={(e) => changeRole(m.user_id, e.target.value)}
                   className="rounded-full border border-line bg-surface px-3 py-1.5 text-[12.5px]"
                 >
@@ -162,8 +208,8 @@ export function TeamPanel({
             <p className="text-xs text-ink-soft">{ROLE_HELP[role]}</p>
           </FieldGroup>
           {error && <p className="text-xs text-danger">{error}</p>}
-          <Button type="submit" variant="primary" disabled={pending}>
-            {pending ? "Sending…" : "Send invite"}
+          <Button type="submit" variant="primary" disabled={busy}>
+            {busy ? "Sending…" : "Send invite"}
           </Button>
         </form>
       </Dialog>

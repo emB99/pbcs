@@ -1156,6 +1156,28 @@ export type Database = {
           student_count: number
         }[]
       }
+      team_members: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          user_id: string
+          role: Database["public"]["Enums"]["app_role"]
+          email: string
+          name: string
+          joined_at: string
+        }[]
+      }
+      pending_signins: {
+        Args: Record<PropertyKey, never>
+        Returns: { user_id: string; email: string; name: string; signed_up_at: string }[]
+      }
+      set_member_role: {
+        Args: { p_user_id: string; p_role: Database["public"]["Enums"]["app_role"] }
+        Returns: undefined
+      }
+      remove_member: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
       revoke_teacher_access: {
         Args: { p_instructor_id: string }
         Returns: undefined

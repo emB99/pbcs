@@ -1,19 +1,14 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ADMIN_ROLES, NOT_ALLOWED, requireSchool } from "@/lib/school";
 import { changeRoleSchema, inviteSchema } from "@/lib/validation/team";
-import type { AppRole, DialogResult } from "@/lib/types";
+import type { DialogResult } from "@/lib/types";
 
 function siteOrigin() {
   return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-}
-
-/** Only an owner may grant or remove the owner role; admins manage everyone else. */
-function canManage(actor: AppRole, target: AppRole) {
-  if (!ADMIN_ROLES.includes(actor)) return false;
-  return target !== "owner" || actor === "owner";
 }
 
 async function findUserIdByEmail(email: string): Promise<string | null> {
@@ -51,31 +46,19 @@ export async function inviteMember(input: { email: string; role: string }): Prom
   return { ok: true };
 }
 
+/**
+ * Gives a role to someone who has signed in but has none yet, or changes an existing
+ * member's role. The database function enforces the owner rules.
+ */
 export async function changeMemberRole(userId: string, role: string): Promise<DialogResult> {
   const ctx = await requireSchool();
+  if (!ADMIN_ROLES.includes(ctx.role)) return { ok: false, message: NOT_ALLOWED };
   const parsed = changeRoleSchema.safeParse({ role });
   if (!parsed.success) return { ok: false, message: "Choose a role." };
 
-  const admin = createAdminClient();
-  const { data: target } = await admin
-    .from("memberships")
-    .select("role")
-    .eq("user_id", userId)
-    .maybeSingle();
-  if (!target) return { ok: false, message: "That person isn't on the team." };
-  if (!canManage(ctx.role, target.role) || !canManage(ctx.role, parsed.data.role)) {
-    return { ok: false, message: NOT_ALLOWED };
-  }
-  if (target.role === "owner" && parsed.data.role !== "owner") {
-    const { count } = await admin
-      .from("memberships")
-      .select("user_id", { count: "exact", head: true })
-      .eq("role", "owner");
-    if ((count ?? 0) <= 1) return { ok: false, message: "A school needs at least one owner." };
-  }
-
-  const { error } = await admin.from("memberships").update({ role: parsed.data.role }).eq("user_id", userId);
-  if (error) return { ok: false, message: "Couldn't change the role. Try again." };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_member_role", { p_user_id: userId, p_role: parsed.data.role });
+  if (error) return { ok: false, message: roleError(error.message) };
 
   revalidatePath("/settings");
   return { ok: true };
@@ -83,20 +66,20 @@ export async function changeMemberRole(userId: string, role: string): Promise<Di
 
 export async function removeMember(userId: string): Promise<DialogResult> {
   const ctx = await requireSchool();
-  if (userId === ctx.userId) return { ok: false, message: "You can't remove yourself." };
+  if (!ADMIN_ROLES.includes(ctx.role)) return { ok: false, message: NOT_ALLOWED };
 
-  const admin = createAdminClient();
-  const { data: target } = await admin
-    .from("memberships")
-    .select("role")
-    .eq("user_id", userId)
-    .maybeSingle();
-  if (!target) return { ok: true };
-  if (!canManage(ctx.role, target.role)) return { ok: false, message: NOT_ALLOWED };
-
-  const { error } = await admin.from("memberships").delete().eq("user_id", userId);
-  if (error) return { ok: false, message: "Couldn't remove them. Try again." };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("remove_member", { p_user_id: userId });
+  if (error) return { ok: false, message: roleError(error.message) };
 
   revalidatePath("/settings");
   return { ok: true };
+}
+
+function roleError(message: string): string {
+  if (message.includes("at least one owner")) return "A school needs at least one owner.";
+  if (message.includes("only an owner")) return "Only an owner can change owners.";
+  if (message.includes("cannot remove yourself")) return "You can't remove yourself.";
+  if (message.includes("not allowed")) return NOT_ALLOWED;
+  return "Couldn't save that change. Try again.";
 }

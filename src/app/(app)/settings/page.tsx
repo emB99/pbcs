@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { ADMIN_ROLES, requireSchool } from "@/lib/school";
 import { Card, CardHead } from "@/components/ui/Card";
 import { SchoolSettingsForm } from "@/components/settings/SchoolSettingsForm";
 import { AccountTab } from "@/components/settings/AccountTab";
-import { TeamPanel, type TeamMember } from "@/components/settings/TeamPanel";
+import { TeamPanel, type PendingSignin, type TeamMember } from "@/components/settings/TeamPanel";
 import { TermsPanel } from "@/components/settings/TermsPanel";
 import { GradeScalePanel } from "@/components/settings/GradeScalePanel";
 import { BrandingForm } from "@/components/settings/BrandingForm";
@@ -42,7 +41,7 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
       : []),
   ];
 
-  const teamMembers = tab === "team" ? await loadTeamSafely() : null;
+  const team = tab === "team" ? await loadTeam() : null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -148,12 +147,14 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
       {tab === "team" && (
         <Card>
           <CardHead title="Team" note="Who can sign in, and what they can do" />
-          {teamMembers ? (
-            <TeamPanel members={teamMembers} currentUserId={ctx.userId} currentRole={ctx.role} />
-          ) : (
-            <p className="px-6 pb-6 text-[13px] text-danger">
-              The team list needs SUPABASE_SERVICE_ROLE_KEY in .env.local. Add it and restart the dev server.
-            </p>
+          {team && (
+            <TeamPanel
+              members={team.members}
+              pending={team.pending}
+              currentUserId={ctx.userId}
+              currentRole={ctx.role}
+              canInvite={Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY)}
+            />
           )}
         </Card>
       )}
@@ -197,31 +198,14 @@ async function loadTerms(): Promise<Term[]> {
   return data ?? [];
 }
 
-/** Null when the service-role key is not configured (or the lookup fails). */
-async function loadTeamSafely(): Promise<TeamMember[] | null> {
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return null;
-  try {
-    return await loadTeam();
-  } catch {
-    return null;
-  }
-}
-
-async function loadTeam(): Promise<TeamMember[]> {
-  const admin = createAdminClient();
-  const [{ data: memberships }, { data: usersPage }] = await Promise.all([
-    admin.from("memberships").select("user_id, role, created_at").order("created_at"),
-    admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
+async function loadTeam(): Promise<{ members: TeamMember[]; pending: PendingSignin[] }> {
+  const supabase = await createClient();
+  const [{ data: members }, { data: pending }] = await Promise.all([
+    supabase.rpc("team_members"),
+    supabase.rpc("pending_signins"),
   ]);
-  const usersById = new Map((usersPage?.users ?? []).map((u) => [u.id, u]));
-  return (memberships ?? []).map((m) => {
-    const u = usersById.get(m.user_id);
-    const email = u?.email ?? null;
-    return {
-      user_id: m.user_id,
-      role: m.role,
-      email,
-      name: (u?.user_metadata?.full_name as string | undefined) ?? email?.split("@")[0] ?? "Unknown",
-    };
-  });
+  return {
+    members: (members ?? []).map((m) => ({ user_id: m.user_id, role: m.role, email: m.email, name: m.name })),
+    pending: (pending ?? []).map((p) => ({ user_id: p.user_id, email: p.email, name: p.name, signedUpAt: p.signed_up_at })),
+  };
 }
