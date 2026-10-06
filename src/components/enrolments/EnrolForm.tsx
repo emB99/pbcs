@@ -2,7 +2,7 @@
 
 import { useActionState, useMemo, useState } from "react";
 import { User, Phone, Banknote, MessageSquare, CalendarDays, Presentation, Users } from "lucide-react";
-import { FieldGroup } from "@/components/ui/FieldGroup";
+import { FieldGroup, inputClass } from "@/components/ui/FieldGroup";
 import { IconField } from "@/components/ui/IconField";
 import { IconSelect } from "@/components/ui/IconSelect";
 import { Button } from "@/components/ui/Button";
@@ -50,6 +50,7 @@ export function EnrolForm({
   const errors = state?.errors ?? {};
 
   const [mode, setMode] = useState<"existing" | "new">("existing");
+  const [planOn, setPlanOn] = useState(false);
   const [intakeId, setIntakeId] = useState(initialIntakeId ?? "");
   const selectedIntake = useMemo(
     () => intakes.find((i) => i.id === intakeId),
@@ -233,7 +234,61 @@ export function EnrolForm({
           </FieldGroup>
         )}
 
+        <div className="flex flex-col gap-3 rounded-md border border-line-soft p-3.5">
+          <label className="flex items-center gap-2 text-[13px] font-semibold">
+            <input
+              type="checkbox"
+              name="plan_enabled"
+              checked={planOn}
+              onChange={(e) => setPlanOn(e.target.checked)}
+            />
+            Pay in instalments
+          </label>
+          {planOn && (
+            <div className="grid grid-cols-3 gap-3 max-[520px]:grid-cols-1">
+              <FieldGroup label="Instalments" htmlFor="plan_count" error={errors.count?.[0]}>
+                <input
+                  id="plan_count"
+                  name="plan_count"
+                  type="number"
+                  min={1}
+                  max={36}
+                  defaultValue={3}
+                  required
+                  className={inputClass}
+                />
+              </FieldGroup>
+              <FieldGroup label="How often" htmlFor="plan_frequency" error={errors.frequency?.[0]}>
+                <select id="plan_frequency" name="plan_frequency" defaultValue="monthly" className={inputClass}>
+                  <option value="weekly">Every week</option>
+                  <option value="fortnightly">Every two weeks</option>
+                  <option value="monthly">Every month</option>
+                </select>
+              </FieldGroup>
+              <FieldGroup label="First due" htmlFor="plan_first_due" error={errors.first_due?.[0]}>
+                <input
+                  id="plan_first_due"
+                  name="plan_first_due"
+                  type="date"
+                  defaultValue={fmt.today()}
+                  required
+                  className={inputClass}
+                />
+              </FieldGroup>
+            </div>
+          )}
+          {planOn && (
+            <p className="text-xs text-ink-soft">
+              The agreed price is split into equal parts. You can change each instalment on the student page.
+            </p>
+          )}
+        </div>
+
         {state?.message && <p className="text-xs text-danger">{state.message}</p>}
+        {/* A safety net: never let a validation error vanish just because no field shows it. */}
+        {!state?.message && Object.keys(errors).length > 0 && (
+          <p className="text-xs text-danger">Please check: {[...new Set(Object.values(errors).flat())].join(" ")}</p>
+        )}
 
         <Button type="submit" variant="primary" disabled={pending || !intakeId}>
           {pending ? "Enrolling…" : "Enrol"}

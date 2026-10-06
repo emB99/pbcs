@@ -36,6 +36,10 @@ Each school chooses its **base currency** (balances are kept and reported in it)
 
 Every payment gets a numbered receipt and every charge a numbered invoice (for example `RCT-00012` and `INV-00031`). Numbers are stamped by the database as the row is recorded, count up with no gaps, and cannot be chosen by a client. Adjustments and reversals are not numbered; reversing a payment or charge marks its receipt or invoice VOID. Prefixes and a footer for bank details or terms are set in Settings → School. Open a document from the student ledger, the Payments list, or the "View receipt" button after recording a payment, then use the browser's print dialog (or "Save as PDF").
 
+## Payment plans (instalments)
+
+An enrolment can have a schedule of instalments, set up when enrolling ("Pay in instalments") or later from the student page. A total is split into equal parts by the database (the last takes any odd cents). Payments already recorded are applied to the earliest instalments first, which decides whether each is paid, part-paid or overdue; the dashboard lists overdue instalments. A plan is only a schedule: editing or removing it never touches the ledger.
+
 ## Demo data (optional)
 
 To explore the app with a populated school, run these in the Supabase SQL editor, in order, on a database that has no school yet:
@@ -43,6 +47,7 @@ To explore the app with a populated school, run these in the Supabase SQL editor
 1. `supabase/seed-demo.sql`: a small college with students, courses, subjects, intakes, enrolments and payments.
 2. `supabase/seed-demo-grades.sql`: Semester 1 marks (locked) and report card comments.
 3. `supabase/seed-demo-timetable.sql`: rooms and a weekly timetable.
+4. `supabase/seed-demo-instalments.sql`: payment plans, most of them overdue.
 
 Each script does nothing if its data is already there. They do not create a login: sign in, then claim the school at `/setup`, or add an owner membership yourself.
 

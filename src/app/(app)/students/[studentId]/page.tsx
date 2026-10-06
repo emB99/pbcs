@@ -15,6 +15,7 @@ import { StudentBanner } from "@/components/students/StudentBanner";
 import { StudentDetailTabs } from "@/components/students/StudentDetailTabs";
 import { StudentGrades, type GradeGroup } from "@/components/students/StudentGrades";
 import { GuardiansPanel } from "@/components/students/GuardiansPanel";
+import { InstalmentsPanel, type InstalmentRow } from "@/components/instalments/InstalmentsPanel";
 import { DocumentsPanel, type DocumentRow } from "@/components/students/DocumentsPanel";
 import { PhotoButton } from "@/components/students/PhotoButton";
 import { WithdrawButton } from "@/components/enrolments/WithdrawButton";
@@ -31,7 +32,7 @@ const EVENT_LABEL = { enrolled: "Enrolled", completed: "Completed", withdrawn: "
 
 export default async function StudentDetailPage(props: PageProps<"/students/[studentId]">) {
   const { studentId } = await props.params;
-  const { guardian: guardianFlag } = await props.searchParams;
+  const { guardian: guardianFlag, plan: planFlag } = await props.searchParams;
   const { terms: t, fmt } = await requireSchool();
   const supabase = await createClient();
 
@@ -62,6 +63,7 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
     { data: documents },
     { data: gradeRows },
     { data: bands },
+    { data: planRows },
   ] = await Promise.all([
     supabase
       .from("enrolment_balances")
@@ -99,7 +101,29 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
       )
       .in("enrolment_id", idFilter),
     supabase.from("grade_scale_bands").select("grade, is_pass"),
+    supabase
+      .from("instalment_status")
+      .select("instalment_id, enrolment_id, due_on, amount, covered, is_paid, is_overdue, days_overdue, note")
+      .in("enrolment_id", idFilter)
+      .order("due_on"),
   ]);
+
+  const planByEnrolment = new Map<string, InstalmentRow[]>();
+  for (const p of planRows ?? []) {
+    if (!p.instalment_id || !p.enrolment_id || !p.due_on) continue;
+    const list = planByEnrolment.get(p.enrolment_id) ?? [];
+    list.push({
+      id: p.instalment_id,
+      due_on: p.due_on,
+      amount: Number(p.amount),
+      covered: Number(p.covered),
+      is_paid: Boolean(p.is_paid),
+      is_overdue: Boolean(p.is_overdue),
+      days_overdue: Number(p.days_overdue ?? 0),
+      note: p.note,
+    });
+    planByEnrolment.set(p.enrolment_id, list);
+  }
 
   const passByGrade = new Map((bands ?? []).map((b) => [b.grade, b.is_pass]));
   const gradeGroups: GradeGroup[] = (enrolments ?? []).map((e) => ({
@@ -165,10 +189,8 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
         const intake = e.intake;
         const history = eventsByEnrolment.get(e.id) ?? [];
         return (
-          <div
-            key={e.id}
-            className="flex items-center justify-between gap-3 border-t border-line-soft px-5 py-3.5 first:border-t-0"
-          >
+          <div key={e.id} className="border-t border-line-soft first:border-t-0">
+          <div className="flex items-center justify-between gap-3 px-5 py-3.5">
             <Link
               href={intake?.id ? `/intakes/${intake.id}` : "#"}
               className="min-w-0 flex-1 hover:opacity-80"
@@ -219,6 +241,13 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
               paid={bal?.paid ?? "0"}
             />
           </div>
+          <InstalmentsPanel
+            enrolmentId={e.id}
+            rows={planByEnrolment.get(e.id) ?? []}
+            balance={Number(bal?.balance ?? 0)}
+            editable={e.status === "enrolled"}
+          />
+          </div>
         );
       })}
     </div>
@@ -236,6 +265,12 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
         enrolmentCount={enrolments?.length ?? 0}
         balanceLabel={fmt.money(studentBalance)}
       />
+
+      {planFlag === "failed" && (
+        <p className="rounded-md bg-warning px-4 py-3 text-[13px] text-warning-ink">
+          The student was enrolled, but the payment plan could not be created. Set it up from the enrolment below.
+        </p>
+      )}
 
       {guardianFlag === "failed" && (
         <p className="rounded-md bg-warning px-4 py-3 text-[13px] text-warning-ink">

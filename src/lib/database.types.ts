@@ -320,6 +320,41 @@ export type Database = {
           },
         ]
       }
+      instalments: {
+        Row: {
+          amount: number
+          created_at: string
+          due_on: string
+          enrolment_id: string
+          id: string
+          note: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          due_on: string
+          enrolment_id: string
+          id?: string
+          note?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          due_on?: string
+          enrolment_id?: string
+          id?: string
+          note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "instalments_enrolment_id_fkey"
+            columns: ["enrolment_id"]
+            isOneToOne: false
+            referencedRelation: "enrolments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       instructors: {
         Row: {
           archived_at: string | null
@@ -914,6 +949,29 @@ export type Database = {
           },
         ]
       }
+      instalment_status: {
+        Row: {
+          amount: number | null
+          covered: number | null
+          days_overdue: number | null
+          due_on: string | null
+          enrolment_id: string | null
+          instalment_id: string | null
+          is_overdue: boolean | null
+          is_paid: boolean | null
+          note: string | null
+          outstanding: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "instalments_enrolment_id_fkey"
+            columns: ["enrolment_id"]
+            isOneToOne: false
+            referencedRelation: "enrolments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       intake_summary: {
         Row: {
           active_students: number | null
@@ -934,6 +992,16 @@ export type Database = {
       }
     }
     Functions: {
+      create_instalment_plan: {
+        Args: {
+          p_count: number
+          p_enrolment_id: string
+          p_first_due: string
+          p_frequency: string
+          p_total: number
+        }
+        Returns: number
+      }
       balance_after: {
         Args: { p_transaction_id: string }
         Returns: number

@@ -5,6 +5,7 @@ import { StatCard } from "@/components/ui/StatCard";
 import { Card, CardHead, CardFoot } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { AvatarInitials } from "@/components/ui/AvatarInitials";
+import { Tag } from "@/components/ui/Tag";
 import { WhoOwesTable, type WhoOwesRow } from "@/components/dashboard/WhoOwesTable";
 
 import { todayIsoDate } from "@/lib/dates";
@@ -94,6 +95,22 @@ export default async function DashboardPage() {
     })
     .sort((a, b) => Number(b.balance) - Number(a.balance));
 
+  // Instalments that are due and not covered by payments yet (the view decides; see instalment_status).
+  const { data: overdueRows } = await supabase
+    .from("instalment_status")
+    .select("instalment_id, enrolment_id, due_on, outstanding, days_overdue")
+    .eq("is_overdue", true)
+    .order("due_on");
+  const overdueEnrolmentIds = [
+    ...new Set((overdueRows ?? []).map((o) => o.enrolment_id).filter((id): id is string => id !== null)),
+  ];
+  const { data: overdueEnrolments } = await supabase
+    .from("enrolments")
+    .select("id, student:students(id, full_name), intake:intakes(course:courses(name))")
+    .in("id", overdueEnrolmentIds.length ? overdueEnrolmentIds : [""]);
+  const overdueEnrolmentById = new Map((overdueEnrolments ?? []).map((e) => [e.id, e]));
+  const overdueList = (overdueRows ?? []).filter((o) => o.instalment_id && o.enrolment_id && o.due_on);
+
   // Recent payments feed: payments and reversals, most recent first.
   const { data: recentTxns } = await supabase
     .from("transactions")
@@ -173,6 +190,45 @@ export default async function DashboardPage() {
               </Button>
             </Link>
           </div>
+
+          {overdueList.length > 0 && (
+            <Card>
+              <CardHead
+                title="Overdue instalments"
+                note={`${overdueList.length} ${overdueList.length === 1 ? "instalment is" : "instalments are"} past due`}
+              />
+              <div className="flex flex-col">
+                {overdueList.slice(0, 6).map((o) => {
+                  const e = overdueEnrolmentById.get(o.enrolment_id!);
+                  const studentName = e?.student?.full_name ?? "Unknown";
+                  return (
+                    <Link
+                      key={o.instalment_id}
+                      href={e?.student ? `/students/${e.student.id}` : "/students"}
+                      className="flex items-center gap-2.5 border-t border-line-soft px-5 py-2.5 first:border-t-0 hover:bg-surface-2"
+                    >
+                      <AvatarInitials id={e?.student?.id ?? o.instalment_id!} name={studentName} size="sm" />
+                      <div className="min-w-0 flex-1">
+                        <b className="block truncate text-[13px] font-semibold">{studentName}</b>
+                        <p className="mt-0.5 truncate text-[11.5px] text-ink-soft">
+                          {e?.intake?.course?.name ?? "—"} · due {fmt.date(o.due_on)}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <span className="money text-[13px] font-[650] text-danger">{fmt.money(o.outstanding)}</span>
+                        <Tag variant="late">{o.days_overdue} {o.days_overdue === 1 ? "day" : "days"} late</Tag>
+                      </div>
+                    </Link>
+                  );
+                })}
+                {overdueList.length > 6 && (
+                  <p className="border-t border-line-soft px-5 py-2.5 text-[12px] text-ink-soft">
+                    and {overdueList.length - 6} more
+                  </p>
+                )}
+              </div>
+            </Card>
+          )}
 
           <Card>
             <CardHead title="Recent payments" note="Everything posted, including reversals" />

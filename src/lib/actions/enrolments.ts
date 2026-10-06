@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { NOT_ALLOWED, getOfficeContext } from "@/lib/school";
+import { planSchema } from "@/lib/validation/instalments";
 import { insertCharge } from "@/lib/db/transactions";
 import { enrolmentSchema, withdrawSchema } from "@/lib/validation/enrolments";
 import { fieldErrorsFromZod } from "@/lib/validation/shared";
@@ -25,7 +26,12 @@ export async function createEnrolment(
     new_guardian_phone: formData.get("new_guardian_phone") ?? undefined,
     intake_id: formData.get("intake_id"),
     agreed_price: formData.get("agreed_price"),
-    price_note: formData.get("price_note"),
+    // Absent (null) when the price is the default, which the schema would reject.
+    price_note: formData.get("price_note") ?? undefined,
+    plan_enabled: formData.get("plan_enabled") ?? undefined,
+    plan_count: formData.get("plan_count") ?? undefined,
+    plan_frequency: formData.get("plan_frequency") ?? undefined,
+    plan_first_due: formData.get("plan_first_due") ?? undefined,
   });
   if (!parsed.success) {
     return { errors: fieldErrorsFromZod(parsed.error) };
@@ -95,10 +101,34 @@ export async function createEnrolment(
     return { message: "Enrolment saved, but the charge couldn't be recorded. Contact support." };
   }
 
+  // Optional payment plan for the agreed price. The student is enrolled and charged by now,
+  // so if the plan cannot be created, go to the student with a note rather than retrying here
+  // (a retry would try to enrol them twice).
+  let planFailed = false;
+  if (parsed.data.plan_enabled === "on") {
+    const planCheck = planSchema.safeParse({
+      count: Number(parsed.data.plan_count),
+      frequency: parsed.data.plan_frequency,
+      first_due: parsed.data.plan_first_due,
+      total: parsed.data.agreed_price,
+    });
+    if (!planCheck.success) {
+      return { errors: fieldErrorsFromZod(planCheck.error) };
+    }
+    const { error: planError } = await supabase.rpc("create_instalment_plan", {
+      p_enrolment_id: enrolment.id,
+      p_count: planCheck.data.count,
+      p_first_due: planCheck.data.first_due,
+      p_frequency: planCheck.data.frequency,
+      p_total: Number(planCheck.data.total),
+    });
+    planFailed = planError !== null;
+  }
+
   revalidatePath("/students");
   revalidatePath(`/students/${studentId}`);
   revalidatePath("/intakes");
-  redirect(`/students/${studentId}`);
+  redirect(`/students/${studentId}${planFailed ? "?plan=failed" : ""}`);
 }
 
 export async function withdrawEnrolment(

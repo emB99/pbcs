@@ -15,6 +15,8 @@ export type Grade = Database["public"]["Tables"]["grades"]["Row"];
 export type GradeBand = Database["public"]["Tables"]["grade_scale_bands"]["Row"];
 export type Room = Database["public"]["Tables"]["rooms"]["Row"];
 export type TimetableSlot = Database["public"]["Tables"]["timetable_slots"]["Row"];
+export type Instalment = Database["public"]["Tables"]["instalments"]["Row"];
+export type InstalmentStatus = Database["public"]["Views"]["instalment_status"]["Row"];
 export type Transaction = Database["public"]["Tables"]["transactions"]["Row"];
 
 export type EnrolmentBalance =

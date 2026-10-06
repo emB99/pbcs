@@ -12,6 +12,11 @@ export const enrolmentSchema = z
     intake_id: z.string().min(1, "Choose an intake."),
     agreed_price: moneyInputSchema,
     price_note: optionalText,
+    // Optional: spread the agreed price over instalments straight away.
+    plan_enabled: z.string().optional(),
+    plan_count: z.string().optional(),
+    plan_frequency: z.string().optional(),
+    plan_first_due: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.mode === "existing" && !data.student_id) {
