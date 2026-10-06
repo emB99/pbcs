@@ -9,7 +9,7 @@ import { BalanceWithBar } from "@/components/ui/BalanceWithBar";
 import { Tag } from "@/components/ui/Tag";
 import { CsvExportButton } from "@/components/ui/CsvExportButton";
 import { relativeDays, recencyTagVariant } from "@/lib/dates";
-import { useTerms } from "@/components/school/SchoolProvider";
+import { useTerms, useFormat } from "@/components/school/SchoolProvider";
 
 export type WhoOwesRow = {
   enrolment_id: string;
@@ -27,6 +27,7 @@ export type WhoOwesRow = {
 
 export function WhoOwesTable({ rows }: { rows: WhoOwesRow[] }) {
   const t = useTerms();
+  const fmt = useFormat();
   const topRows = rows.slice(0, 7);
 
   const columns: Column<WhoOwesRow>[] = [
@@ -87,7 +88,7 @@ export function WhoOwesTable({ rows }: { rows: WhoOwesRow[] }) {
 
   return (
     <Card>
-      <CardHead title="Who owes money" note="Largest balances first · all amounts USD">
+      <CardHead title="Who owes money" note={`Largest balances first · all amounts ${fmt.currency}`}>
         <Link
           href="/print/outstanding"
           className="rounded-full border border-line bg-surface-2 px-3 py-[6px] text-[11.5px] font-semibold text-ink-mid hover:bg-surface"

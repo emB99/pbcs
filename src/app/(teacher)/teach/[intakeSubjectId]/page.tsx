@@ -7,7 +7,7 @@ import { Card, CardHead } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { AvatarInitials } from "@/components/ui/AvatarInitials";
 import { Tag } from "@/components/ui/Tag";
-import { formatDate, monthYearLabel } from "@/lib/dates";
+
 import { Gradebook } from "@/components/grades/Gradebook";
 import { loadGradebook } from "@/lib/db/gradebook";
 
@@ -16,7 +16,7 @@ const STATUS_VARIANT = { active: "ok", graduated: "ok", suspended: "due", withdr
 export default async function TeachClassPage(props: PageProps<"/teach/[intakeSubjectId]">) {
   const { intakeSubjectId } = await props.params;
   const { term: termParam } = await props.searchParams;
-  const { terms: t } = await requireSchool();
+  const { terms: t, fmt } = await requireSchool();
   const supabase = await createClient();
 
   const { data: classes } = await supabase.rpc("my_classes");
@@ -36,9 +36,9 @@ export default async function TeachClassPage(props: PageProps<"/teach/[intakeSub
       <div>
         <h1 className="font-display text-xl font-semibold">{current.subject_name}</h1>
         <p className="text-[12.5px] text-ink-soft">
-          {current.course_name} · {current.intake_label || monthYearLabel(current.start_date)} ·{" "}
-          {formatDate(current.start_date)}
-          {current.end_date ? ` – ${formatDate(current.end_date)}` : ""}
+          {current.course_name} · {current.intake_label || fmt.monthYear(current.start_date)} ·{" "}
+          {fmt.date(current.start_date)}
+          {current.end_date ? ` – ${fmt.date(current.end_date)}` : ""}
         </p>
       </div>
 

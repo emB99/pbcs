@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { requireSchool } from "@/lib/school";
 import { loadTranscript } from "@/lib/db/reports";
-import { formatDate } from "@/lib/dates";
+
 import { PrintButton } from "@/components/ui/PrintButton";
 import { Letterhead } from "@/components/reports/ReportCard";
 
@@ -15,7 +15,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 export default async function TranscriptPage(props: PageProps<"/print/transcript/[studentId]">) {
   const { studentId } = await props.params;
-  const { terms: t, settings } = await requireSchool();
+  const { terms: t, settings, fmt } = await requireSchool();
 
   const result = await loadTranscript(studentId);
   if (!result) notFound();
@@ -37,7 +37,7 @@ export default async function TranscriptPage(props: PageProps<"/print/transcript
         <Letterhead
           school={settings}
           title="Academic transcript"
-          right={`Issued ${formatDate(new Date().toISOString().slice(0, 10))}`}
+          right={`Issued ${fmt.date(fmt.today())}`}
         />
 
         <div className="mb-6 grid grid-cols-2 gap-4 text-[13px] sm:grid-cols-3">
@@ -52,7 +52,7 @@ export default async function TranscriptPage(props: PageProps<"/print/transcript
           <div>
             <div className="text-[10.5px] font-semibold tracking-[0.05em] text-ink-soft uppercase">Date of birth</div>
             <div className="mt-0.5 font-medium">
-              {student.date_of_birth ? formatDate(student.date_of_birth) : "—"}
+              {student.date_of_birth ? fmt.date(student.date_of_birth) : "—"}
             </div>
           </div>
         </div>
@@ -67,8 +67,8 @@ export default async function TranscriptPage(props: PageProps<"/print/transcript
                 {e.intakeLabel && <span className="font-normal text-ink-soft"> · {e.intakeLabel}</span>}
               </div>
               <div className="text-[12px] text-ink-soft">
-                {STATUS_LABEL[e.status] ?? e.status} · {formatDate(e.enrolledOn)}
-                {e.endedOn ? ` – ${formatDate(e.endedOn)}` : ""}
+                {STATUS_LABEL[e.status] ?? e.status} · {fmt.date(e.enrolledOn)}
+                {e.endedOn ? ` – ${fmt.date(e.endedOn)}` : ""}
               </div>
             </div>
             {e.lines.length === 0 ? (

@@ -1,15 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
+import { requireSchool } from "@/lib/school";
 import { PaymentForm, type StudentOption, type EnrolmentOption } from "@/components/payments/PaymentForm";
-import { monthYearLabel } from "@/lib/dates";
+
 
 export default async function NewPaymentPage(props: PageProps<"/payments/new">) {
   const searchParams = await props.searchParams;
   const initialStudentId =
     typeof searchParams.studentId === "string" ? searchParams.studentId : undefined;
 
+  const { fmt, settings } = await requireSchool();
   const supabase = await createClient();
 
-  const [{ data: students }, { data: enrolments }, { data: lastZwg }] = await Promise.all([
+  const [{ data: students }, { data: enrolments }, { data: recentForeign }] = await Promise.all([
     supabase
       .from("students")
       .select("id, full_name, phone, student_number, archived_at")
@@ -19,14 +21,19 @@ export default async function NewPaymentPage(props: PageProps<"/payments/new">) 
       .from("enrolments")
       .select("id, student_id, intake:intakes(label, start_date, course:courses(name))")
       .eq("status", "enrolled"),
+    // The most recent rate used for each non-base currency, to prefill the form.
     supabase
       .from("transactions")
-      .select("rate_to_usd")
-      .eq("currency", "ZWG")
+      .select("currency, rate_to_base")
+      .neq("currency", settings.base_currency)
       .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
+      .limit(60),
   ]);
+
+  const lastRates: Record<string, number> = {};
+  for (const t of recentForeign ?? []) {
+    if (!(t.currency in lastRates)) lastRates[t.currency] = Number(t.rate_to_base);
+  }
 
   const studentIds = (students ?? []).map((s) => s.id);
   const { data: balances } = await supabase
@@ -56,7 +63,7 @@ export default async function NewPaymentPage(props: PageProps<"/payments/new">) 
     id: e.id,
     student_id: e.student_id,
     course_name: e.intake?.course?.name ?? "—",
-    intake_label: e.intake?.label || (e.intake?.start_date ? monthYearLabel(e.intake.start_date) : "—"),
+    intake_label: e.intake?.label || (e.intake?.start_date ? fmt.monthYear(e.intake.start_date) : "—"),
     balance: enrolmentBalanceById.get(e.id) ?? 0,
   }));
 
@@ -66,7 +73,9 @@ export default async function NewPaymentPage(props: PageProps<"/payments/new">) 
       <PaymentForm
         students={studentOptions}
         enrolments={enrolmentOptions}
-        lastZwgRate={lastZwg?.rate_to_usd ?? null}
+        currencies={[settings.base_currency, ...settings.accepted_currencies]}
+        methods={settings.payment_methods}
+        lastRates={lastRates}
         initialStudentId={initialStudentId}
       />
     </div>

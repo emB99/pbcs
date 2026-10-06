@@ -1,15 +1,17 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { DollarSign, MessageSquare } from "lucide-react";
+import { Banknote, MessageSquare } from "lucide-react";
 import { Dialog } from "@/components/ui/Dialog";
 import { Button } from "@/components/ui/Button";
 import { FieldGroup } from "@/components/ui/FieldGroup";
 import { IconField } from "@/components/ui/IconField";
 import { recordCharge } from "@/lib/actions/transactions";
+import { useFormat } from "@/components/school/SchoolProvider";
 
 /** Materials/ingredients fee, or any other one-off charge — just another charge row. */
 export function AddChargeButton({ enrolmentId, courseName }: { enrolmentId: string; courseName: string }) {
+  const fmt = useFormat();
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
@@ -49,9 +51,9 @@ export function AddChargeButton({ enrolmentId, courseName }: { enrolmentId: stri
       </button>
       <Dialog open={open} onClose={handleClose} title={`Add a charge — ${courseName}`}>
         <div className="flex flex-col gap-3">
-          <FieldGroup label="Amount (USD)">
+          <FieldGroup label={`Amount (${fmt.currency})`}>
             <IconField
-              icon={<DollarSign />}
+              icon={<Banknote />}
               inputMode="decimal"
               placeholder="e.g. materials fee"
               value={amount}

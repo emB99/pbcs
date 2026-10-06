@@ -7,13 +7,13 @@ import { Card, CardHead } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { CommentsEditor } from "@/components/reports/CommentsEditor";
 import { loadComments } from "@/lib/db/reports";
-import { monthYearLabel } from "@/lib/dates";
+
 
 /** Office view: write the class teacher's and the head's comments, then print the report cards. */
 export default async function IntakeReportsPage(props: PageProps<"/intakes/[intakeId]/reports">) {
   const { intakeId } = await props.params;
   const { term: termParam } = await props.searchParams;
-  const { terms: t, role } = await requireSchool();
+  const { terms: t, role, fmt } = await requireSchool();
   const supabase = await createClient();
 
   const { data: intake } = await supabase
@@ -25,7 +25,7 @@ export default async function IntakeReportsPage(props: PageProps<"/intakes/[inta
 
   const termValue = Array.isArray(termParam) ? termParam[0] : termParam;
   const data = await loadComments(intakeId, termValue);
-  const label = intake.label || monthYearLabel(intake.start_date);
+  const label = intake.label || fmt.monthYear(intake.start_date);
   const printHref = `/print/reports/${intakeId}${data.termId ? `?term=${data.termId}` : data.terms.length > 0 ? "?term=final" : ""}`;
 
   return (

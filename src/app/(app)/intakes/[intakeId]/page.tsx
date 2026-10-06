@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, CardHead } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { LabelAboveValue } from "@/components/ui/FieldGroup";
-import { formatDate, monthYearLabel } from "@/lib/dates";
+
 import {
   EnrolledStudentsTable,
   type EnrolledStudentRow,
@@ -18,7 +18,7 @@ export default async function IntakeDetailPage(
   props: PageProps<"/intakes/[intakeId]">,
 ) {
   const { intakeId } = await props.params;
-  const { terms: t, settings } = await requireSchool();
+  const { terms: t, settings, fmt } = await requireSchool();
   const supabase = await createClient();
 
   const { data: intake } = await supabase
@@ -60,7 +60,7 @@ export default async function IntakeDetailPage(
 
   const promoteTargets: PromoteTarget[] = (otherIntakes ?? []).map((i) => ({
     id: i.id,
-    label: i.label || monthYearLabel(i.start_date),
+    label: i.label || fmt.monthYear(i.start_date),
     course_name: i.course?.name ?? "Unassigned",
     default_price: Number(i.course?.default_price ?? 0),
   }));
@@ -100,7 +100,7 @@ export default async function IntakeDetailPage(
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-xl font-semibold">
-            {intake.label || monthYearLabel(intake.start_date)}
+            {intake.label || fmt.monthYear(intake.start_date)}
           </h1>
           <p className="text-[12.5px] text-ink-soft">{intake.course?.name}</p>
         </div>
@@ -125,8 +125,8 @@ export default async function IntakeDetailPage(
 
       <Card>
         <div className="grid grid-cols-2 gap-4 p-5 sm:grid-cols-4">
-          <LabelAboveValue label="Start date" value={formatDate(intake.start_date)} />
-          <LabelAboveValue label="End date" value={formatDate(intake.end_date)} />
+          <LabelAboveValue label="Start date" value={fmt.date(intake.start_date)} />
+          <LabelAboveValue label="End date" value={fmt.date(intake.end_date)} />
           <LabelAboveValue label={`${t.instructor.one} in charge`} value={intake.instructor?.full_name} />
           <LabelAboveValue label="Capacity" value={intake.capacity?.toString()} />
         </div>
@@ -145,7 +145,7 @@ export default async function IntakeDetailPage(
       <Card>
         <CardHead
           title="Enrolled students"
-          note={`${rows.length} active · $${outstandingTotal.toFixed(2)} outstanding`}
+          note={`${rows.length} active · ${fmt.money(outstandingTotal)} outstanding`}
         />
         <EnrolledStudentsTable rows={rows} intakeId={intake.id} />
       </Card>

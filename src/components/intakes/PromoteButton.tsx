@@ -6,7 +6,7 @@ import { promoteStudents } from "@/lib/actions/intakes";
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { FieldGroup, inputClass } from "@/components/ui/FieldGroup";
-import { useTerms } from "@/components/school/SchoolProvider";
+import { useTerms, useFormat } from "@/components/school/SchoolProvider";
 
 export type PromoteStudent = { enrolment_id: string; full_name: string };
 export type PromoteTarget = { id: string; label: string; course_name: string; default_price: number };
@@ -21,6 +21,7 @@ export function PromoteButton({
   targets: PromoteTarget[];
 }) {
   const t = useTerms();
+  const fmt = useFormat();
   const noun = t.intake.one.toLowerCase();
   const [open, setOpen] = useState(false);
   const [targetId, setTargetId] = useState("");
@@ -112,7 +113,7 @@ export function PromoteButton({
             <p className="text-xs text-ink-soft">
               Each student is enrolled in the new {noun}
               {target && target.default_price > 0
-                ? ` and charged its default price ($${target.default_price.toFixed(2)})`
+                ? ` and charged its default price (${fmt.money(target.default_price)})`
                 : ""}
               . Their current enrolment is marked completed. Unpaid balances stay where they are.
             </p>

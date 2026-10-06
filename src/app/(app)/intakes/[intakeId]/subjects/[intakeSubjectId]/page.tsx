@@ -6,14 +6,14 @@ import { ADMIN_ROLES, requireSchool } from "@/lib/school";
 import { Card, CardHead } from "@/components/ui/Card";
 import { Gradebook } from "@/components/grades/Gradebook";
 import { loadGradebook } from "@/lib/db/gradebook";
-import { monthYearLabel } from "@/lib/dates";
+
 
 export default async function IntakeSubjectMarksPage(
   props: PageProps<"/intakes/[intakeId]/subjects/[intakeSubjectId]">,
 ) {
   const { intakeId, intakeSubjectId } = await props.params;
   const { term: termParam } = await props.searchParams;
-  const { terms: t, role } = await requireSchool();
+  const { terms: t, role, fmt } = await requireSchool();
   const supabase = await createClient();
 
   const { data: row } = await supabase
@@ -27,7 +27,7 @@ export default async function IntakeSubjectMarksPage(
   if (!row) notFound();
 
   const book = await loadGradebook(intakeSubjectId, Array.isArray(termParam) ? termParam[0] : termParam);
-  const intakeLabel = row.intake?.label || (row.intake ? monthYearLabel(row.intake.start_date) : "");
+  const intakeLabel = row.intake?.label || (row.intake ? fmt.monthYear(row.intake.start_date) : "");
 
   return (
     <div className="flex flex-col gap-4">

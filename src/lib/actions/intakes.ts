@@ -5,7 +5,6 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { NOT_ALLOWED, getOfficeContext } from "@/lib/school";
 import { insertCharge } from "@/lib/db/transactions";
-import { todayIsoDate } from "@/lib/dates";
 import { promoteSchema } from "@/lib/validation/academic";
 import { intakeSchema } from "@/lib/validation/intakes";
 import { fieldErrorsFromZod } from "@/lib/validation/shared";
@@ -52,7 +51,8 @@ export async function promoteStudents(
   sourceIntakeId: string,
   input: { target_intake_id: string; enrolment_ids: string[] },
 ): Promise<DialogResult> {
-  if (!(await getOfficeContext())) return { ok: false, message: NOT_ALLOWED };
+  const ctx = await getOfficeContext();
+  if (!ctx) return { ok: false, message: NOT_ALLOWED };
 
   const parsed = promoteSchema.safeParse(input);
   if (!parsed.success) {
@@ -105,6 +105,7 @@ export async function promoteStudents(
       const { error: chargeError } = await insertCharge(supabase, {
         enrolment_id: created.id,
         amount: price.toFixed(2),
+        occurred_on: ctx.fmt.today(),
       });
       if (chargeError) {
         failed += 1;
@@ -113,7 +114,7 @@ export async function promoteStudents(
     }
     await supabase
       .from("enrolments")
-      .update({ status: "completed", ended_on: todayIsoDate() })
+      .update({ status: "completed", ended_on: ctx.fmt.today() })
       .eq("id", e.id);
     moved += 1;
   }

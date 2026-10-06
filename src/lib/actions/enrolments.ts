@@ -89,6 +89,7 @@ export async function createEnrolment(
   const { error: chargeError } = await insertCharge(supabase, {
     enrolment_id: enrolment.id,
     amount: parsed.data.agreed_price,
+    occurred_on: ctx.fmt.today(),
   });
   if (chargeError) {
     return { message: "Enrolment saved, but the charge couldn't be recorded. Contact support." };
@@ -104,6 +105,9 @@ export async function withdrawEnrolment(
   enrolmentId: string,
   choice: "write_off" | "keep_owing",
 ): Promise<DialogResult> {
+  const ctx = await getOfficeContext();
+  if (!ctx) return { ok: false, message: NOT_ALLOWED };
+
   const parsed = withdrawSchema.safeParse({ choice });
   if (!parsed.success) {
     return { ok: false, message: "Choose how to handle the remaining balance." };
@@ -122,7 +126,7 @@ export async function withdrawEnrolment(
 
   const { error: statusError } = await supabase
     .from("enrolments")
-    .update({ status: "withdrawn", ended_on: new Date().toISOString().slice(0, 10) })
+    .update({ status: "withdrawn", ended_on: ctx.fmt.today() })
     .eq("id", enrolmentId);
   if (statusError) {
     return { ok: false, message: "Couldn't withdraw the enrolment. Try again." };
@@ -140,9 +144,8 @@ export async function withdrawEnrolment(
         enrolment_id: enrolmentId,
         kind: "adjustment",
         amount: Number((-remaining).toFixed(2)),
-        currency: "USD",
-        rate_to_usd: 1,
-        occurred_on: new Date().toISOString().slice(0, 10),
+        // Currency and rate are filled in by the database (base currency, rate 1).
+        occurred_on: ctx.fmt.today(),
         note: "Write-off on withdrawal",
       });
       if (adjustmentError) {
@@ -157,6 +160,9 @@ export async function withdrawEnrolment(
 }
 
 export async function completeEnrolment(enrolmentId: string): Promise<DialogResult> {
+  const ctx = await getOfficeContext();
+  if (!ctx) return { ok: false, message: NOT_ALLOWED };
+
   const supabase = await createClient();
   const { data: enrolment } = await supabase
     .from("enrolments")
@@ -170,7 +176,7 @@ export async function completeEnrolment(enrolmentId: string): Promise<DialogResu
 
   const { error } = await supabase
     .from("enrolments")
-    .update({ status: "completed", ended_on: new Date().toISOString().slice(0, 10) })
+    .update({ status: "completed", ended_on: ctx.fmt.today() })
     .eq("id", enrolmentId);
   if (error) return { ok: false, message: "Could not update the enrolment. Try again." };
 

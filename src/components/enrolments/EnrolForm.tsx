@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useMemo, useState } from "react";
-import { User, Phone, DollarSign, MessageSquare, CalendarDays, Presentation, Users } from "lucide-react";
+import { User, Phone, Banknote, MessageSquare, CalendarDays, Presentation, Users } from "lucide-react";
 import { FieldGroup } from "@/components/ui/FieldGroup";
 import { IconField } from "@/components/ui/IconField";
 import { IconSelect } from "@/components/ui/IconSelect";
@@ -10,8 +10,8 @@ import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { createEnrolment } from "@/lib/actions/enrolments";
-import { formatDate } from "@/lib/dates";
-import { useSchoolType, useTerms } from "@/components/school/SchoolProvider";
+
+import { useSchoolType, useTerms, useFormat } from "@/components/school/SchoolProvider";
 import { a } from "@/lib/terminology";
 
 export type EnrolStudentOption = {
@@ -44,6 +44,7 @@ export function EnrolForm({
   initialIntakeId?: string;
 }) {
   const t = useTerms();
+  const fmt = useFormat();
   const isK12 = useSchoolType() === "k12";
   const [state, formAction, pending] = useActionState(createEnrolment, undefined);
   const errors = state?.errors ?? {};
@@ -187,8 +188,8 @@ export function EnrolForm({
             </div>
             <div className="flex items-center gap-1.5 text-ink-soft">
               <CalendarDays className="h-3.5 w-3.5 flex-none" />
-              {formatDate(selectedIntake.start_date)}
-              {selectedIntake.end_date ? ` – ${formatDate(selectedIntake.end_date)}` : ""}
+              {fmt.date(selectedIntake.start_date)}
+              {selectedIntake.end_date ? ` – ${fmt.date(selectedIntake.end_date)}` : ""}
             </div>
             <div className="flex items-center gap-1.5 text-ink-soft">
               <Presentation className="h-3.5 w-3.5 flex-none" />
@@ -203,9 +204,9 @@ export function EnrolForm({
           </div>
         )}
 
-        <FieldGroup label="Agreed price (USD)" htmlFor="agreed_price" error={errors.agreed_price?.[0]}>
+        <FieldGroup label={`Agreed price (${fmt.currency})`} htmlFor="agreed_price" error={errors.agreed_price?.[0]}>
           <IconField
-            icon={<DollarSign />}
+            icon={<Banknote />}
             id="agreed_price"
             name="agreed_price"
             inputMode="decimal"

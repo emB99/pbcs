@@ -24,7 +24,7 @@ export function StudentBanner({
   photoUrl,
   phone,
   enrolmentCount,
-  balance,
+  balanceLabel,
 }: {
   id: string;
   name: string;
@@ -33,12 +33,13 @@ export function StudentBanner({
   photoUrl: string | null;
   phone: string | null;
   enrolmentCount: number;
-  balance: number;
+  /** The balance already formatted in the school's currency. */
+  balanceLabel: string;
 }) {
   const details = [
     phone,
     `${enrolmentCount} ${enrolmentCount === 1 ? "enrolment" : "enrolments"}`,
-    `$${balance.toFixed(2)} balance`,
+    `${balanceLabel} balance`,
   ].filter(Boolean);
 
   return (

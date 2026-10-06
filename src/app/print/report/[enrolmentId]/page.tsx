@@ -10,7 +10,7 @@ import { ReportCard } from "@/components/reports/ReportCard";
 export default async function ReportCardPage(props: PageProps<"/print/report/[enrolmentId]">) {
   const { enrolmentId } = await props.params;
   const { term: termParam } = await props.searchParams;
-  const { terms: t, settings } = await requireSchool();
+  const { terms: t, settings, fmt } = await requireSchool();
 
   const data = await loadReportCards({ enrolmentId }, Array.isArray(termParam) ? termParam[0] : termParam);
   const card = data.cards[0];
@@ -43,6 +43,7 @@ export default async function ReportCardPage(props: PageProps<"/print/report/[en
           instructor: t.instructor.one,
         }}
         breakAfter={false}
+        fmt={fmt}
       />
     </div>
   );

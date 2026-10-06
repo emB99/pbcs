@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Dialog } from "@/components/ui/Dialog";
 import { Button } from "@/components/ui/Button";
 import { withdrawEnrolment } from "@/lib/actions/enrolments";
+import { useFormat } from "@/components/school/SchoolProvider";
 
 export function WithdrawButton({
   enrolmentId,
@@ -14,6 +15,7 @@ export function WithdrawButton({
   studentName: string;
   balance: number;
 }) {
+  const fmt = useFormat();
   const [open, setOpen] = useState(false);
   const [choice, setChoice] = useState<"write_off" | "keep_owing">("keep_owing");
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +53,7 @@ export function WithdrawButton({
       <Dialog open={open} onClose={handleClose} title={`Withdraw ${studentName}?`}>
         <div className="flex flex-col gap-3">
           <p className="text-[13px] text-ink-mid">
-            This enrolment has a balance of <strong>${balance.toFixed(2)}</strong>. What
+            This enrolment has a balance of <strong>{fmt.money(balance)}</strong>. What
             should happen to it?
           </p>
           <div className="flex flex-col gap-2">

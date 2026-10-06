@@ -9,7 +9,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { LabelAboveValue } from "@/components/ui/FieldGroup";
 import { BalanceWithBar } from "@/components/ui/BalanceWithBar";
 import { Tag } from "@/components/ui/Tag";
-import { formatDate, monthYearLabel } from "@/lib/dates";
+
 import { StudentArchiveButton } from "@/components/students/StudentArchiveButton";
 import { StudentBanner } from "@/components/students/StudentBanner";
 import { StudentDetailTabs } from "@/components/students/StudentDetailTabs";
@@ -32,7 +32,7 @@ const EVENT_LABEL = { enrolled: "Enrolled", completed: "Completed", withdrawn: "
 export default async function StudentDetailPage(props: PageProps<"/students/[studentId]">) {
   const { studentId } = await props.params;
   const { guardian: guardianFlag } = await props.searchParams;
-  const { terms: t } = await requireSchool();
+  const { terms: t, fmt } = await requireSchool();
   const supabase = await createClient();
 
   const { data: student } = await supabase
@@ -105,7 +105,7 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
   const gradeGroups: GradeGroup[] = (enrolments ?? []).map((e) => ({
     id: e.id,
     title: e.intake?.course?.name ?? "—",
-    subtitle: e.intake?.label || (e.intake?.start_date ? monthYearLabel(e.intake.start_date) : ""),
+    subtitle: e.intake?.label || (e.intake?.start_date ? fmt.monthYear(e.intake.start_date) : ""),
     lines: (gradeRows ?? [])
       .filter((g) => g.enrolment_id === e.id && (g.mark !== null || g.grade))
       .map((g) => ({
@@ -175,7 +175,7 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
             >
               <div className="font-semibold">{intake?.course?.name ?? "—"}</div>
               <div className="text-[11.5px] text-ink-soft">
-                {intake?.label || (intake?.start_date && monthYearLabel(intake.start_date))}
+                {intake?.label || (intake?.start_date && fmt.monthYear(intake.start_date))}
                 {" · "}
                 <Tag variant={e.status === "withdrawn" ? "late" : e.status === "completed" ? "ok" : "due"}>
                   {e.status}
@@ -184,7 +184,7 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
               {history.length > 0 && (
                 <div className="mt-1 text-[11px] text-ink-soft">
                   {history
-                    .map((h) => `${EVENT_LABEL[h.to_status]} ${formatDate(h.changed_at.slice(0, 10))}`)
+                    .map((h) => `${EVENT_LABEL[h.to_status]} ${fmt.date(h.changed_at.slice(0, 10))}`)
                     .join(" · ")}
                 </div>
               )}
@@ -234,7 +234,7 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
         photoUrl={photoUrl}
         phone={student.phone}
         enrolmentCount={enrolments?.length ?? 0}
-        balance={studentBalance}
+        balanceLabel={fmt.money(studentBalance)}
       />
 
       {guardianFlag === "failed" && (
@@ -272,7 +272,7 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
       <Card>
         <CardHead title="Basic details" />
         <div className="grid grid-cols-2 gap-4 p-5 max-[520px]:grid-cols-1 sm:grid-cols-3">
-          <LabelAboveValue label="Date of birth" value={student.date_of_birth ? formatDate(student.date_of_birth) : null} />
+          <LabelAboveValue label="Date of birth" value={student.date_of_birth ? fmt.date(student.date_of_birth) : null} />
           <LabelAboveValue label="Gender" value={student.gender ? GENDER_LABEL[student.gender] : null} />
           <LabelAboveValue label="Phone" value={student.phone} />
           <LabelAboveValue label="Email" value={student.email} />

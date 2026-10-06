@@ -7,9 +7,9 @@ import { MoneyCell } from "@/components/ui/MoneyCell";
 import { Tag } from "@/components/ui/Tag";
 import { CsvExportButton } from "@/components/ui/CsvExportButton";
 import { AddIntakeModal } from "@/components/intakes/AddIntakeModal";
-import { formatDate, monthYearLabel } from "@/lib/dates";
+
 import type { Course, Instructor } from "@/lib/types";
-import { useTerms, useSchoolType } from "@/components/school/SchoolProvider";
+import { useTerms, useSchoolType, useFormat } from "@/components/school/SchoolProvider";
 
 export type IntakeRow = {
   id: string;
@@ -32,6 +32,7 @@ export function IntakesTable({
   instructors?: Instructor[];
 }) {
   const t = useTerms();
+  const fmt = useFormat();
   const isK12 = useSchoolType() === "k12";
   const allColumns: Column<IntakeRow>[] = [
     {
@@ -40,7 +41,7 @@ export function IntakesTable({
       sortValue: (r) => r.start_date,
       render: (r) => (
         <Link href={`/intakes/${r.id}`} className="block hover:underline">
-          <div className="font-medium">{r.label || monthYearLabel(r.start_date)}</div>
+          <div className="font-medium">{r.label || fmt.monthYear(r.start_date)}</div>
           <div className="text-[11.5px] text-ink-soft">{r.course?.name ?? "—"}</div>
         </Link>
       ),
@@ -61,8 +62,8 @@ export function IntakesTable({
       sortValue: (r) => r.start_date,
       render: (r) => (
         <span className="text-ink-mid">
-          {formatDate(r.start_date)}
-          {r.end_date ? ` – ${formatDate(r.end_date)}` : ""}
+          {fmt.date(r.start_date)}
+          {r.end_date ? ` – ${fmt.date(r.end_date)}` : ""}
         </span>
       ),
     },
@@ -98,7 +99,7 @@ export function IntakesTable({
           rows={rows}
           filename="intakes.csv"
           columns={[
-            { header: t.intake.one, value: (r) => r.label || monthYearLabel(r.start_date) },
+            { header: t.intake.one, value: (r) => r.label || fmt.monthYear(r.start_date) },
             { header: t.course.one, value: (r) => r.course?.name ?? "" },
             { header: "Start date", value: (r) => r.start_date },
             { header: "End date", value: (r) => r.end_date ?? "" },

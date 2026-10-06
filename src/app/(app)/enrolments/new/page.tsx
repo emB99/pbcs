@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
+import { requireSchool } from "@/lib/school";
 import { EnrolForm } from "@/components/enrolments/EnrolForm";
-import { monthYearLabel } from "@/lib/dates";
+
 
 export default async function NewEnrolmentPage(
   props: PageProps<"/enrolments/new">,
@@ -11,6 +12,7 @@ export default async function NewEnrolmentPage(
   const initialIntakeId =
     typeof searchParams.intakeId === "string" ? searchParams.intakeId : undefined;
 
+  const { fmt } = await requireSchool();
   const supabase = await createClient();
   const [{ data: students }, { data: intakes }] = await Promise.all([
     supabase
@@ -28,7 +30,7 @@ export default async function NewEnrolmentPage(
 
   const intakeOptions = (intakes ?? []).map((i) => ({
     id: i.id,
-    intake_label: i.label || monthYearLabel(i.start_date),
+    intake_label: i.label || fmt.monthYear(i.start_date),
     course_name: i.course?.name ?? "Unassigned course",
     course_kind: i.course?.kind ?? null,
     course_default_price: i.course?.default_price ?? 0,

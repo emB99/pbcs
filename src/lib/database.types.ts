@@ -536,52 +536,67 @@ export type Database = {
       }
       school_settings: {
         Row: {
+          accepted_currencies: string[]
           address: string | null
+          base_currency: string
           brand_color: string | null
           color_mode: string
           created_at: string
           email: string | null
           id: boolean
+          locale: string
           logo_path: string | null
           name: string
           next_student_number: number
+          payment_methods: string[]
           phone: string | null
           school_type: Database["public"]["Enums"]["school_type"]
           student_number_prefix: string
           terminology: Json
           theme: string
+          timezone: string
         }
         Insert: {
+          accepted_currencies?: string[]
           address?: string | null
+          base_currency?: string
           brand_color?: string | null
           color_mode?: string
           created_at?: string
           email?: string | null
           id?: boolean
+          locale?: string
           logo_path?: string | null
           name: string
           next_student_number?: number
+          payment_methods?: string[]
           phone?: string | null
           school_type?: Database["public"]["Enums"]["school_type"]
           student_number_prefix?: string
           terminology?: Json
           theme?: string
+          timezone?: string
         }
         Update: {
+          accepted_currencies?: string[]
           address?: string | null
+          base_currency?: string
           brand_color?: string | null
           color_mode?: string
           created_at?: string
           email?: string | null
           id?: boolean
+          locale?: string
           logo_path?: string | null
           name?: string
           next_student_number?: number
+          payment_methods?: string[]
           phone?: string | null
           school_type?: Database["public"]["Enums"]["school_type"]
           student_number_prefix?: string
           terminology?: Json
           theme?: string
+          timezone?: string
         }
         Relationships: []
       }
@@ -762,7 +777,7 @@ export type Database = {
       transactions: {
         Row: {
           amount: number
-          amount_usd: number | null
+          amount_base: number | null
           created_at: string
           created_by: string | null
           currency: string
@@ -772,14 +787,14 @@ export type Database = {
           method: string | null
           note: string | null
           occurred_on: string
-          rate_to_usd: number
+          rate_to_base: number
           reference: string | null
           reversal_reason: string | null
           reverses_id: string | null
         }
         Insert: {
           amount: number
-          amount_usd?: number | null
+          amount_base?: number | null
           created_at?: string
           created_by?: string | null
           currency?: string
@@ -789,14 +804,14 @@ export type Database = {
           method?: string | null
           note?: string | null
           occurred_on?: string
-          rate_to_usd?: number
+          rate_to_base?: number
           reference?: string | null
           reversal_reason?: string | null
           reverses_id?: string | null
         }
         Update: {
           amount?: number
-          amount_usd?: number | null
+          amount_base?: number | null
           created_at?: string
           created_by?: string | null
           currency?: string
@@ -806,7 +821,7 @@ export type Database = {
           method?: string | null
           note?: string | null
           occurred_on?: string
-          rate_to_usd?: number
+          rate_to_base?: number
           reference?: string | null
           reversal_reason?: string | null
           reverses_id?: string | null
@@ -988,8 +1003,11 @@ export type Database = {
       }
       claim_school: {
         Args: {
+          p_currency?: string
+          p_locale?: string
           p_name: string
           p_prefix: string
+          p_timezone?: string
           p_type: Database["public"]["Enums"]["school_type"]
         }
         Returns: undefined

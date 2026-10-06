@@ -14,6 +14,13 @@ export function AppShell({ ctx, children }: { ctx: SchoolContext; children: Reac
         schoolName: ctx.settings.name,
         schoolType: ctx.settings.school_type,
         logoUrl: logoUrl(ctx.settings.logo_path),
+        region: {
+          currency: ctx.settings.base_currency,
+          locale: ctx.settings.locale,
+          timezone: ctx.settings.timezone,
+        },
+        acceptedCurrencies: ctx.settings.accepted_currencies,
+        paymentMethods: ctx.settings.payment_methods,
       }}
     >
       <div className="flex min-h-full items-start gap-[18px] bg-canvas p-[22px] max-[680px]:flex-col max-[680px]:p-3.5">

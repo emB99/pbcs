@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PrintButton } from "@/components/ui/PrintButton";
-import { formatDate } from "@/lib/dates";
+
 import type { Student, Transaction } from "@/lib/types";
 import { requireSchool } from "@/lib/school";
+import { methodLabel } from "@/lib/format";
 import { logoUrl } from "@/lib/brand";
 import { SchoolLogo } from "@/components/school/SchoolLogo";
 
@@ -19,7 +20,7 @@ export default async function StudentStatementPage(
   props: PageProps<"/print/statement/[studentId]">,
 ) {
   const { studentId } = await props.params;
-  const { terms: t, settings: school } = await requireSchool();
+  const { terms: t, settings: school, fmt } = await requireSchool();
   const supabase = await createClient();
 
   const { data: student } = await supabase
@@ -48,7 +49,7 @@ export default async function StudentStatementPage(
     .returns<Transaction[]>();
 
   const rows = transactions ?? [];
-  const closingBalance = rows.reduce((sum, t) => sum + Number(t.amount_usd), 0);
+  const closingBalance = rows.reduce((sum, t) => sum + Number(t.amount_base), 0);
 
   return (
     <div>
@@ -71,7 +72,7 @@ export default async function StudentStatementPage(
               <p className="text-[12.5px] text-ink-soft">Statement of account</p>
             </div>
           </div>
-          <p className="text-[12.5px] text-ink-soft">{formatDate(new Date().toISOString().slice(0, 10))}</p>
+          <p className="text-[12.5px] text-ink-soft">{fmt.date(fmt.today())}</p>
         </header>
 
         <div className="mb-6 grid grid-cols-2 gap-4 text-[13px]">
@@ -90,7 +91,7 @@ export default async function StudentStatementPage(
               <th className="py-2">Date</th>
               <th className="py-2">{t.course.one}</th>
               <th className="py-2">Description</th>
-              <th className="py-2 text-right">Amount</th>
+              <th className="py-2 text-right">Amount ({fmt.currency})</th>
             </tr>
           </thead>
           <tbody>
@@ -102,21 +103,27 @@ export default async function StudentStatementPage(
               </tr>
             )}
             {rows.map((t) => {
-              const amountNum = Number(t.amount_usd);
+              const amountNum = Number(t.amount_base);
               return (
                 <tr key={t.id} className="statement-line border-b border-line-soft">
-                  <td className="py-2 align-top whitespace-nowrap">{formatDate(t.occurred_on)}</td>
+                  <td className="py-2 align-top whitespace-nowrap">{fmt.date(t.occurred_on)}</td>
                   <td className="py-2 align-top">{courseByEnrolment.get(t.enrolment_id) ?? "—"}</td>
                   <td className="py-2 align-top">
                     {KIND_LABEL[t.kind]}
                     {t.reverses_id && " (reversal)"}
-                    {t.method && ` · ${t.method}`}
+                    {t.method && ` · ${methodLabel(t.method)}`}
                     {t.reference && ` · ${t.reference}`}
                     {t.reversal_reason && ` — ${t.reversal_reason}`}
                     {t.note && ` — ${t.note}`}
                   </td>
                   <td className="money py-2 text-right align-top whitespace-nowrap">
-                    {amountNum >= 0 ? "" : "−"}${Math.abs(amountNum).toFixed(2)}
+                    {amountNum >= 0 ? "" : "−"}
+                    {fmt.money(Math.abs(amountNum))}
+                    {t.currency !== fmt.currency && (
+                      <div className="text-[11px] font-normal text-ink-soft">
+                        {fmt.money(Math.abs(t.amount), t.currency)} at {t.rate_to_base}
+                      </div>
+                    )}
                   </td>
                 </tr>
               );
@@ -128,7 +135,7 @@ export default async function StudentStatementPage(
                 Closing balance
               </td>
               <td className="money pt-4 text-right font-semibold whitespace-nowrap">
-                ${closingBalance.toFixed(2)}
+                {fmt.money(closingBalance)}
               </td>
             </tr>
           </tfoot>

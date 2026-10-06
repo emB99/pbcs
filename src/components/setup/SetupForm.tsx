@@ -1,12 +1,14 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { School, Hash, GraduationCap, Building2 } from "lucide-react";
 import { completeSetup } from "@/lib/actions/setup";
 import { FieldGroup } from "@/components/ui/FieldGroup";
 import { IconField } from "@/components/ui/IconField";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { inputClass } from "@/components/ui/FieldGroup";
+import { CURRENCIES, LOCALES } from "@/lib/format";
 import type { SchoolType } from "@/lib/types";
 
 const TYPES: { value: SchoolType; label: string; blurb: string; icon: typeof School }[] = [
@@ -27,6 +29,12 @@ const TYPES: { value: SchoolType; label: string; blurb: string; icon: typeof Sch
 export function SetupForm({ email }: { email?: string }) {
   const [state, formAction, pending] = useActionState(completeSetup, undefined);
   const [type, setType] = useState<SchoolType>("college");
+  // Default the timezone to the one this browser is in; it can be changed later in Settings.
+  const timezoneRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (detected && timezoneRef.current) timezoneRef.current.value = detected;
+  }, []);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -87,6 +95,31 @@ export function SetupForm({ email }: { email?: string }) {
           maxLength={8}
         />
       </FieldGroup>
+
+      <div className="grid grid-cols-2 gap-3 max-[420px]:grid-cols-1">
+        <FieldGroup label="Currency" htmlFor="currency" error={state?.errors?.currency?.[0]}>
+          <select id="currency" name="currency" defaultValue="USD" className={inputClass}>
+            {CURRENCIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.code} · {c.name}
+              </option>
+            ))}
+          </select>
+        </FieldGroup>
+        <FieldGroup label="Number and date format" htmlFor="locale" error={state?.errors?.locale?.[0]}>
+          <select id="locale" name="locale" defaultValue="en-ZW" className={inputClass}>
+            {LOCALES.map((l) => (
+              <option key={l.code} value={l.code}>
+                {l.name}
+              </option>
+            ))}
+          </select>
+        </FieldGroup>
+      </div>
+      <input ref={timezoneRef} type="hidden" name="timezone" defaultValue="Africa/Harare" />
+      <p className="-mt-2 text-xs text-ink-soft">
+        Fees and balances are kept in this currency, and it cannot be changed after the first transaction.
+      </p>
 
       {state?.message && <p className="text-xs text-danger">{state.message}</p>}
 

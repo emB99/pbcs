@@ -25,6 +25,9 @@ export async function completeSetup(
     name: formData.get("name"),
     school_type: formData.get("school_type"),
     student_number_prefix: formData.get("student_number_prefix"),
+    currency: formData.get("currency"),
+    locale: formData.get("locale"),
+    timezone: formData.get("timezone"),
   });
   if (!parsed.success) return { errors: fieldErrorsFromZod(parsed.error) };
 
@@ -32,6 +35,9 @@ export async function completeSetup(
     p_name: parsed.data.name,
     p_type: parsed.data.school_type,
     p_prefix: parsed.data.student_number_prefix,
+    p_currency: parsed.data.currency,
+    p_locale: parsed.data.locale,
+    p_timezone: parsed.data.timezone,
   });
   if (error) {
     if (error.code === "23505") {

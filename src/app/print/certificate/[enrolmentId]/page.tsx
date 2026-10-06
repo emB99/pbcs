@@ -3,13 +3,13 @@ import { notFound } from "next/navigation";
 import { Award, ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { requireSchool } from "@/lib/school";
-import { formatDate } from "@/lib/dates";
+
 import { PrintButton } from "@/components/ui/PrintButton";
 
 /** A completion certificate. Only available once an enrolment is marked completed. */
 export default async function CertificatePage(props: PageProps<"/print/certificate/[enrolmentId]">) {
   const { enrolmentId } = await props.params;
-  const { terms: t, settings } = await requireSchool();
+  const { terms: t, settings, fmt } = await requireSchool();
   const supabase = await createClient();
 
   const { data: enrolment } = await supabase
@@ -38,7 +38,7 @@ export default async function CertificatePage(props: PageProps<"/print/certifica
   }
 
   const course = enrolment.intake?.course?.name ?? "";
-  const completedOn = enrolment.ended_on ?? new Date().toISOString().slice(0, 10);
+  const completedOn = enrolment.ended_on ?? fmt.today();
 
   return (
     <div>
@@ -66,7 +66,7 @@ export default async function CertificatePage(props: PageProps<"/print/certifica
         {enrolment.intake?.label && (
           <p className="mt-1 text-[13px] text-ink-soft">{enrolment.intake.label}</p>
         )}
-        <p className="mt-5 text-[13px] text-ink-mid">Completed on {formatDate(completedOn)}</p>
+        <p className="mt-5 text-[13px] text-ink-mid">Completed on {fmt.date(completedOn)}</p>
 
         <div className="mx-auto mt-14 grid max-w-[560px] grid-cols-2 gap-12 text-[12px] text-ink-soft">
           <div className="border-t border-ink-soft pt-1.5">Head&apos;s signature</div>

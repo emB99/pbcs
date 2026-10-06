@@ -5,9 +5,10 @@ import { Card, CardHead } from "@/components/ui/Card";
 import { DataTable, type Column } from "@/components/ui/DataTable";
 import { AvatarInitials } from "@/components/ui/AvatarInitials";
 import { CsvExportButton } from "@/components/ui/CsvExportButton";
-import { formatDate } from "@/lib/dates";
+
 import type { Transaction } from "@/lib/types";
-import { useTerms } from "@/components/school/SchoolProvider";
+import { methodLabel } from "@/lib/format";
+import { useTerms, useFormat } from "@/components/school/SchoolProvider";
 
 export type PaymentRow = Transaction & {
   student_id: string;
@@ -23,6 +24,7 @@ const KIND_LABEL: Record<Transaction["kind"], string> = {
 
 export function PaymentsTable({ rows }: { rows: PaymentRow[] }) {
   const t = useTerms();
+  const fmt = useFormat();
   const columns: Column<PaymentRow>[] = [
     {
       key: "student",
@@ -54,7 +56,7 @@ export function PaymentsTable({ rows }: { rows: PaymentRow[] }) {
       header: "Method / reference",
       render: (r) => (
         <span className="text-ink-mid">
-          {[r.method, r.reference].filter(Boolean).join(" · ") || "—"}
+          {[methodLabel(r.method), r.reference].filter(Boolean).join(" · ") || "—"}
         </span>
       ),
     },
@@ -62,20 +64,21 @@ export function PaymentsTable({ rows }: { rows: PaymentRow[] }) {
       key: "date",
       header: "Date",
       sortValue: (r) => r.occurred_on,
-      render: (r) => <span className="text-ink-mid">{formatDate(r.occurred_on)}</span>,
+      render: (r) => <span className="text-ink-mid">{fmt.date(r.occurred_on)}</span>,
     },
     {
       key: "amount",
       header: "Amount",
       align: "right",
-      sortValue: (r) => Number(r.amount_usd),
+      sortValue: (r) => Number(r.amount_base),
       render: (r) => {
-        const n = Number(r.amount_usd);
+        const n = Number(r.amount_base);
         return (
           <span
             className={`money font-semibold ${n < 0 ? "text-success-ink" : r.reverses_id ? "text-danger" : ""}`}
           >
-            {n >= 0 ? "+" : "−"}${Math.abs(n).toFixed(2)}
+            {n >= 0 ? "+" : "−"}
+            {fmt.money(Math.abs(n))}
           </span>
         );
       },
@@ -95,7 +98,7 @@ export function PaymentsTable({ rows }: { rows: PaymentRow[] }) {
             { header: "Kind", value: (r) => r.kind },
             { header: "Method", value: (r) => r.method ?? "" },
             { header: "Reference", value: (r) => r.reference ?? "" },
-            { header: "Amount (USD)", value: (r) => r.amount_usd },
+            { header: `Amount (${fmt.currency})`, value: (r) => r.amount_base },
             { header: "Currency", value: (r) => r.currency },
             { header: "Reversal reason", value: (r) => r.reversal_reason ?? "" },
           ]}

@@ -13,7 +13,7 @@ import { ReportCard } from "@/components/reports/ReportCard";
 export default async function ClassReportCardsPage(props: PageProps<"/print/reports/[intakeId]">) {
   const { intakeId } = await props.params;
   const { term: termParam } = await props.searchParams;
-  const { terms: t, settings } = await requireSchool();
+  const { terms: t, settings, fmt } = await requireSchool();
 
   const supabase = await createClient();
   const { data: intake } = await supabase.from("intakes").select("id").eq("id", intakeId).maybeSingle();
@@ -53,6 +53,7 @@ export default async function ClassReportCardsPage(props: PageProps<"/print/repo
               instructor: t.instructor.one,
             }}
             breakAfter={i < data.cards.length - 1}
+            fmt={fmt}
           />
         ))
       )}

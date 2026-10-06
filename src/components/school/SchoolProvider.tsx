@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, useMemo } from "react";
+import { DEFAULT_REGION, makeFormat, type Format, type Region } from "@/lib/format";
 import type { Terms } from "@/lib/terminology";
 import type { AppRole, SchoolType } from "@/lib/types";
 
@@ -10,6 +11,11 @@ type SchoolContextValue = {
   schoolName: string;
   schoolType: SchoolType;
   logoUrl: string | null;
+  region: Region;
+  /** Extra currencies payments may be taken in (besides region.currency). */
+  acceptedCurrencies: string[];
+  /** Methods offered when recording a payment. */
+  paymentMethods: string[];
 };
 
 const Ctx = createContext<SchoolContextValue | null>(null);
@@ -49,4 +55,24 @@ export function useLogoUrl(): string | null {
 
 export function useSchoolType(): SchoolType {
   return useSchool().schoolType;
+}
+
+const defaultFormat = makeFormat(DEFAULT_REGION);
+
+/**
+ * Money and date formatting for the school. Falls back to the defaults outside
+ * the provider (print pages, error pages), so it never throws.
+ */
+export function useFormat(): Format {
+  const v = useContext(Ctx);
+  const region = v?.region;
+  return useMemo(() => (region ? makeFormat(region) : defaultFormat), [region?.currency, region?.locale, region?.timezone]); // eslint-disable-line react-hooks/exhaustive-deps
+}
+
+export function useAcceptedCurrencies(): string[] {
+  return useSchool().acceptedCurrencies;
+}
+
+export function usePaymentMethods(): string[] {
+  return useSchool().paymentMethods;
 }

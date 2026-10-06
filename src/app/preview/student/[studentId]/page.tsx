@@ -8,7 +8,7 @@ import { AvatarInitials } from "@/components/ui/AvatarInitials";
 import { BalanceWithBar } from "@/components/ui/BalanceWithBar";
 import { Tag } from "@/components/ui/Tag";
 import { TransactionLedger } from "@/components/payments/TransactionLedger";
-import { monthYearLabel } from "@/lib/dates";
+
 import type { Student, Transaction } from "@/lib/types";
 import { requireSchool } from "@/lib/school";
 
@@ -16,7 +16,7 @@ export default async function StudentPortalPreviewPage(
   props: PageProps<"/preview/student/[studentId]">,
 ) {
   const { studentId } = await props.params;
-  const { settings: school } = await requireSchool();
+  const { settings: school, fmt } = await requireSchool();
   const supabase = await createClient();
 
   const { data: student } = await supabase
@@ -96,7 +96,7 @@ export default async function StudentPortalPreviewPage(
             <div
               className={`font-display text-2xl font-semibold tabular-nums ${totalBalance > 0 ? "text-danger" : "text-success-ink"}`}
             >
-              ${totalBalance.toFixed(2)}
+              {fmt.money(totalBalance)}
             </div>
             <div className="text-[12px] text-ink-soft">{student.phone}</div>
           </div>
@@ -120,7 +120,7 @@ export default async function StudentPortalPreviewPage(
                 <div className="min-w-0">
                   <div className="font-semibold">{intake?.course?.name ?? "—"}</div>
                   <div className="text-[11.5px] text-ink-soft">
-                    {intake?.label || (intake?.start_date && monthYearLabel(intake.start_date))}
+                    {intake?.label || (intake?.start_date && fmt.monthYear(intake.start_date))}
                     {" · "}
                     <Tag variant={e.status === "withdrawn" ? "late" : e.status === "completed" ? "ok" : "due"}>
                       {e.status}

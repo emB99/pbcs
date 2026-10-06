@@ -1,5 +1,7 @@
+"use client";
+
 import { cn } from "@/lib/cn";
-import { formatUsd } from "@/lib/money";
+import { useFormat } from "@/components/school/SchoolProvider";
 
 export function MoneyCell({
   amount,
@@ -8,6 +10,7 @@ export function MoneyCell({
   amount: string | number;
   variant?: "default" | "muted" | "owing";
 }) {
+  const fmt = useFormat();
   return (
     <span
       className={cn(
@@ -16,7 +19,7 @@ export function MoneyCell({
         variant === "owing" && "font-bold text-danger",
       )}
     >
-      {formatUsd(amount)}
+      {fmt.money(amount)}
     </span>
   );
 }

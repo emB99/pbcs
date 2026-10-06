@@ -9,14 +9,15 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { FieldGroup, inputClass } from "@/components/ui/FieldGroup";
 import { Tag } from "@/components/ui/Tag";
-import { useTerms } from "@/components/school/SchoolProvider";
-import { formatDate } from "@/lib/dates";
+import { useTerms, useFormat } from "@/components/school/SchoolProvider";
+
 import type { Term } from "@/lib/types";
 
 type Draft = { id: string | null; name: string; academic_year: string; start_date: string; end_date: string };
 
 export function TermsPanel({ terms }: { terms: Term[] }) {
   const t = useTerms();
+  const fmt = useFormat();
   const noun = t.term.one.toLowerCase();
   const [draft, setDraft] = useState<Draft | null>(null);
   const [deleting, setDeleting] = useState<Term | null>(null);
@@ -79,7 +80,7 @@ export function TermsPanel({ terms }: { terms: Term[] }) {
                   {term.results_locked && <Tag variant="due">Results locked</Tag>}
                 </div>
                 <div className="text-[12px] text-ink-soft">
-                  {formatDate(term.start_date)} – {formatDate(term.end_date)}
+                  {fmt.date(term.start_date)} – {fmt.date(term.end_date)}
                 </div>
               </div>
               <button

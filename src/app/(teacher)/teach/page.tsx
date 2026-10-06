@@ -4,11 +4,11 @@ import { createClient } from "@/lib/supabase/server";
 import { requireSchool } from "@/lib/school";
 import { Card, CardHead } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { formatDate, monthYearLabel } from "@/lib/dates";
+
 import { DAY_LABELS, todayDayOfWeek, trimSeconds } from "@/lib/time";
 
 export default async function TeachHomePage() {
-  const { terms: t, displayName } = await requireSchool();
+  const { terms: t, displayName, fmt } = await requireSchool();
   const supabase = await createClient();
   const { data: classes } = await supabase.rpc("my_classes");
   const rows = classes ?? [];
@@ -76,11 +76,11 @@ export default async function TeachHomePage() {
                   </span>
                 </div>
                 <div className="mt-3 text-[13px] text-ink-mid">
-                  {c.course_name} · {c.intake_label || monthYearLabel(c.start_date)}
+                  {c.course_name} · {c.intake_label || fmt.monthYear(c.start_date)}
                 </div>
                 <div className="mt-0.5 text-[12px] text-ink-soft">
-                  {formatDate(c.start_date)}
-                  {c.end_date ? ` – ${formatDate(c.end_date)}` : ""}
+                  {fmt.date(c.start_date)}
+                  {c.end_date ? ` – ${fmt.date(c.end_date)}` : ""}
                 </div>
               </Card>
             </Link>
@@ -102,7 +102,7 @@ export default async function TeachHomePage() {
                 <Card className="h-full p-5 transition-shadow hover:shadow-[0_2px_10px_rgba(31,27,22,0.1)]">
                   <div className="flex items-start justify-between gap-3">
                     <div className="font-display text-[16px] font-semibold">
-                      {c.intake_label || monthYearLabel(c.start_date)}
+                      {c.intake_label || fmt.monthYear(c.start_date)}
                     </div>
                     <span className="flex flex-none items-center gap-1.5 rounded-full bg-brand-tint px-2.5 py-1 text-[11.5px] font-semibold text-brand-deep">
                       <Users className="h-3.5 w-3.5" />

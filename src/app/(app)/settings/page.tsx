@@ -10,11 +10,12 @@ import { TermsPanel } from "@/components/settings/TermsPanel";
 import { GradeScalePanel } from "@/components/settings/GradeScalePanel";
 import { BrandingForm } from "@/components/settings/BrandingForm";
 import { LogoUploader } from "@/components/settings/LogoUploader";
+import { RegionForm } from "@/components/settings/RegionForm";
 import { logoUrl, THEME_IDS, type ColorMode, type ThemeId } from "@/lib/brand";
 import { cn } from "@/lib/cn";
 import type { GradeBand, Term } from "@/lib/types";
 
-type Tab = "account" | "school" | "branding" | "terms" | "grading" | "team";
+type Tab = "account" | "school" | "branding" | "region" | "terms" | "grading" | "team";
 
 export default async function SettingsPage(props: PageProps<"/settings">) {
   const ctx = await requireSchool();
@@ -22,7 +23,7 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
 
   const { tab: rawTab } = await props.searchParams;
   const requested = Array.isArray(rawTab) ? rawTab[0] : rawTab;
-  const tab: Tab = isAdmin && (requested === "school" || requested === "branding" || requested === "terms" || requested === "grading" || requested === "team") ? requested : "account";
+  const tab: Tab = isAdmin && (requested === "school" || requested === "branding" || requested === "region" || requested === "terms" || requested === "grading" || requested === "team") ? requested : "account";
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "account", label: "Account" },
@@ -30,6 +31,7 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
       ? [
           { key: "school" as const, label: "School" },
           { key: "branding" as const, label: "Branding" },
+          { key: "region" as const, label: "Region & money" },
           { key: "terms" as const, label: ctx.terms.term.many },
           { key: "grading" as const, label: "Grading" },
           { key: "team" as const, label: "Team" },
@@ -89,6 +91,25 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
         </Card>
       )}
 
+      {tab === "region" && (
+        <Card>
+          <CardHead title="Region & money" note="Currency, number and date format, timezone and payment methods" />
+          <div className="px-6 pb-6">
+            <RegionForm
+              settings={{
+                baseCurrency: ctx.settings.base_currency,
+                acceptedCurrencies: ctx.settings.accepted_currencies,
+                locale: ctx.settings.locale,
+                timezone: ctx.settings.timezone,
+                paymentMethods: ctx.settings.payment_methods,
+              }}
+              timezones={listTimezones()}
+              baseLocked={await hasTransactions()}
+            />
+          </div>
+        </Card>
+      )}
+
       {tab === "terms" && (
         <Card>
           <CardHead
@@ -120,6 +141,22 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
       )}
     </div>
   );
+}
+
+/** IANA timezones, listed on the server so the browser and server agree on the options. */
+function listTimezones(): string[] {
+  try {
+    return Intl.supportedValuesOf("timeZone");
+  } catch {
+    return ["Africa/Harare", "Africa/Johannesburg", "Africa/Nairobi", "Europe/London", "UTC"];
+  }
+}
+
+/** The base currency is locked once the ledger has anything in it. */
+async function hasTransactions(): Promise<boolean> {
+  const supabase = await createClient();
+  const { count } = await supabase.from("transactions").select("id", { count: "exact", head: true });
+  return (count ?? 0) > 0;
 }
 
 async function loadBands(): Promise<GradeBand[]> {

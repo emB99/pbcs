@@ -1,5 +1,6 @@
-import { formatDate } from "@/lib/dates";
+
 import { logoUrl } from "@/lib/brand";
+import type { Format } from "@/lib/format";
 import { SchoolLogo } from "@/components/school/SchoolLogo";
 import type { ReportCardData, ReportTerm } from "@/lib/db/reports";
 import type { GradeBand } from "@/lib/types";
@@ -53,6 +54,7 @@ export function ReportCard({
   bands,
   labels,
   breakAfter,
+  fmt,
 }: {
   card: ReportCardData;
   term: ReportTerm | null;
@@ -61,6 +63,7 @@ export function ReportCard({
   labels: { course: string; intake: string; subject: string; instructor: string };
   /** Start the next card on a new page when printing a class. */
   breakAfter: boolean;
+  fmt: Format;
 }) {
   const termLabel = term ? `${term.name} ${term.academic_year}` : "Final results";
   const sortedBands = [...bands].sort((a, b) => b.min_mark - a.min_mark);
@@ -71,12 +74,12 @@ export function ReportCard({
         breakAfter ? "mb-6 print:mb-0 print:break-after-page" : ""
       }`}
     >
-      <Letterhead school={school} title={`Report card · ${termLabel}`} right={`Issued ${formatDate(new Date().toISOString().slice(0, 10))}`} />
+      <Letterhead school={school} title={`Report card · ${termLabel}`} right={`Issued ${fmt.date(fmt.today())}`} />
 
       <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <Field label="Student" value={card.student.full_name} />
         <Field label="Student no." value={card.student.student_number} />
-        <Field label="Date of birth" value={card.student.date_of_birth ? formatDate(card.student.date_of_birth) : null} />
+        <Field label="Date of birth" value={card.student.date_of_birth ? fmt.date(card.student.date_of_birth) : null} />
         <Field label={labels.intake} value={card.intakeLabel} />
         <Field label={labels.course} value={card.courseName} />
         <Field label={labels.instructor} value={card.classTeacher} />

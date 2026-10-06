@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { CheckCircle2, DollarSign, TrendingUp, Hash, MessageSquare } from "lucide-react";
+import { CheckCircle2, Banknote, Coins, TrendingUp, Hash, MessageSquare } from "lucide-react";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { AvatarInitials } from "@/components/ui/AvatarInitials";
 import { MoneyCell } from "@/components/ui/MoneyCell";
@@ -13,9 +13,10 @@ import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { PrintButton } from "@/components/ui/PrintButton";
-import { todayIsoDate } from "@/lib/dates";
+import { useFormat } from "@/components/school/SchoolProvider";
+import { parseMoneyInput } from "@/lib/money";
+import { methodLabel, referenceLabel } from "@/lib/format";
 import { recordPayment } from "@/lib/actions/transactions";
-import type { PaymentMethod } from "@/lib/types";
 
 export type StudentOption = {
   id: string;
@@ -33,41 +34,40 @@ export type EnrolmentOption = {
   balance: number;
 };
 
-const METHOD_OPTIONS: { label: string; value: PaymentMethod }[] = [
-  { label: "Cash", value: "cash" },
-  { label: "EcoCash", value: "ecocash" },
-  { label: "Bank transfer", value: "bank_transfer" },
-  { label: "Other", value: "other" },
-];
-
-const REFERENCE_LABEL: Record<PaymentMethod, string> = {
-  cash: "Receipt number",
-  ecocash: "EcoCash reference",
-  bank_transfer: "Bank reference",
-  other: "Reference",
-};
-
 export function PaymentForm({
   students,
   enrolments,
-  lastZwgRate,
+  currencies,
+  methods,
+  lastRates,
   initialStudentId,
 }: {
   students: StudentOption[];
   enrolments: EnrolmentOption[];
-  lastZwgRate: number | null;
+  /** The school's base currency first, then any other currencies it accepts. */
+  currencies: string[];
+  /** The payment methods the school offers. */
+  methods: string[];
+  /** The most recent exchange rate used per non-base currency. */
+  lastRates: Record<string, number>;
   initialStudentId?: string;
 }) {
+  const fmt = useFormat();
+  const baseCurrency = currencies[0];
   const initialStudent = students.find((s) => s.id === initialStudentId) ?? null;
   const [query, setQuery] = useState("");
   const [student, setStudent] = useState<StudentOption | null>(initialStudent);
-  const [enrolmentId, setEnrolmentId] = useState<string | null>(null);
+  // Arriving from a student's page with exactly one active enrolment: pick it for them.
+  const initialEnrolments = initialStudent ? enrolments.filter((e) => e.student_id === initialStudent.id) : [];
+  const [enrolmentId, setEnrolmentId] = useState<string | null>(
+    initialEnrolments.length === 1 ? initialEnrolments[0].id : null,
+  );
 
   const [amount, setAmount] = useState("");
-  const [currency, setCurrency] = useState<"USD" | "ZWG">("USD");
-  const [rate, setRate] = useState(String(lastZwgRate ?? "1"));
-  const [date, setDate] = useState(todayIsoDate());
-  const [method, setMethod] = useState<PaymentMethod>("cash");
+  const [currency, setCurrency] = useState(baseCurrency);
+  const [rate, setRate] = useState("1");
+  const [date, setDate] = useState(fmt.today());
+  const [method, setMethod] = useState(methods[0] ?? "cash");
   const [reference, setReference] = useState("");
   const [note, setNote] = useState("");
 
@@ -106,10 +106,10 @@ export function PaymentForm({
     setStudent(null);
     setEnrolmentId(null);
     setAmount("");
-    setCurrency("USD");
-    setRate(String(lastZwgRate ?? "1"));
-    setDate(todayIsoDate());
-    setMethod("cash");
+    setCurrency(baseCurrency);
+    setRate("1");
+    setDate(fmt.today());
+    setMethod(methods[0] ?? "cash");
     setReference("");
     setNote("");
     setErrors({});
@@ -127,7 +127,7 @@ export function PaymentForm({
         enrolment_id: enrolmentId,
         amount,
         currency,
-        rate_to_usd: rate,
+        rate_to_base: rate,
         occurred_on: date,
         method,
         reference,
@@ -150,7 +150,7 @@ export function PaymentForm({
           <h2 className="font-display text-lg font-semibold">Payment recorded</h2>
           <p className="mt-1 text-[13px] text-ink-mid">{student.full_name}&apos;s new balance:</p>
           <p className="mt-1 font-display text-2xl font-semibold tabular-nums">
-            ${Number(result.balance).toFixed(2)}
+            {fmt.money(result.balance)}
           </p>
         </div>
         <div className="flex gap-2">
@@ -245,7 +245,7 @@ export function PaymentForm({
           <div className="grid grid-cols-2 gap-4">
             <FieldGroup label="Amount" htmlFor="amount" error={errors.amount?.[0]}>
               <IconField
-                icon={<DollarSign />}
+                icon={<Banknote />}
                 id="amount"
                 inputMode="decimal"
                 placeholder="50"
@@ -254,26 +254,33 @@ export function PaymentForm({
                 required
               />
             </FieldGroup>
-            <FieldGroup label="Currency" htmlFor="currency">
+            <FieldGroup label="Currency" htmlFor="currency" error={errors.currency?.[0]}>
               <IconSelect
-                icon={<DollarSign />}
+                icon={<Coins />}
                 id="currency"
                 value={currency}
                 onChange={(e) => {
-                  const next = e.target.value as "USD" | "ZWG";
+                  const next = e.target.value;
                   setCurrency(next);
-                  if (next === "USD") setRate("1");
-                  else setRate(lastZwgRate !== null ? String(lastZwgRate) : "");
+                  if (next === baseCurrency) setRate("1");
+                  else setRate(lastRates[next] !== undefined ? String(lastRates[next]) : "");
                 }}
               >
-                <option value="USD">USD</option>
-                <option value="ZWG">ZWG</option>
+                {currencies.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
               </IconSelect>
             </FieldGroup>
           </div>
 
-          {currency === "ZWG" && (
-            <FieldGroup label="Rate to USD" htmlFor="rate" error={errors.rate_to_usd?.[0]}>
+          {currency !== baseCurrency && (
+            <FieldGroup
+              label={`Exchange rate (1 ${baseCurrency} = ? ${currency})`}
+              htmlFor="rate"
+              error={errors.rate_to_base?.[0]}
+            >
               <IconField
                 icon={<TrendingUp />}
                 id="rate"
@@ -282,6 +289,11 @@ export function PaymentForm({
                 onChange={(e) => setRate(e.target.value)}
                 required
               />
+              {Number(rate) > 0 && parseMoneyInput(amount) !== null && (
+                <p className="text-xs text-ink-soft">
+                  About {fmt.money(Number(parseMoneyInput(amount)) / Number(rate), baseCurrency)} towards the balance.
+                </p>
+              )}
             </FieldGroup>
           )}
 
@@ -296,16 +308,16 @@ export function PaymentForm({
             />
           </FieldGroup>
 
-          <FieldGroup label="Method">
+          <FieldGroup label="Method" error={errors.method?.[0]}>
             <SegmentedControl
               name="method"
               value={method}
               onChange={setMethod}
-              options={METHOD_OPTIONS}
+              options={methods.map((m) => ({ label: methodLabel(m), value: m }))}
             />
           </FieldGroup>
 
-          <FieldGroup label={REFERENCE_LABEL[method]} htmlFor="reference" error={errors.reference?.[0]}>
+          <FieldGroup label={referenceLabel(method)} htmlFor="reference" error={errors.reference?.[0]}>
             <IconField
               icon={<Hash />}
               id="reference"

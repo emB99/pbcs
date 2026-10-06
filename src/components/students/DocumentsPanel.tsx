@@ -5,9 +5,10 @@ import { FileText, Trash2, Upload, Download } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { registerDocument, deleteDocument } from "@/lib/actions/student-files";
 import { Button } from "@/components/ui/Button";
+import { useFormat } from "@/components/school/SchoolProvider";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { formatDate } from "@/lib/dates";
+
 import type { StudentDocument } from "@/lib/types";
 
 export type DocumentRow = StudentDocument & { url: string | null };
@@ -32,6 +33,7 @@ export function DocumentsPanel({
   studentId: string;
   documents: DocumentRow[];
 }) {
+  const fmt = useFormat();
   const inputRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -122,7 +124,7 @@ export function DocumentsPanel({
               <div className="min-w-0 flex-1">
                 <div className="truncate text-[13.5px] font-semibold">{d.name}</div>
                 <div className="text-[11.5px] text-ink-soft">
-                  {formatDate(d.created_at.slice(0, 10))}
+                  {fmt.date(d.created_at.slice(0, 10))}
                   {d.size_bytes !== null && ` · ${humanSize(d.size_bytes)}`}
                 </div>
               </div>

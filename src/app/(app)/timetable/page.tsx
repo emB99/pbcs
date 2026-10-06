@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireSchool } from "@/lib/school";
-import { monthYearLabel } from "@/lib/dates";
+
 import {
   TimetableBoard,
   type BoardClassSubject,
@@ -12,7 +12,7 @@ const SUBJECT_JOIN =
   "id, intake_id, instructor_id, subject:subjects(name), intake:intakes(label, start_date, course:courses(name)), instructor:instructors(full_name)";
 
 export default async function TimetablePage() {
-  const { terms: t } = await requireSchool();
+  const { terms: t, fmt } = await requireSchool();
   const supabase = await createClient();
 
   const [{ data: slotRows }, { data: subjectRows }, { data: rooms }, { data: instructors }, { data: termRows }] =
@@ -31,7 +31,7 @@ export default async function TimetablePage() {
     ]);
 
   const label = (i: { label: string | null; start_date: string } | null) =>
-    i ? i.label || monthYearLabel(i.start_date) : "";
+    i ? i.label || fmt.monthYear(i.start_date) : "";
 
   const classSubjects: BoardClassSubject[] = (subjectRows ?? [])
     .filter((r) => r.subject && r.intake)

@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/cn";
-import { formatDate } from "@/lib/dates";
+import { useFormat } from "@/components/school/SchoolProvider";
+import { methodLabel } from "@/lib/format";
+
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ReasonDialog } from "@/components/ui/ReasonDialog";
 import { reverseTransaction } from "@/lib/actions/transactions";
@@ -14,13 +16,6 @@ const KIND_LABEL: Record<Transaction["kind"], string> = {
   adjustment: "Adjustment",
 };
 
-const METHOD_LABEL: Record<string, string> = {
-  cash: "Cash",
-  ecocash: "EcoCash",
-  bank_transfer: "Bank transfer",
-  other: "Other",
-};
-
 export function TransactionLedger({
   transactions,
   readOnly = false,
@@ -29,6 +24,7 @@ export function TransactionLedger({
   /** Hides "Reverse this" — used in the student-facing preview. */
   readOnly?: boolean;
 }) {
+  const fmt = useFormat();
   const [reversingId, setReversingId] = useState<string | null>(null);
 
   if (transactions.length === 0) {
@@ -44,7 +40,7 @@ export function TransactionLedger({
       {transactions.map((t) => {
         const isReversed = reversedIds.has(t.id);
         const isReversal = Boolean(t.reverses_id);
-        const amountNum = Number(t.amount_usd);
+        const amountNum = Number(t.amount_base);
         const canReverse = !readOnly && !isReversed && !isReversal;
 
         return (
@@ -61,8 +57,8 @@ export function TransactionLedger({
                 {isReversal && " (reversal)"}
               </div>
               <div className="text-[11.5px] text-ink-soft">
-                {formatDate(t.occurred_on)}
-                {t.method && ` · ${METHOD_LABEL[t.method] ?? t.method}`}
+                {fmt.date(t.occurred_on)}
+                {t.method && ` · ${methodLabel(t.method)}`}
                 {t.reference && ` · ${t.reference}`}
                 {t.reversal_reason && ` · ${t.reversal_reason}`}
               </div>
@@ -85,7 +81,13 @@ export function TransactionLedger({
                   isReversal && "text-danger",
                 )}
               >
-                {amountNum >= 0 ? "+" : "−"}${Math.abs(amountNum).toFixed(2)}
+                {amountNum >= 0 ? "+" : "−"}
+                {fmt.money(Math.abs(amountNum))}
+                {t.currency !== fmt.currency && (
+                  <div className="text-[11px] font-normal text-ink-soft">
+                    {fmt.money(Math.abs(t.amount), t.currency)} at {t.rate_to_base}
+                  </div>
+                )}
               </div>
             </div>
 

@@ -3,6 +3,7 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { makeFormat, type Format } from "@/lib/format";
 import { PRODUCT_NAME, THEME_IDS, isHexColor, type ColorMode, type ThemeId } from "@/lib/brand";
 import { resolveTerms, type TerminologyOverrides, type Terms } from "@/lib/terminology";
 import type { AppRole, SchoolSettings } from "@/lib/types";
@@ -17,6 +18,8 @@ export type SchoolContext = {
   role: AppRole;
   settings: SchoolSettings;
   terms: Terms;
+  /** Money, dates and "today" in this school's currency, locale and timezone. */
+  fmt: Format;
 };
 
 export type SessionState =
@@ -70,6 +73,11 @@ export const getSessionState = cache(async (): Promise<SessionState> => {
         settings.school_type,
         settings.terminology as TerminologyOverrides | null,
       ),
+      fmt: makeFormat({
+        currency: settings.base_currency,
+        locale: settings.locale,
+        timezone: settings.timezone,
+      }),
     },
   };
 });

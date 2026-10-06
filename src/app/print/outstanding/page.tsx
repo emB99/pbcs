@@ -2,14 +2,14 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PrintButton } from "@/components/ui/PrintButton";
-import { formatDate, monthYearLabel, relativeDays } from "@/lib/dates";
+import { relativeDays } from "@/lib/dates";
 import { percentPaid } from "@/lib/money";
 import { requireSchool } from "@/lib/school";
 import { logoUrl } from "@/lib/brand";
 import { SchoolLogo } from "@/components/school/SchoolLogo";
 
 export default async function OutstandingPrintPage() {
-  const { terms: t, settings: school } = await requireSchool();
+  const { terms: t, settings: school, fmt } = await requireSchool();
   const supabase = await createClient();
 
   const { data: enrolmentBalances } = await supabase
@@ -44,7 +44,7 @@ export default async function OutstandingPrintPage() {
         full_name: s?.full_name ?? "Unknown",
         phone: s?.phone ?? "",
         course_name: i?.course?.name ?? "—",
-        intake_label: i?.label || (i?.start_date ? monthYearLabel(i.start_date) : "—"),
+        intake_label: i?.label || (i?.start_date ? fmt.monthYear(i.start_date) : "—"),
         agreed_price: r.agreed_price ?? 0,
         paid: r.paid ?? 0,
         balance: r.balance ?? 0,
@@ -77,7 +77,7 @@ export default async function OutstandingPrintPage() {
               <p className="text-[12.5px] text-ink-soft">Who owes money</p>
             </div>
           </div>
-          <p className="text-[12.5px] text-ink-soft">{formatDate(new Date().toISOString().slice(0, 10))}</p>
+          <p className="text-[12.5px] text-ink-soft">{fmt.date(fmt.today())}</p>
         </header>
 
         <table className="w-full border-collapse text-[13px]">
@@ -110,10 +110,10 @@ export default async function OutstandingPrintPage() {
                   <div>{r.course_name}</div>
                   <div className="text-ink-soft">{r.intake_label}</div>
                 </td>
-                <td className="money py-2 text-right align-top">${Number(r.agreed_price).toFixed(2)}</td>
-                <td className="money py-2 text-right align-top">${Number(r.paid).toFixed(2)}</td>
+                <td className="money py-2 text-right align-top">{fmt.money(r.agreed_price)}</td>
+                <td className="money py-2 text-right align-top">{fmt.money(r.paid)}</td>
                 <td className="money py-2 text-right align-top font-semibold">
-                  ${Number(r.balance).toFixed(2)}
+                  {fmt.money(r.balance)}
                 </td>
                 <td className="money py-2 text-right align-top">
                   {percentPaid(r.charged, r.paid)}%
@@ -128,7 +128,7 @@ export default async function OutstandingPrintPage() {
                 Total outstanding
               </td>
               <td className="money pt-4 text-right font-semibold" colSpan={3}>
-                ${total.toFixed(2)}
+                {fmt.money(total)}
               </td>
             </tr>
           </tfoot>

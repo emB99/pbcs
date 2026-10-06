@@ -1,3 +1,5 @@
+import { makeFormat } from "@/lib/format";
+
 /** "62 days ago", "yesterday", "today" — used for last-payment recency. */
 export function relativeDays(isoDate: string | null): string {
   if (!isoDate) return "never";
@@ -25,23 +27,14 @@ export function recencyTagVariant(isoDate: string | null): "late" | "due" | "ok"
   return "ok";
 }
 
-const dateFormatter = new Intl.DateTimeFormat("en-GB", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
-
-/** "7 Aug 2026" */
-export function formatDate(isoDate: string | null): string {
-  if (!isoDate) return "—";
-  return dateFormatter.format(new Date(isoDate + "T00:00:00"));
+/** "7 Aug 2026". Prefer `fmt.date` (the school's locale); this defaults to en-GB. */
+export function formatDate(isoDate: string | null, locale = "en-GB"): string {
+  return makeFormat({ currency: "USD", locale, timezone: "UTC" }).date(isoDate);
 }
 
-/** "Jan 2026" — used to derive an intake label from its start_date. */
-export function monthYearLabel(isoDate: string): string {
-  return new Intl.DateTimeFormat("en-GB", { month: "short", year: "numeric" }).format(
-    new Date(isoDate + "T00:00:00"),
-  );
+/** "Jan 2026". Prefer `fmt.monthYear`; this defaults to en-GB. */
+export function monthYearLabel(isoDate: string, locale = "en-GB"): string {
+  return makeFormat({ currency: "USD", locale, timezone: "UTC" }).monthYear(isoDate);
 }
 
 /** Today's date as a YYYY-MM-DD string, for date input defaults. */

@@ -28,6 +28,10 @@ Next.js 16 (App Router) · TypeScript · Tailwind v4 · Supabase (Postgres + Aut
 7. Create the first login: Authentication → Add user (email + password), or sign in with Google while sign-ups are still enabled. Open `/setup` to name the school, choose its type and become the owner.
 8. `npm install && npm run dev`
 
+## Currency and region
+
+Each school chooses its **base currency** (balances are kept and reported in it), any **other currencies** it accepts, how numbers and dates are written (locale), its **timezone** and its **payment methods**. Choose the currency at first-run setup: it can only be changed until the first transaction is recorded. Everything else lives in Settings → Region & money. Payments in another currency record an exchange rate into the base currency, so every balance stays in one currency.
+
 ## Demo data (optional)
 
 To explore the app with a populated school, run these in the Supabase SQL editor, in order, on a database that has no school yet:

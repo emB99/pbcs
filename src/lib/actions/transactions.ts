@@ -8,8 +8,10 @@ import {
   recordChargeSchema,
   reverseTransactionSchema,
   type RecordPaymentInput,
+  resolveRate,
 } from "@/lib/validation/transactions";
 import { fieldErrorsFromZod } from "@/lib/validation/shared";
+import { NOT_ALLOWED, getOfficeContext } from "@/lib/school";
 import type { DialogResult } from "@/lib/types";
 
 export type RecordPaymentResult =
@@ -31,9 +33,25 @@ function revalidateAfterMutation(studentId: string | null) {
 }
 
 export async function recordPayment(input: RecordPaymentInput): Promise<RecordPaymentResult> {
+  const ctx = await getOfficeContext();
+  if (!ctx) return { ok: false, message: NOT_ALLOWED };
+
   const parsed = recordPaymentSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, errors: fieldErrorsFromZod(parsed.error) };
+  }
+
+  // The school decides which currencies and methods it takes.
+  const { base_currency, accepted_currencies, payment_methods } = ctx.settings;
+  if (parsed.data.currency !== base_currency && !accepted_currencies.includes(parsed.data.currency)) {
+    return { ok: false, errors: { currency: ["This school does not take payments in that currency."] } };
+  }
+  if (!payment_methods.includes(parsed.data.method)) {
+    return { ok: false, errors: { method: ["Choose one of the school's payment methods."] } };
+  }
+  const rate = resolveRate(parsed.data.currency, base_currency, parsed.data.rate_to_base);
+  if (rate === null) {
+    return { ok: false, errors: { rate_to_base: ["Enter a valid exchange rate."] } };
   }
 
   const supabase = await createClient();
@@ -58,7 +76,7 @@ export async function recordPayment(input: RecordPaymentInput): Promise<RecordPa
       kind: "payment",
       amount: negativeAmount,
       currency: parsed.data.currency,
-      rate_to_usd: Number(parsed.data.rate_to_usd),
+      rate_to_base: Number(rate),
       occurred_on: parsed.data.occurred_on,
       method: parsed.data.method,
       reference: parsed.data.reference,
@@ -94,6 +112,9 @@ export async function recordCharge(input: {
   amount: string;
   note?: string;
 }): Promise<DialogResult> {
+  const ctx = await getOfficeContext();
+  if (!ctx) return { ok: false, message: NOT_ALLOWED };
+
   const parsed = recordChargeSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, message: parsed.error.issues[0]?.message ?? "Check the amount." };
@@ -106,7 +127,7 @@ export async function recordCharge(input: {
     .eq("id", parsed.data.enrolment_id)
     .maybeSingle();
 
-  const { error } = await insertCharge(supabase, parsed.data);
+  const { error } = await insertCharge(supabase, { ...parsed.data, occurred_on: ctx.fmt.today() });
   if (error) {
     return { ok: false, message: "Couldn't record the charge. Try again." };
   }
@@ -125,6 +146,9 @@ export async function reverseTransaction(input: {
   transaction_id: string;
   reversal_reason: string;
 }): Promise<DialogResult> {
+  const ctx = await getOfficeContext();
+  if (!ctx) return { ok: false, message: NOT_ALLOWED };
+
   const parsed = reverseTransactionSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, message: parsed.error.issues[0]?.message ?? "A reason is required." };
@@ -151,8 +175,8 @@ export async function reverseTransaction(input: {
     kind: "adjustment",
     amount: Number((-original.amount).toFixed(2)),
     currency: original.currency,
-    rate_to_usd: original.rate_to_usd,
-    occurred_on: new Date().toISOString().slice(0, 10),
+    rate_to_base: original.rate_to_base,
+    occurred_on: ctx.fmt.today(),
     method: original.method,
     reference: original.reference,
     reverses_id: original.id,

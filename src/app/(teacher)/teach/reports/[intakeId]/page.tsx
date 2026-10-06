@@ -6,13 +6,13 @@ import { requireSchool } from "@/lib/school";
 import { Card, CardHead } from "@/components/ui/Card";
 import { CommentsEditor } from "@/components/reports/CommentsEditor";
 import { loadComments } from "@/lib/db/reports";
-import { monthYearLabel } from "@/lib/dates";
+
 
 /** Class teacher view: comments for the students of a class they are in charge of. */
 export default async function TeacherReportCommentsPage(props: PageProps<"/teach/reports/[intakeId]">) {
   const { intakeId } = await props.params;
   const { term: termParam } = await props.searchParams;
-  const { terms: t } = await requireSchool();
+  const { terms: t, fmt } = await requireSchool();
   const supabase = await createClient();
 
   const { data: classes } = await supabase.rpc("my_form_classes");
@@ -20,7 +20,7 @@ export default async function TeacherReportCommentsPage(props: PageProps<"/teach
   if (!current) notFound();
 
   const data = await loadComments(intakeId, Array.isArray(termParam) ? termParam[0] : termParam);
-  const label = current.intake_label || monthYearLabel(current.start_date);
+  const label = current.intake_label || fmt.monthYear(current.start_date);
 
   return (
     <div className="flex flex-col gap-4">

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { DataTable, type Column } from "@/components/ui/DataTable";
 import { AvatarInitials } from "@/components/ui/AvatarInitials";
 import { BalanceWithBar } from "@/components/ui/BalanceWithBar";
-import { useTerms } from "@/components/school/SchoolProvider";
+import { useTerms, useFormat } from "@/components/school/SchoolProvider";
 
 export type EnrolledStudentRow = {
   enrolment_id: string;
@@ -27,6 +27,7 @@ export function EnrolledStudentsTable({
   intakeId: string;
 }) {
   const t = useTerms();
+  const fmt = useFormat();
   const columns: Column<EnrolledStudentRow>[] = [
     {
       key: "student",
@@ -47,7 +48,7 @@ export function EnrolledStudentsTable({
       header: "Agreed",
       align: "right",
       sortValue: (r) => Number(r.agreed_price),
-      render: (r) => <span className="money text-ink-mid">${Number(r.agreed_price).toFixed(2)}</span>,
+      render: (r) => <span className="money text-ink-mid">{fmt.money(r.agreed_price)}</span>,
     },
     {
       key: "balance",

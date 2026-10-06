@@ -1,5 +1,4 @@
 import "server-only";
-import { todayIsoDate } from "@/lib/dates";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/database.types";
 
@@ -12,7 +11,7 @@ import type { Database } from "@/lib/database.types";
  */
 export async function insertCharge(
   supabase: SupabaseClient<Database>,
-  params: { enrolment_id: string; amount: string; note?: string | null },
+  params: { enrolment_id: string; amount: string; occurred_on: string; note?: string | null },
 ) {
   return supabase.from("transactions").insert({
     enrolment_id: params.enrolment_id,
@@ -21,9 +20,8 @@ export async function insertCharge(
     // boundary to match the numeric column's wire type — never used for
     // arithmetic, and reads still flow through as string|number everywhere.
     amount: Number(params.amount),
-    currency: "USD",
-    rate_to_usd: 1,
-    occurred_on: todayIsoDate(),
+    // No currency: the database stamps the school's base currency (rate 1).
+    occurred_on: params.occurred_on,
     note: params.note ?? null,
   });
 }

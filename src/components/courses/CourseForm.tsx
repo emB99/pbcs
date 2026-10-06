@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { BookOpen, DollarSign, Clock, Layers } from "lucide-react";
+import { BookOpen, Banknote, Clock, Layers } from "lucide-react";
 import { FieldGroup, textareaClass } from "@/components/ui/FieldGroup";
 import { IconField } from "@/components/ui/IconField";
 import { IconSelect } from "@/components/ui/IconSelect";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import type { FormState } from "@/lib/types";
 import type { Course } from "@/lib/types";
-import { useTerms, useSchoolType } from "@/components/school/SchoolProvider";
+import { useTerms, useSchoolType, useFormat } from "@/components/school/SchoolProvider";
 
 export function CourseForm({
   action,
@@ -24,6 +24,7 @@ export function CourseForm({
   bare?: boolean;
 }) {
   const t = useTerms();
+  const fmt = useFormat();
   const isK12 = useSchoolType() === "k12";
   const [state, formAction, pending] = useActionState(action, undefined);
   const errors = state?.errors ?? {};
@@ -51,9 +52,9 @@ export function CourseForm({
         </FieldGroup>
       )}
 
-      <FieldGroup label="Default price (USD)" htmlFor="default_price" error={errors.default_price?.[0]}>
+      <FieldGroup label={`Default price (${fmt.currency})`} htmlFor="default_price" error={errors.default_price?.[0]}>
         <IconField
-          icon={<DollarSign />}
+          icon={<Banknote />}
           id="default_price"
           name="default_price"
           inputMode="decimal"

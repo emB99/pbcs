@@ -6,12 +6,13 @@ import { Card, CardHead, CardFoot } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { AvatarInitials } from "@/components/ui/AvatarInitials";
 import { WhoOwesTable, type WhoOwesRow } from "@/components/dashboard/WhoOwesTable";
-import { monthYearLabel, formatDate } from "@/lib/dates";
+
 import { todayIsoDate } from "@/lib/dates";
 import { requireSchool } from "@/lib/school";
+import { methodLabel } from "@/lib/format";
 
 export default async function DashboardPage() {
-  const { terms: t } = await requireSchool();
+  const { terms: t, fmt } = await requireSchool();
   const supabase = await createClient();
   const today = todayIsoDate();
 
@@ -83,7 +84,7 @@ export default async function DashboardPage() {
         full_name: s?.full_name ?? "Unknown",
         phone: s?.phone ?? "",
         course_name: i?.course?.name ?? "—",
-        intake_label: i?.label || (i?.start_date ? monthYearLabel(i.start_date) : "—"),
+        intake_label: i?.label || (i?.start_date ? fmt.monthYear(i.start_date) : "—"),
         agreed_price: r.agreed_price ?? 0,
         charged: r.charged ?? 0,
         paid: r.paid ?? 0,
@@ -120,10 +121,10 @@ export default async function DashboardPage() {
           variant="money"
           icon={<TrendingDown />}
           label="Outstanding"
-          value={`$${totalOutstanding.toFixed(0)}`}
+          value={fmt.moneyWhole(totalOutstanding)}
           sub={
             <>
-              across {studentsOwingCount} students · ${over30Total.toFixed(0)} over 30 days
+              across {studentsOwingCount} students · {fmt.moneyWhole(over30Total)} over 30 days
             </>
           }
         />
@@ -183,7 +184,7 @@ export default async function DashboardPage() {
                 const studentId = recentStudentIdByEnrolment.get(t.enrolment_id) ?? "";
                 const studentName = recentStudentNameById.get(studentId) ?? "Unknown";
                 const isReversal = Boolean(t.reverses_id);
-                const amountNum = Number(t.amount_usd);
+                const amountNum = Number(t.amount_base);
                 return (
                   <div
                     key={t.id}
@@ -195,15 +196,15 @@ export default async function DashboardPage() {
                       <p className="mt-0.5 text-[11.5px] text-ink-soft">
                         {isReversal
                           ? `Reversed — ${t.reversal_reason ?? "no reason given"}`
-                          : [t.method, t.reference].filter(Boolean).join(" · ") || "—"}
+                          : [methodLabel(t.method), t.reference].filter(Boolean).join(" · ") || "—"}
                         {" · "}
-                        {formatDate(t.occurred_on)}
+                        {fmt.date(t.occurred_on)}
                       </p>
                     </div>
                     <div
                       className={`money text-[13px] font-[650] whitespace-nowrap ${isReversal ? "text-danger" : ""}`}
                     >
-                      {isReversal ? "−" : ""}${Math.abs(amountNum).toFixed(2)}
+                      {isReversal ? "−" : ""}{fmt.money(Math.abs(amountNum))}
                     </div>
                   </div>
                 );
@@ -233,17 +234,17 @@ export default async function DashboardPage() {
                   >
                     <div className="flex items-baseline gap-2.5">
                       <b className="min-w-0 flex-1 truncate text-[13px] font-semibold">
-                        {i.course?.name ?? i.label ?? monthYearLabel(i.start_date)}
+                        {i.course?.name ?? i.label ?? fmt.monthYear(i.start_date)}
                       </b>
                       <span className="text-[11.5px] whitespace-nowrap text-ink-soft">
-                        {i.end_date ? `ends ${formatDate(i.end_date)}` : "no end date"}
+                        {i.end_date ? `ends ${fmt.date(i.end_date)}` : "no end date"}
                       </span>
                     </div>
                     <div className="mt-1.5 flex items-center gap-2 text-[11.5px] text-ink-soft">
                       <span>{summary?.active_students ?? 0} students</span>
                       <span className="h-1 w-1 rounded-full bg-line" />
                       <span className="font-semibold text-danger">
-                        ${Number(summary?.outstanding ?? 0).toFixed(0)} outstanding
+                        {fmt.moneyWhole(summary?.outstanding ?? 0)} outstanding
                       </span>
                     </div>
                   </Link>
