@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { School, Hash, Mail, Phone, MapPin } from "lucide-react";
 import { updateSchoolSettings } from "@/lib/actions/school";
-import { FieldGroup, inputClass } from "@/components/ui/FieldGroup";
+import { FieldGroup, inputClass, textareaClass } from "@/components/ui/FieldGroup";
 import { IconField } from "@/components/ui/IconField";
 import { Button } from "@/components/ui/Button";
 import { DEFAULT_TERMS, TERM_KEYS, type TerminologyOverrides } from "@/lib/terminology";
@@ -75,6 +75,46 @@ export function SchoolSettingsForm({ settings }: { settings: SchoolSettings }) {
       <FieldGroup label="Address" htmlFor="address">
         <IconField icon={<MapPin />} id="address" name="address" defaultValue={settings.address ?? ""} />
       </FieldGroup>
+
+      <fieldset className="flex flex-col gap-3">
+        <legend className="text-[12.5px] font-semibold text-ink-mid">Receipts and invoices</legend>
+        <p className="text-xs text-ink-soft">
+          Every payment gets a receipt number and every charge an invoice number, counting up with no gaps. The
+          prefix is the letters before the number, for example {settings.receipt_prefix}
+          {String(settings.next_receipt_number).padStart(5, "0")} is your next receipt.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FieldGroup label="Receipt prefix" htmlFor="receipt_prefix" error={errors.receipt_prefix?.[0]}>
+            <input
+              id="receipt_prefix"
+              name="receipt_prefix"
+              maxLength={10}
+              defaultValue={settings.receipt_prefix}
+              className={inputClass}
+            />
+          </FieldGroup>
+          <FieldGroup label="Invoice prefix" htmlFor="invoice_prefix" error={errors.invoice_prefix?.[0]}>
+            <input
+              id="invoice_prefix"
+              name="invoice_prefix"
+              maxLength={10}
+              defaultValue={settings.invoice_prefix}
+              className={inputClass}
+            />
+          </FieldGroup>
+        </div>
+        <FieldGroup label="Footer text" htmlFor="document_footer" error={errors.document_footer?.[0]}>
+          <textarea
+            id="document_footer"
+            name="document_footer"
+            rows={3}
+            maxLength={500}
+            placeholder="Optional. Printed at the bottom of receipts and invoices, e.g. bank details or payment terms."
+            defaultValue={settings.document_footer ?? ""}
+            className={textareaClass}
+          />
+        </FieldGroup>
+      </fieldset>
 
       <fieldset className="flex flex-col gap-2">
         <legend className="text-[12.5px] font-semibold text-ink-mid">Wording</legend>

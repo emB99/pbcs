@@ -61,6 +61,22 @@ export function PaymentsTable({ rows }: { rows: PaymentRow[] }) {
       ),
     },
     {
+      key: "document",
+      header: "No.",
+      sortValue: (r) => r.document_number ?? "",
+      render: (r) =>
+        r.document_number && (r.kind === "payment" || r.kind === "charge") ? (
+          <Link
+            href={`/print/${r.kind === "payment" ? "receipt" : "invoice"}/${r.id}`}
+            className="text-brand-deep hover:underline"
+          >
+            {r.document_number}
+          </Link>
+        ) : (
+          <span className="text-ink-soft">—</span>
+        ),
+    },
+    {
       key: "date",
       header: "Date",
       sortValue: (r) => r.occurred_on,
@@ -92,6 +108,7 @@ export function PaymentsTable({ rows }: { rows: PaymentRow[] }) {
           rows={rows}
           filename="payments.csv"
           columns={[
+            { header: "Document no.", value: (r) => r.document_number ?? "" },
             { header: "Date", value: (r) => r.occurred_on },
             { header: "Student", value: (r) => r.student_name },
             { header: t.course.one, value: (r) => r.course_name },

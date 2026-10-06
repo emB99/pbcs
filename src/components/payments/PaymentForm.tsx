@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { CheckCircle2, Banknote, Coins, TrendingUp, Hash, MessageSquare } from "lucide-react";
+import { CheckCircle2, Banknote, Coins, TrendingUp, Hash, MessageSquare, Receipt } from "lucide-react";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { AvatarInitials } from "@/components/ui/AvatarInitials";
 import { MoneyCell } from "@/components/ui/MoneyCell";
@@ -12,7 +12,6 @@ import { IconSelect } from "@/components/ui/IconSelect";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { PrintButton } from "@/components/ui/PrintButton";
 import { useFormat } from "@/components/school/SchoolProvider";
 import { parseMoneyInput } from "@/lib/money";
 import { methodLabel, referenceLabel } from "@/lib/format";
@@ -74,7 +73,7 @@ export function PaymentForm({
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [message, setMessage] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  const [result, setResult] = useState<{ balance: number } | null>(null);
+  const [result, setResult] = useState<{ balance: number; transactionId: string } | null>(null);
 
   const normalizedQuery = query.trim().toLowerCase();
   const matches = useMemo(() => {
@@ -134,7 +133,7 @@ export function PaymentForm({
         note,
       });
       if (res.ok) {
-        setResult({ balance: res.balance });
+        setResult({ balance: res.balance, transactionId: res.transactionId });
       } else {
         setErrors(res.errors ?? {});
         setMessage(res.message ?? null);
@@ -154,7 +153,9 @@ export function PaymentForm({
           </p>
         </div>
         <div className="flex gap-2">
-          <PrintButton label="Print receipt" />
+          <Link href={`/print/receipt/${result.transactionId}`}>
+            <Button icon={<Receipt />}>View receipt</Button>
+          </Link>
           <Button variant="primary" onClick={reset}>
             Record another payment
           </Button>

@@ -86,6 +86,7 @@ export async function recordPayment(input: RecordPaymentInput): Promise<RecordPa
     .single();
 
   if (error || !txn) {
+    console.error("recordPayment failed:", error?.code, error?.message);
     return { ok: false, message: "Couldn't record the payment. Try again." };
   }
 

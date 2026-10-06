@@ -32,6 +32,10 @@ Next.js 16 (App Router) · TypeScript · Tailwind v4 · Supabase (Postgres + Aut
 
 Each school chooses its **base currency** (balances are kept and reported in it), any **other currencies** it accepts, how numbers and dates are written (locale), its **timezone** and its **payment methods**. Choose the currency at first-run setup: it can only be changed until the first transaction is recorded. Everything else lives in Settings → Region & money. Payments in another currency record an exchange rate into the base currency, so every balance stays in one currency.
 
+## Receipts and invoices
+
+Every payment gets a numbered receipt and every charge a numbered invoice (for example `RCT-00012` and `INV-00031`). Numbers are stamped by the database as the row is recorded, count up with no gaps, and cannot be chosen by a client. Adjustments and reversals are not numbered; reversing a payment or charge marks its receipt or invoice VOID. Prefixes and a footer for bank details or terms are set in Settings → School. Open a document from the student ledger, the Payments list, or the "View receipt" button after recording a payment, then use the browser's print dialog (or "Save as PDF").
+
 ## Demo data (optional)
 
 To explore the app with a populated school, run these in the Supabase SQL editor, in order, on a database that has no school yet:

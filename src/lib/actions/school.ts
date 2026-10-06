@@ -33,6 +33,9 @@ export async function updateSchoolSettings(
     email: formData.get("email"),
     phone: formData.get("phone"),
     address: formData.get("address"),
+    receipt_prefix: formData.get("receipt_prefix") ?? "RCT-",
+    invoice_prefix: formData.get("invoice_prefix") ?? "INV-",
+    document_footer: formData.get("document_footer") ?? "",
     terminology,
   });
   if (!parsed.success) return { errors: fieldErrorsFromZod(parsed.error) };

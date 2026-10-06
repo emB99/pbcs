@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { useFormat } from "@/components/school/SchoolProvider";
 import { methodLabel } from "@/lib/format";
@@ -64,6 +65,14 @@ export function TransactionLedger({
               </div>
             </div>
             <div className="flex items-center gap-3">
+              {!readOnly && t.document_number && (t.kind === "payment" || t.kind === "charge") && (
+                <Link
+                  href={`/print/${t.kind === "payment" ? "receipt" : "invoice"}/${t.id}`}
+                  className="text-[11.5px] font-semibold text-brand-deep hover:underline"
+                >
+                  {t.kind === "payment" ? "Receipt" : "Invoice"} {t.document_number}
+                </Link>
+              )}
               {canReverse && (
                 <button
                   type="button"

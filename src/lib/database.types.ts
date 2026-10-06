@@ -543,13 +543,18 @@ export type Database = {
           color_mode: string
           created_at: string
           email: string | null
+          document_footer: string | null
           id: boolean
+          invoice_prefix: string
           locale: string
           logo_path: string | null
           name: string
+          next_invoice_number: number
+          next_receipt_number: number
           next_student_number: number
           payment_methods: string[]
           phone: string | null
+          receipt_prefix: string
           school_type: Database["public"]["Enums"]["school_type"]
           student_number_prefix: string
           terminology: Json
@@ -564,13 +569,18 @@ export type Database = {
           color_mode?: string
           created_at?: string
           email?: string | null
+          document_footer?: string | null
           id?: boolean
+          invoice_prefix?: string
           locale?: string
           logo_path?: string | null
           name: string
+          next_invoice_number?: number
+          next_receipt_number?: number
           next_student_number?: number
           payment_methods?: string[]
           phone?: string | null
+          receipt_prefix?: string
           school_type?: Database["public"]["Enums"]["school_type"]
           student_number_prefix?: string
           terminology?: Json
@@ -585,13 +595,18 @@ export type Database = {
           color_mode?: string
           created_at?: string
           email?: string | null
+          document_footer?: string | null
           id?: boolean
+          invoice_prefix?: string
           locale?: string
           logo_path?: string | null
           name?: string
+          next_invoice_number?: number
+          next_receipt_number?: number
           next_student_number?: number
           payment_methods?: string[]
           phone?: string | null
+          receipt_prefix?: string
           school_type?: Database["public"]["Enums"]["school_type"]
           student_number_prefix?: string
           terminology?: Json
@@ -781,6 +796,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           currency: string
+          document_number: string | null
           enrolment_id: string
           id: string
           kind: Database["public"]["Enums"]["txn_kind"]
@@ -798,6 +814,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string
+          document_number?: string | null
           enrolment_id: string
           id?: string
           kind: Database["public"]["Enums"]["txn_kind"]
@@ -815,6 +832,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string
+          document_number?: string | null
           enrolment_id?: string
           id?: string
           kind?: Database["public"]["Enums"]["txn_kind"]
@@ -916,6 +934,10 @@ export type Database = {
       }
     }
     Functions: {
+      balance_after: {
+        Args: { p_transaction_id: string }
+        Returns: number
+      }
       my_timetable: {
         Args: Record<PropertyKey, never>
         Returns: {

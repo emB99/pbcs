@@ -28,5 +28,21 @@ export const schoolSettingsSchema = z.object({
     .pipe(z.string().email("Enter a valid email address.").nullable()),
   phone: z.string().trim().optional().transform((v) => (v ? v : null)),
   address: z.string().trim().optional().transform((v) => (v ? v : null)),
+  receipt_prefix: z
+    .string()
+    .trim()
+    .max(10, "Keep prefixes to 10 characters or fewer.")
+    .regex(/^[A-Za-z0-9/-]*$/, "Prefixes can use letters, numbers, hyphens and slashes."),
+  invoice_prefix: z
+    .string()
+    .trim()
+    .max(10, "Keep prefixes to 10 characters or fewer.")
+    .regex(/^[A-Za-z0-9/-]*$/, "Prefixes can use letters, numbers, hyphens and slashes."),
+  document_footer: z
+    .string()
+    .trim()
+    .max(500, "Keep the footer to 500 characters or fewer.")
+    .optional()
+    .transform((v) => (v ? v : null)),
   terminology: z.record(z.string(), z.object({ one: termPart, many: termPart }).partial()),
 });

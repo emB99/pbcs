@@ -109,6 +109,7 @@ export default async function StudentStatementPage(
                   <td className="py-2 align-top whitespace-nowrap">{fmt.date(t.occurred_on)}</td>
                   <td className="py-2 align-top">{courseByEnrolment.get(t.enrolment_id) ?? "—"}</td>
                   <td className="py-2 align-top">
+                    {t.document_number && `${t.document_number} · `}
                     {KIND_LABEL[t.kind]}
                     {t.reverses_id && " (reversal)"}
                     {t.method && ` · ${methodLabel(t.method)}`}
