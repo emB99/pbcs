@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { ClipboardList, Plus, Trash2 } from "lucide-react";
 import {
   setIntakeSubjectTeacher,
   syncIntakeSubjects,
@@ -84,6 +85,13 @@ export function IntakeSubjectsCard({
                 <span className="text-[13.5px] font-semibold">{r.subject_name}</span>
                 {r.subject_code && <span className="ml-2 text-[12px] text-ink-soft">{r.subject_code}</span>}
               </div>
+              <Link
+                href={`/intakes/${intakeId}/subjects/${r.id}`}
+                className="flex items-center gap-1.5 text-[12.5px] font-semibold text-crust-deep hover:underline"
+              >
+                <ClipboardList className="h-3.5 w-3.5" />
+                Marks
+              </Link>
               <select
                 aria-label={`${t.instructor.one} for ${r.subject_name}`}
                 value={r.instructor_id ?? ""}

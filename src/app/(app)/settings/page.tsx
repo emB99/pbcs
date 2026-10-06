@@ -7,10 +7,11 @@ import { SchoolSettingsForm } from "@/components/settings/SchoolSettingsForm";
 import { AccountTab } from "@/components/settings/AccountTab";
 import { TeamPanel, type TeamMember } from "@/components/settings/TeamPanel";
 import { TermsPanel } from "@/components/settings/TermsPanel";
+import { GradeScalePanel } from "@/components/settings/GradeScalePanel";
 import { cn } from "@/lib/cn";
-import type { Term } from "@/lib/types";
+import type { GradeBand, Term } from "@/lib/types";
 
-type Tab = "account" | "school" | "terms" | "team";
+type Tab = "account" | "school" | "terms" | "grading" | "team";
 
 export default async function SettingsPage(props: PageProps<"/settings">) {
   const ctx = await requireSchool();
@@ -18,7 +19,7 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
 
   const { tab: rawTab } = await props.searchParams;
   const requested = Array.isArray(rawTab) ? rawTab[0] : rawTab;
-  const tab: Tab = isAdmin && (requested === "school" || requested === "terms" || requested === "team") ? requested : "account";
+  const tab: Tab = isAdmin && (requested === "school" || requested === "terms" || requested === "grading" || requested === "team") ? requested : "account";
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "account", label: "Account" },
@@ -26,6 +27,7 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
       ? [
           { key: "school" as const, label: "School" },
           { key: "terms" as const, label: ctx.terms.term.many },
+          { key: "grading" as const, label: "Grading" },
           { key: "team" as const, label: "Team" },
         ]
       : []),
@@ -75,6 +77,13 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
         </Card>
       )}
 
+      {tab === "grading" && (
+        <Card>
+          <CardHead title="Grading" note="How marks turn into grades" />
+          <GradeScalePanel bands={await loadBands()} />
+        </Card>
+      )}
+
       {tab === "team" && (
         <Card>
           <CardHead title="Team" note="Who can sign in, and what they can do" />
@@ -89,6 +98,16 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
       )}
     </div>
   );
+}
+
+async function loadBands(): Promise<GradeBand[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("grade_scale_bands")
+    .select("*")
+    .order("min_mark", { ascending: false })
+    .returns<GradeBand[]>();
+  return data ?? [];
 }
 
 async function loadTerms(): Promise<Term[]> {

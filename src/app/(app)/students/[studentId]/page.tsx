@@ -13,6 +13,7 @@ import { formatDate, monthYearLabel } from "@/lib/dates";
 import { StudentArchiveButton } from "@/components/students/StudentArchiveButton";
 import { StudentBanner } from "@/components/students/StudentBanner";
 import { StudentDetailTabs } from "@/components/students/StudentDetailTabs";
+import { StudentGrades, type GradeGroup } from "@/components/students/StudentGrades";
 import { GuardiansPanel } from "@/components/students/GuardiansPanel";
 import { DocumentsPanel, type DocumentRow } from "@/components/students/DocumentsPanel";
 import { PhotoButton } from "@/components/students/PhotoButton";
@@ -59,6 +60,8 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
     { data: events },
     { data: guardians },
     { data: documents },
+    { data: gradeRows },
+    { data: bands },
   ] = await Promise.all([
     supabase
       .from("enrolment_balances")
@@ -89,7 +92,34 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
       .eq("student_id", studentId)
       .order("created_at", { ascending: false })
       .returns<StudentDocument[]>(),
+    supabase
+      .from("grades")
+      .select(
+        "enrolment_id, mark, grade, comment, term:terms(name, academic_year, start_date), intake_subject:intake_subjects(subject:subjects(name, sort_order))",
+      )
+      .in("enrolment_id", idFilter),
+    supabase.from("grade_scale_bands").select("grade, is_pass"),
   ]);
+
+  const passByGrade = new Map((bands ?? []).map((b) => [b.grade, b.is_pass]));
+  const gradeGroups: GradeGroup[] = (enrolments ?? []).map((e) => ({
+    id: e.id,
+    title: e.intake?.course?.name ?? "—",
+    subtitle: e.intake?.label || (e.intake?.start_date ? monthYearLabel(e.intake.start_date) : ""),
+    lines: (gradeRows ?? [])
+      .filter((g) => g.enrolment_id === e.id && (g.mark !== null || g.grade))
+      .map((g) => ({
+        term: g.term ? `${g.term.name} ${g.term.academic_year}` : "Final",
+        termSort: g.term?.start_date ?? "9999-12-31",
+        subject: g.intake_subject?.subject?.name ?? "Unknown",
+        subjectSort: g.intake_subject?.subject?.sort_order ?? 0,
+        mark: g.mark,
+        grade: g.grade,
+        pass: g.grade ? (passByGrade.get(g.grade) ?? null) : null,
+        comment: g.comment,
+      })),
+  }));
+  const gradeCount = gradeGroups.reduce((n, g) => n + g.lines.length, 0);
 
   // Private buckets: hand the browser short-lived signed URLs.
   const photoUrl = student.photo_path
@@ -244,6 +274,11 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
       <StudentDetailTabs
         tabs={[
           { key: "enrolments", label: `${t.enrolment.many} (${enrolments?.length ?? 0})`, content: enrolmentsContent },
+          {
+            key: "grades",
+            label: `Grades (${gradeCount})`,
+            content: <StudentGrades groups={gradeGroups} />,
+          },
           {
             key: "guardians",
             label: `${t.guardian.many} (${guardians?.length ?? 0})`,

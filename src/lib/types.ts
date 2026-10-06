@@ -11,6 +11,8 @@ export type StudentStatus = Database["public"]["Enums"]["student_status"];
 export type Subject = Database["public"]["Tables"]["subjects"]["Row"];
 export type Term = Database["public"]["Tables"]["terms"]["Row"];
 export type IntakeSubject = Database["public"]["Tables"]["intake_subjects"]["Row"];
+export type Grade = Database["public"]["Tables"]["grades"]["Row"];
+export type GradeBand = Database["public"]["Tables"]["grade_scale_bands"]["Row"];
 export type Transaction = Database["public"]["Tables"]["transactions"]["Row"];
 
 export type EnrolmentBalance =

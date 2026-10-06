@@ -150,6 +150,91 @@ export type Database = {
           },
         ]
       }
+      grade_scale_bands: {
+        Row: {
+          description: string | null
+          grade: string
+          id: string
+          is_pass: boolean
+          min_mark: number
+        }
+        Insert: {
+          description?: string | null
+          grade: string
+          id?: string
+          is_pass?: boolean
+          min_mark: number
+        }
+        Update: {
+          description?: string | null
+          grade?: string
+          id?: string
+          is_pass?: boolean
+          min_mark?: number
+        }
+        Relationships: []
+      }
+      grades: {
+        Row: {
+          comment: string | null
+          created_at: string
+          enrolment_id: string
+          entered_by: string | null
+          grade: string | null
+          id: string
+          intake_subject_id: string
+          mark: number | null
+          term_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          enrolment_id: string
+          entered_by?: string | null
+          grade?: string | null
+          id?: string
+          intake_subject_id: string
+          mark?: number | null
+          term_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          enrolment_id?: string
+          entered_by?: string | null
+          grade?: string | null
+          id?: string
+          intake_subject_id?: string
+          mark?: number | null
+          term_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grades_enrolment_id_fkey"
+            columns: ["enrolment_id"]
+            isOneToOne: false
+            referencedRelation: "enrolments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "grades_intake_subject_id_fkey"
+            columns: ["intake_subject_id"]
+            isOneToOne: false
+            referencedRelation: "intake_subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "grades_term_id_fkey"
+            columns: ["term_id"]
+            isOneToOne: false
+            referencedRelation: "terms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guardians: {
         Row: {
           created_at: string
@@ -683,6 +768,18 @@ export type Database = {
       }
     }
     Functions: {
+      reset_grade_scale: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      save_grade_scale: {
+        Args: { p_bands: Json }
+        Returns: undefined
+      }
+      save_grades: {
+        Args: { p_intake_subject_id: string; p_rows: Json; p_term_id: string | null }
+        Returns: number
+      }
       class_roster: {
         Args: { p_intake_subject_id: string }
         Returns: {

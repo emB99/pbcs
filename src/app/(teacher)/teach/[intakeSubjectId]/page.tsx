@@ -8,11 +8,14 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { AvatarInitials } from "@/components/ui/AvatarInitials";
 import { Tag } from "@/components/ui/Tag";
 import { formatDate, monthYearLabel } from "@/lib/dates";
+import { Gradebook } from "@/components/grades/Gradebook";
+import { loadGradebook } from "@/lib/db/gradebook";
 
 const STATUS_VARIANT = { active: "ok", graduated: "ok", suspended: "due", withdrawn: "late" } as const;
 
 export default async function TeachClassPage(props: PageProps<"/teach/[intakeSubjectId]">) {
   const { intakeSubjectId } = await props.params;
+  const { term: termParam } = await props.searchParams;
   const { terms: t } = await requireSchool();
   const supabase = await createClient();
 
@@ -22,6 +25,7 @@ export default async function TeachClassPage(props: PageProps<"/teach/[intakeSub
 
   const { data: roster } = await supabase.rpc("class_roster", { p_intake_subject_id: intakeSubjectId });
   const students = roster ?? [];
+  const book = await loadGradebook(intakeSubjectId, Array.isArray(termParam) ? termParam[0] : termParam);
 
   return (
     <div className="flex flex-col gap-4">
@@ -39,7 +43,22 @@ export default async function TeachClassPage(props: PageProps<"/teach/[intakeSub
       </div>
 
       <Card>
-        <CardHead title="Students" note={`${students.length} enrolled`} />
+        <CardHead title="Marks" note="Enter a mark and the grade is worked out for you" />
+        <Gradebook
+          key={`${intakeSubjectId}-${book.termId ?? "final"}`}
+          intakeSubjectId={intakeSubjectId}
+          basePath={`/teach/${intakeSubjectId}`}
+          terms={book.terms}
+          termId={book.termId}
+          students={book.students}
+          initial={book.initial}
+          bands={book.bands}
+          canOverrideLock={false}
+        />
+      </Card>
+
+      <Card>
+        <CardHead title="Roster & contacts" note={`${students.length} enrolled`} />
         {students.length === 0 ? (
           <EmptyState message={`No students are enrolled in this ${t.intake.one.toLowerCase()} yet.`} />
         ) : (
