@@ -11,11 +11,13 @@ import { GradeScalePanel } from "@/components/settings/GradeScalePanel";
 import { BrandingForm } from "@/components/settings/BrandingForm";
 import { LogoUploader } from "@/components/settings/LogoUploader";
 import { RegionForm } from "@/components/settings/RegionForm";
+import { RemindersForm } from "@/components/settings/RemindersForm";
+import { emailMode } from "@/lib/email/send";
 import { logoUrl, THEME_IDS, type ColorMode, type ThemeId } from "@/lib/brand";
 import { cn } from "@/lib/cn";
 import type { GradeBand, Term } from "@/lib/types";
 
-type Tab = "account" | "school" | "branding" | "region" | "terms" | "grading" | "team";
+type Tab = "account" | "school" | "branding" | "region" | "terms" | "grading" | "reminders" | "team";
 
 export default async function SettingsPage(props: PageProps<"/settings">) {
   const ctx = await requireSchool();
@@ -23,7 +25,7 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
 
   const { tab: rawTab } = await props.searchParams;
   const requested = Array.isArray(rawTab) ? rawTab[0] : rawTab;
-  const tab: Tab = isAdmin && (requested === "school" || requested === "branding" || requested === "region" || requested === "terms" || requested === "grading" || requested === "team") ? requested : "account";
+  const tab: Tab = isAdmin && (requested === "school" || requested === "branding" || requested === "region" || requested === "terms" || requested === "grading" || requested === "reminders" || requested === "team") ? requested : "account";
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "account", label: "Account" },
@@ -34,6 +36,7 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
           { key: "region" as const, label: "Region & money" },
           { key: "terms" as const, label: ctx.terms.term.many },
           { key: "grading" as const, label: "Grading" },
+          { key: "reminders" as const, label: "Reminders" },
           { key: "team" as const, label: "Team" },
         ]
       : []),
@@ -124,6 +127,21 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
         <Card>
           <CardHead title="Grading" note="How marks turn into grades" />
           <GradeScalePanel bands={await loadBands()} />
+        </Card>
+      )}
+
+      {tab === "reminders" && (
+        <Card>
+          <CardHead title="Reminders" note="Email students and guardians about money owed" />
+          <RemindersForm
+            settings={{
+              enabled: ctx.settings.reminders_enabled,
+              daysBefore: ctx.settings.reminder_days_before,
+              repeatDays: ctx.settings.reminder_repeat_days,
+            }}
+            mode={emailMode()}
+            scheduled={Boolean(process.env.CRON_SECRET && process.env.SUPABASE_SERVICE_ROLE_KEY)}
+          />
         </Card>
       )}
 

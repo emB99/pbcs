@@ -500,6 +500,66 @@ export type Database = {
         }
         Relationships: []
       }
+      messages: {
+        Row: {
+          created_at: string
+          enrolment_id: string | null
+          error: string | null
+          id: string
+          kind: string
+          provider_id: string | null
+          ref_id: string | null
+          sent_by: string | null
+          status: Database["public"]["Enums"]["message_status"]
+          student_id: string | null
+          subject: string
+          to_email: string | null
+        }
+        Insert: {
+          created_at?: string
+          enrolment_id?: string | null
+          error?: string | null
+          id?: string
+          kind: string
+          provider_id?: string | null
+          ref_id?: string | null
+          sent_by?: string | null
+          status: Database["public"]["Enums"]["message_status"]
+          student_id?: string | null
+          subject: string
+          to_email?: string | null
+        }
+        Update: {
+          created_at?: string
+          enrolment_id?: string | null
+          error?: string | null
+          id?: string
+          kind?: string
+          provider_id?: string | null
+          ref_id?: string | null
+          sent_by?: string | null
+          status?: Database["public"]["Enums"]["message_status"]
+          student_id?: string | null
+          subject?: string
+          to_email?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_enrolment_id_fkey"
+            columns: ["enrolment_id"]
+            isOneToOne: false
+            referencedRelation: "enrolments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       report_comments: {
         Row: {
           class_teacher_comment: string | null
@@ -590,6 +650,9 @@ export type Database = {
           payment_methods: string[]
           phone: string | null
           receipt_prefix: string
+          reminder_days_before: number
+          reminder_repeat_days: number
+          reminders_enabled: boolean
           school_type: Database["public"]["Enums"]["school_type"]
           student_number_prefix: string
           terminology: Json
@@ -616,6 +679,9 @@ export type Database = {
           payment_methods?: string[]
           phone?: string | null
           receipt_prefix?: string
+          reminder_days_before?: number
+          reminder_repeat_days?: number
+          reminders_enabled?: boolean
           school_type?: Database["public"]["Enums"]["school_type"]
           student_number_prefix?: string
           terminology?: Json
@@ -642,6 +708,9 @@ export type Database = {
           payment_methods?: string[]
           phone?: string | null
           receipt_prefix?: string
+          reminder_days_before?: number
+          reminder_repeat_days?: number
+          reminders_enabled?: boolean
           school_type?: Database["public"]["Enums"]["school_type"]
           student_number_prefix?: string
           terminology?: Json
@@ -1111,6 +1180,7 @@ export type Database = {
       app_role: "owner" | "admin" | "staff" | "teacher"
       course_kind: "short_course" | "programme"
       enrolment_status: "enrolled" | "completed" | "withdrawn"
+      message_status: "sent" | "dry_run" | "failed" | "skipped"
       school_type: "college" | "k12"
       student_status: "active" | "graduated" | "withdrawn" | "suspended"
       txn_kind: "charge" | "payment" | "adjustment"
@@ -1244,6 +1314,7 @@ export const Constants = {
       app_role: ["owner", "admin", "staff", "teacher"],
       course_kind: ["short_course", "programme"],
       enrolment_status: ["enrolled", "completed", "withdrawn"],
+      message_status: ["sent", "dry_run", "failed", "skipped"],
       school_type: ["college", "k12"],
       student_status: ["active", "graduated", "withdrawn", "suspended"],
       txn_kind: ["charge", "payment", "adjustment"],

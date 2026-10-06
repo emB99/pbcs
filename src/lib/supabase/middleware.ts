@@ -8,6 +8,8 @@ const PUBLIC_PATHS = [
   "/reset-password",
   "/auth/callback",
   "/auth/confirm",
+  // Scheduler calls: authorised by CRON_SECRET inside the handler, not by a session.
+  "/api/cron",
 ];
 
 /**

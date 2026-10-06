@@ -40,6 +40,15 @@ Every payment gets a numbered receipt and every charge a numbered invoice (for e
 
 An enrolment can have a schedule of instalments, set up when enrolling ("Pay in instalments") or later from the student page. A total is split into equal parts by the database (the last takes any odd cents). Payments already recorded are applied to the earliest instalments first, which decides whether each is paid, part-paid or overdue; the dashboard lists overdue instalments. A plan is only a schedule: editing or removing it never touches the ledger.
 
+## Email and reminders
+
+Email goes through [Resend](https://resend.com). Set `RESEND_API_KEY` and `EMAIL_FROM` (an address on a domain you have verified with Resend). Without a key, development records each message as "not sent" so you can try everything; production refuses to send until it is configured.
+
+- Office staff can email a receipt (ledger, receipt page), a balance reminder (student page) or remind everyone with an overdue instalment (dashboard). Every email, sent or not, appears in the student's **Emails** tab.
+- Messages go to the student's email, or the primary guardian's if the student has none. Students with no address are recorded as skipped.
+- **Settings → Reminders** (admin) switches automatic reminders on and sets how many days before a due date, and how often overdue reminders repeat. "Run reminders now" does the same pass by hand.
+- The automatic pass is `/api/cron/reminders`, scheduled daily by `vercel.json`. It needs `CRON_SECRET` (Vercel sends it as a Bearer token) and `SUPABASE_SERVICE_ROLE_KEY`. On other hosts, call it daily with `Authorization: Bearer $CRON_SECRET`.
+
 ## Demo data (optional)
 
 To explore the app with a populated school, run these in the Supabase SQL editor, in order, on a database that has no school yet:

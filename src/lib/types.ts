@@ -17,6 +17,8 @@ export type Room = Database["public"]["Tables"]["rooms"]["Row"];
 export type TimetableSlot = Database["public"]["Tables"]["timetable_slots"]["Row"];
 export type Instalment = Database["public"]["Tables"]["instalments"]["Row"];
 export type InstalmentStatus = Database["public"]["Views"]["instalment_status"]["Row"];
+export type Message = Database["public"]["Tables"]["messages"]["Row"];
+export type MessageStatus = Database["public"]["Enums"]["message_status"];
 export type Transaction = Database["public"]["Tables"]["transactions"]["Row"];
 
 export type EnrolmentBalance =

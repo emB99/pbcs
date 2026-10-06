@@ -11,6 +11,8 @@ import { WhoOwesTable, type WhoOwesRow } from "@/components/dashboard/WhoOwesTab
 import { todayIsoDate } from "@/lib/dates";
 import { requireSchool } from "@/lib/school";
 import { methodLabel } from "@/lib/format";
+import { ActionButton } from "@/components/ui/ActionButton";
+import { remindOverdue } from "@/lib/actions/messages";
 
 export default async function DashboardPage() {
   const { terms: t, fmt } = await requireSchool();
@@ -196,7 +198,19 @@ export default async function DashboardPage() {
               <CardHead
                 title="Overdue instalments"
                 note={`${overdueList.length} ${overdueList.length === 1 ? "instalment is" : "instalments are"} past due`}
-              />
+              >
+                <ActionButton
+                  compact
+                  label="Remind all"
+                  action={remindOverdue}
+                  confirm={{
+                    title: "Email everyone with an overdue instalment?",
+                    description:
+                      "Each student (or guardian) with an overdue instalment gets one email listing what is late. Anyone already reminded today is skipped.",
+                    confirmLabel: "Send reminders",
+                  }}
+                />
+              </CardHead>
               <div className="flex flex-col">
                 {overdueList.slice(0, 6).map((o) => {
                   const e = overdueEnrolmentById.get(o.enrolment_id!);

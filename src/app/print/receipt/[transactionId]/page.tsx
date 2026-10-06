@@ -5,6 +5,8 @@ import { requireSchool } from "@/lib/school";
 import { loadDocument } from "@/lib/db/documents";
 import { methodLabel } from "@/lib/format";
 import { PrintButton } from "@/components/ui/PrintButton";
+import { ActionButton } from "@/components/ui/ActionButton";
+import { emailReceipt } from "@/lib/actions/messages";
 import { Letterhead } from "@/components/reports/ReportCard";
 
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
@@ -56,7 +58,10 @@ export default async function ReceiptPage(props: PageProps<"/print/receipt/[tran
         <Link href={backHref} className="flex items-center gap-1.5 text-[13px] font-semibold text-ink-mid hover:text-ink">
           <ArrowLeft className="h-4 w-4" /> Back to student
         </Link>
-        <PrintButton label="Print receipt" />
+        <div className="flex items-center gap-3">
+          {!reversal && <ActionButton label="Email receipt" action={emailReceipt.bind(null, txn.id)} />}
+          <PrintButton label="Print receipt" />
+        </div>
       </div>
 
       <div className="relative rounded-lg border border-line bg-surface p-8 print:rounded-none print:border-0 print:p-0">

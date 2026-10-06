@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Pencil, UserPlus, CreditCard, FileText, Eye, GraduationCap } from "lucide-react";
+import { Pencil, UserPlus, CreditCard, FileText, Eye, GraduationCap, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { requireSchool } from "@/lib/school";
 import { Card, CardHead } from "@/components/ui/Card";
@@ -9,6 +9,9 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { LabelAboveValue } from "@/components/ui/FieldGroup";
 import { BalanceWithBar } from "@/components/ui/BalanceWithBar";
 import { Tag } from "@/components/ui/Tag";
+import { ActionButton } from "@/components/ui/ActionButton";
+import { MessageHistory } from "@/components/students/MessageHistory";
+import { emailBalanceReminder } from "@/lib/actions/messages";
 
 import { StudentArchiveButton } from "@/components/students/StudentArchiveButton";
 import { StudentBanner } from "@/components/students/StudentBanner";
@@ -22,7 +25,7 @@ import { WithdrawButton } from "@/components/enrolments/WithdrawButton";
 import { CompleteButton } from "@/components/enrolments/CompleteButton";
 import { AddChargeButton } from "@/components/enrolments/AddChargeButton";
 import { TransactionLedger } from "@/components/payments/TransactionLedger";
-import type { Guardian, Student, StudentDocument, Transaction } from "@/lib/types";
+import type { Guardian, Message, Student, StudentDocument, Transaction } from "@/lib/types";
 
 const SIGNED_URL_SECONDS = 60 * 60;
 
@@ -64,6 +67,7 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
     { data: gradeRows },
     { data: bands },
     { data: planRows },
+    { data: messages },
   ] = await Promise.all([
     supabase
       .from("enrolment_balances")
@@ -106,6 +110,13 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
       .select("instalment_id, enrolment_id, due_on, amount, covered, is_paid, is_overdue, days_overdue, note")
       .in("enrolment_id", idFilter)
       .order("due_on"),
+    supabase
+      .from("messages")
+      .select("*")
+      .eq("student_id", studentId)
+      .order("created_at", { ascending: false })
+      .limit(50)
+      .returns<Message[]>(),
   ]);
 
   const planByEnrolment = new Map<string, InstalmentRow[]>();
@@ -297,6 +308,18 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
         <Link href={`/preview/student/${student.id}`}>
           <Button icon={<Eye />}>Preview student view</Button>
         </Link>
+        {studentBalance > 0 && (
+          <ActionButton
+            label="Email reminder"
+            icon={<Mail />}
+            action={emailBalanceReminder.bind(null, student.id)}
+            confirm={{
+              title: "Email a balance reminder?",
+              description: `This emails ${student.full_name.split(" ")[0]}'s outstanding balance of ${fmt.money(studentBalance)} to the student, or a guardian if they have no email.`,
+              confirmLabel: "Send reminder",
+            }}
+          />
+        )}
         <PhotoButton studentId={student.id} hasPhoto={Boolean(student.photo_path)} />
         <Link href={`/students/${student.id}/edit`}>
           <Button icon={<Pencil />}>Edit</Button>
@@ -336,6 +359,11 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
             key: "documents",
             label: `Documents (${documentRows.length})`,
             content: <DocumentsPanel studentId={student.id} documents={documentRows} />,
+          },
+          {
+            key: "emails",
+            label: `Emails (${messages?.length ?? 0})`,
+            content: <MessageHistory messages={messages ?? []} fmt={fmt} />,
           },
           {
             key: "ledger",

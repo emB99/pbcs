@@ -9,6 +9,8 @@ import { methodLabel } from "@/lib/format";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ReasonDialog } from "@/components/ui/ReasonDialog";
 import { reverseTransaction } from "@/lib/actions/transactions";
+import { emailReceipt } from "@/lib/actions/messages";
+import { ActionButton } from "@/components/ui/ActionButton";
 import type { Transaction } from "@/lib/types";
 
 const KIND_LABEL: Record<Transaction["kind"], string> = {
@@ -72,6 +74,9 @@ export function TransactionLedger({
                 >
                   {t.kind === "payment" ? "Receipt" : "Invoice"} {t.document_number}
                 </Link>
+              )}
+              {canReverse && t.kind === "payment" && t.document_number && (
+                <ActionButton compact label="Email receipt" action={() => emailReceipt(t.id)} />
               )}
               {canReverse && (
                 <button
