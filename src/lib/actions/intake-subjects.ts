@@ -18,7 +18,11 @@ export async function setIntakeSubjectTeacher(
     .update({ instructor_id: instructorId || null })
     .eq("id", intakeSubjectId)
     .eq("intake_id", intakeId);
-  if (error) return { ok: false, message: "Could not save. Try again." };
+  if (error) {
+    // A new teacher who is already booked at one of this subject's times is refused.
+    if (error.code === "23P01") return { ok: false, message: error.message };
+    return { ok: false, message: "Could not save. Try again." };
+  }
 
   revalidatePath(`/intakes/${intakeId}`);
   return { ok: true };

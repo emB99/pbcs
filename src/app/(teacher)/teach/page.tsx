@@ -2,9 +2,10 @@ import Link from "next/link";
 import { Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { requireSchool } from "@/lib/school";
-import { Card } from "@/components/ui/Card";
+import { Card, CardHead } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatDate, monthYearLabel } from "@/lib/dates";
+import { DAY_LABELS, todayDayOfWeek, trimSeconds } from "@/lib/time";
 
 export default async function TeachHomePage() {
   const { terms: t, displayName } = await requireSchool();
@@ -13,6 +14,9 @@ export default async function TeachHomePage() {
   const rows = classes ?? [];
   const { data: formClasses } = await supabase.rpc("my_form_classes");
   const inCharge = formClasses ?? [];
+  const { data: week } = await supabase.rpc("my_timetable");
+  const dayNow = todayDayOfWeek();
+  const today = (week ?? []).filter((s) => s.day_of_week === dayNow);
 
   return (
     <div className="flex flex-col gap-4">
@@ -22,6 +26,33 @@ export default async function TeachHomePage() {
           The {t.subject.many.toLowerCase()} you teach, {displayName.split(" ")[0]}.
         </p>
       </div>
+
+      <Card>
+        <CardHead title="Today" note={DAY_LABELS[dayNow - 1]}>
+          <Link href="/teach/timetable" className="text-[12.5px] font-semibold text-crust-deep hover:underline">
+            Full timetable
+          </Link>
+        </CardHead>
+        {today.length === 0 ? (
+          <p className="px-5 pb-4 text-[13px] text-ink-soft">Nothing scheduled today.</p>
+        ) : (
+          <ul className="flex flex-col">
+            {today.map((s) => (
+              <li key={s.slot_id} className="flex items-center gap-4 border-t border-line-soft px-5 py-3 first:border-t-0">
+                <div className="w-[104px] flex-none text-[13px] font-semibold tabular-nums">
+                  {trimSeconds(s.starts_at)}–{trimSeconds(s.ends_at)}
+                </div>
+                <div className="min-w-0">
+                  <div className="truncate text-[13.5px] font-semibold">{s.subject_name}</div>
+                  <div className="truncate text-[12px] text-ink-soft">
+                    {[s.intake_label ?? s.course_name, s.room_name].filter(Boolean).join(" · ")}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
 
       {rows.length === 0 ? (
         <Card>

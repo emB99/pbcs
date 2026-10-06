@@ -6,6 +6,7 @@ import {
   LayoutGrid,
   Users,
   BookOpen,
+  CalendarClock,
   CalendarDays,
   CreditCard,
   GraduationCap,
@@ -25,10 +26,14 @@ export function Rail() {
     { href: "/students", label: "Students", icon: Users },
     { href: "/courses", label: terms.course.many, icon: BookOpen },
     { href: "/intakes", label: terms.intake.many, icon: CalendarDays },
+    { href: "/timetable", label: "Timetable", icon: CalendarClock },
     { href: "/payments", label: "Payments", icon: CreditCard },
     { href: "/instructors", label: terms.instructor.many, icon: Presentation },
   ];
-  const TEACHER_ITEMS = [{ href: "/teach", label: "My classes", icon: Presentation }];
+  const TEACHER_ITEMS = [
+    { href: "/teach", label: "My classes", icon: Presentation },
+    { href: "/teach/timetable", label: "Timetable", icon: CalendarClock },
+  ];
   const NAV_ITEMS = isTeacher ? TEACHER_ITEMS : OFFICE_ITEMS;
   const settingsHref = isTeacher ? "/teach/account" : "/settings";
 
@@ -42,9 +47,11 @@ export function Rail() {
       </div>
 
       {NAV_ITEMS.map((item) => {
+        // /teach also prefixes /teach/timetable and /teach/account, which have their own items.
+        const ownRoutes = ["/teach/timetable", "/teach/account"];
         const isActive =
           pathname === item.href ||
-          (pathname.startsWith(item.href + "/") && !(isTeacher && pathname === "/teach/account"));
+          (pathname.startsWith(item.href + "/") && !(item.href === "/teach" && ownRoutes.some((r) => pathname.startsWith(r))));
         const Icon = item.icon;
         return (
           <Link

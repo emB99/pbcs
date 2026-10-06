@@ -28,6 +28,16 @@ Next.js 16 (App Router) · TypeScript · Tailwind v4 · Supabase (Postgres + Aut
 7. Create the first login: Authentication → Add user (email + password), or sign in with Google while sign-ups are still enabled. Open `/setup` to name the school, choose its type and become the owner.
 8. `npm install && npm run dev`
 
+## Demo data (optional)
+
+To explore the app with a populated school, run these in the Supabase SQL editor, in order, on a database that has no school yet:
+
+1. `supabase/seed-demo.sql`: a small college with students, courses, subjects, intakes, enrolments and payments.
+2. `supabase/seed-demo-grades.sql`: Semester 1 marks (locked) and report card comments.
+3. `supabase/seed-demo-timetable.sql`: rooms and a weekly timetable.
+
+Each script does nothing if its data is already there. They do not create a login: sign in, then claim the school at `/setup`, or add an owner membership yourself.
+
 ## Verifying the append-only ledger
 
 In the SQL editor, after inserting a test charge:

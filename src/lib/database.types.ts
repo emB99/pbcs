@@ -510,6 +510,30 @@ export type Database = {
           },
         ]
       }
+      rooms: {
+        Row: {
+          archived_at: string | null
+          capacity: number | null
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          archived_at?: string | null
+          capacity?: number | null
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          archived_at?: string | null
+          capacity?: number | null
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       school_settings: {
         Row: {
           address: string | null
@@ -671,6 +695,61 @@ export type Database = {
         }
         Relationships: []
       }
+      timetable_slots: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          ends_at: string
+          id: string
+          intake_subject_id: string
+          room_id: string | null
+          starts_at: string
+          term_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          ends_at: string
+          id?: string
+          intake_subject_id: string
+          room_id?: string | null
+          starts_at: string
+          term_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          ends_at?: string
+          id?: string
+          intake_subject_id?: string
+          room_id?: string | null
+          starts_at?: string
+          term_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "timetable_slots_intake_subject_id_fkey"
+            columns: ["intake_subject_id"]
+            isOneToOne: false
+            referencedRelation: "intake_subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timetable_slots_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timetable_slots_term_id_fkey"
+            columns: ["term_id"]
+            isOneToOne: false
+            referencedRelation: "terms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           amount: number
@@ -813,6 +892,20 @@ export type Database = {
       }
     }
     Functions: {
+      my_timetable: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          slot_id: string
+          intake_subject_id: string
+          day_of_week: number
+          starts_at: string
+          ends_at: string
+          subject_name: string
+          intake_label: string | null
+          course_name: string
+          room_name: string | null
+        }[]
+      }
       intake_roster: {
         Args: { p_intake_id: string }
         Returns: {
