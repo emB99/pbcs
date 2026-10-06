@@ -11,6 +11,8 @@ export default async function TeachHomePage() {
   const supabase = await createClient();
   const { data: classes } = await supabase.rpc("my_classes");
   const rows = classes ?? [];
+  const { data: formClasses } = await supabase.rpc("my_form_classes");
+  const inCharge = formClasses ?? [];
 
   return (
     <div className="flex flex-col gap-4">
@@ -52,6 +54,36 @@ export default async function TeachHomePage() {
               </Card>
             </Link>
           ))}
+        </div>
+      )}
+
+      {inCharge.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <div>
+            <h2 className="font-display text-lg font-semibold">
+              {t.intake.many} you are in charge of
+            </h2>
+            <p className="text-[12.5px] text-ink-soft">Write the report card comments for your students.</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {inCharge.map((c) => (
+              <Link key={c.intake_id} href={`/teach/reports/${c.intake_id}`}>
+                <Card className="h-full p-5 transition-shadow hover:shadow-[0_2px_10px_rgba(31,27,22,0.1)]">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="font-display text-[16px] font-semibold">
+                      {c.intake_label || monthYearLabel(c.start_date)}
+                    </div>
+                    <span className="flex flex-none items-center gap-1.5 rounded-full bg-crust-tint px-2.5 py-1 text-[11.5px] font-semibold text-crust-deep">
+                      <Users className="h-3.5 w-3.5" />
+                      {c.student_count}
+                    </span>
+                  </div>
+                  <div className="mt-2 text-[13px] text-ink-mid">{c.course_name}</div>
+                  <div className="mt-2 text-[12px] font-semibold text-crust-deep">Report comments →</div>
+                </Card>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
     </div>

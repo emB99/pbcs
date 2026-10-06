@@ -1,6 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
-import { todayIsoDate } from "@/lib/dates";
+import { pickTermId } from "@/lib/pick-term";
 import type { GradeBand } from "@/lib/types";
 import type { GradebookStudent, GradebookTerm } from "@/components/grades/Gradebook";
 
@@ -33,19 +33,7 @@ export async function loadGradebook(
   ]);
 
   const terms = termRows ?? [];
-  const today = todayIsoDate();
-
-  let termId: string | null = null;
-  if (termParam === "final") {
-    termId = null;
-  } else if (termParam && terms.some((t) => t.id === termParam)) {
-    termId = termParam;
-  } else if (terms.length > 0) {
-    // Default to the term running today, else the most recent one that has started.
-    const current = terms.find((t) => t.start_date <= today && today <= t.end_date);
-    const lastStarted = [...terms].reverse().find((t) => t.start_date <= today);
-    termId = (current ?? lastStarted ?? terms[0]).id;
-  }
+  const termId = pickTermId(terms, termParam);
 
   let query = supabase
     .from("grades")

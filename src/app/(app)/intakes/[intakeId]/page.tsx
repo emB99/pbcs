@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { UserPlus } from "lucide-react";
+import { FileText, UserPlus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardHead } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -112,6 +112,9 @@ export default async function IntakeDetailPage(
               targets={promoteTargets}
             />
           )}
+          <Link href={`/intakes/${intake.id}/reports`}>
+            <Button icon={<FileText />}>Report cards</Button>
+          </Link>
           <Link href={`/enrolments/new?intakeId=${intake.id}`}>
             <Button variant="primary" icon={<UserPlus />}>
               Enrol a student

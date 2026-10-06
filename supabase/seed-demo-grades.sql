@@ -28,3 +28,22 @@ begin
 
   update public.terms set results_locked = true where name = 'Semester 1';
 end $$;
+
+-- Report card comments for Semester 1. The head's comment is office-only (a trigger
+-- strips it for anyone else, including a plain SQL run), so only the class teacher
+-- comments are seeded here. To add a head's comment, enter it in the app as an office
+-- user: Intakes > a class > Report cards.
+insert into public.report_comments (enrolment_id, term_id, class_teacher_comment, head_comment)
+select e.id, t.id,
+       case ((hashtext(s.full_name) & 2147483647) % 3)
+         when 0 then 'A steady term. Keep up the practice in the kitchen.'
+         when 1 then 'Participates well. More revision before assessments would help.'
+         else 'Shows real promise and a good attitude.'
+       end,
+       null
+  from public.intakes i
+  join public.enrolments e on e.intake_id = i.id and e.status = 'enrolled'
+  join public.students s on s.id = e.student_id
+  join public.terms t on t.name = 'Semester 1'
+ where i.label = 'January 2026'
+on conflict on constraint report_comments_unique do nothing;

@@ -465,6 +465,51 @@ export type Database = {
         }
         Relationships: []
       }
+      report_comments: {
+        Row: {
+          class_teacher_comment: string | null
+          enrolment_id: string
+          head_comment: string | null
+          id: string
+          term_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          class_teacher_comment?: string | null
+          enrolment_id: string
+          head_comment?: string | null
+          id?: string
+          term_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          class_teacher_comment?: string | null
+          enrolment_id?: string
+          head_comment?: string | null
+          id?: string
+          term_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_comments_enrolment_id_fkey"
+            columns: ["enrolment_id"]
+            isOneToOne: false
+            referencedRelation: "enrolments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_comments_term_id_fkey"
+            columns: ["term_id"]
+            isOneToOne: false
+            referencedRelation: "terms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       school_settings: {
         Row: {
           address: string | null
@@ -768,6 +813,30 @@ export type Database = {
       }
     }
     Functions: {
+      intake_roster: {
+        Args: { p_intake_id: string }
+        Returns: {
+          enrolment_id: string
+          student_id: string
+          student_number: string
+          full_name: string
+        }[]
+      }
+      my_form_classes: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          intake_id: string
+          intake_label: string | null
+          start_date: string
+          end_date: string | null
+          course_name: string
+          student_count: number
+        }[]
+      }
+      save_report_comments: {
+        Args: { p_rows: Json; p_term_id: string | null }
+        Returns: number
+      }
       reset_grade_scale: {
         Args: Record<PropertyKey, never>
         Returns: undefined

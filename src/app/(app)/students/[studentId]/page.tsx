@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Pencil, UserPlus, CreditCard, FileText, Eye } from "lucide-react";
+import { Pencil, UserPlus, CreditCard, FileText, Eye, GraduationCap } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { requireSchool } from "@/lib/school";
 import { Card, CardHead } from "@/components/ui/Card";
@@ -189,6 +189,16 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
                 </div>
               )}
             </Link>
+            <div className="flex flex-col items-end gap-1">
+              <Link href={`/print/report/${e.id}`} className="text-[11.5px] font-semibold text-crust-deep hover:underline">
+                Report card
+              </Link>
+              {e.status === "completed" && (
+                <Link href={`/print/certificate/${e.id}`} className="text-[11.5px] font-semibold text-crust-deep hover:underline">
+                  Certificate
+                </Link>
+              )}
+            </div>
             {e.status === "enrolled" && (
               <div className="flex flex-col items-end gap-1">
                 <AddChargeButton
@@ -245,6 +255,9 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
         </Link>
         <Link href={`/print/statement/${student.id}`}>
           <Button icon={<FileText />}>Statement</Button>
+        </Link>
+        <Link href={`/print/transcript/${student.id}`}>
+          <Button icon={<GraduationCap />}>Transcript</Button>
         </Link>
         <Link href={`/preview/student/${student.id}`}>
           <Button icon={<Eye />}>Preview student view</Button>
