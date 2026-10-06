@@ -16,7 +16,7 @@ export type GradebookTerm = { id: string; name: string; academic_year: string; r
 type Cell = { mark: string; grade: string; comment: string };
 
 const inputBase =
-  "rounded-full border border-line bg-surface px-3 py-1.5 text-[13px] outline-none focus-visible:border-crust disabled:bg-surface-2 disabled:text-ink-mid";
+  "rounded-full border border-line bg-surface px-3 py-1.5 text-[13px] outline-none focus-visible:border-brand disabled:bg-surface-2 disabled:text-ink-mid";
 
 function bandFor(bands: GradeBand[], mark: string): GradeBand | undefined {
   if (mark.trim() === "" || Number.isNaN(Number(mark))) return undefined;
@@ -123,7 +123,7 @@ export function Gradebook({
           <span className="text-[12.5px] font-semibold text-ink-mid">Final grade</span>
         )}
         {locked && (
-          <span className="flex items-center gap-1.5 text-[12px] text-butter-ink">
+          <span className="flex items-center gap-1.5 text-[12px] text-warning-ink">
             <Lock className="h-3.5 w-3.5" />
             {readOnly ? "Results are locked" : "Locked, but you can still edit"}
           </span>
@@ -141,7 +141,7 @@ export function Gradebook({
       </div>
 
       {message && (
-        <p className={`px-5 pt-3 text-xs ${message.ok ? "text-sage-ink" : "text-danger"}`}>{message.text}</p>
+        <p className={`px-5 pt-3 text-xs ${message.ok ? "text-success-ink" : "text-danger"}`}>{message.text}</p>
       )}
 
       {students.length === 0 ? (

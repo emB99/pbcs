@@ -100,7 +100,7 @@ export function DocumentsPanel({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Birth certificate"
-            className="rounded-full border border-line bg-surface px-4 py-[9px] text-[13px] font-normal text-ink outline-none focus-visible:border-crust"
+            className="rounded-full border border-line bg-surface px-4 py-[9px] text-[13px] font-normal text-ink outline-none focus-visible:border-brand"
           />
         </label>
         <Button type="submit" variant="primary" icon={<Upload />} disabled={pending || !file || !name.trim()}>

@@ -112,7 +112,7 @@ export function SchoolSettingsForm({ settings }: { settings: SchoolSettings }) {
       {state && "message" in state && state.message && (
         <p className="text-xs text-danger">{state.message}</p>
       )}
-      {state && "saved" in state && <p className="text-xs text-sage-ink">Saved.</p>}
+      {state && "saved" in state && <p className="text-xs text-success-ink">Saved.</p>}
 
       <div>
         <Button type="submit" variant="primary" disabled={pending}>

@@ -55,7 +55,7 @@ export function RoomsDialog({ open, onClose, rooms }: { open: boolean; onClose: 
                 <button
                   type="button"
                   onClick={() => setDraft({ id: r.id, name: r.name, capacity: r.capacity ? String(r.capacity) : "" })}
-                  className="text-[12px] font-semibold text-crust-deep hover:underline"
+                  className="text-[12px] font-semibold text-brand-deep hover:underline"
                 >
                   Edit
                 </button>

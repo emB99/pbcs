@@ -120,7 +120,7 @@ export function WhoOwesTable({ rows }: { rows: WhoOwesRow[] }) {
             Showing {topRows.length} of {rows.length} students with a balance
           </span>
           <div className="min-w-3 flex-1" />
-          <Link href="/students" className="font-semibold text-crust-deep hover:underline">
+          <Link href="/students" className="font-semibold text-brand-deep hover:underline">
             See all
           </Link>
         </CardFoot>

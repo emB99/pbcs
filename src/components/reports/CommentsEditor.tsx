@@ -96,7 +96,7 @@ export function CommentsEditor({
           <span className="text-[12.5px] font-semibold text-ink-mid">Final results</span>
         )}
         {locked && (
-          <span className="flex items-center gap-1.5 text-[12px] text-butter-ink">
+          <span className="flex items-center gap-1.5 text-[12px] text-warning-ink">
             <Lock className="h-3.5 w-3.5" />
             {readOnly ? "Locked" : "Locked, but you can still edit"}
           </span>
@@ -110,7 +110,7 @@ export function CommentsEditor({
       </div>
 
       {message && (
-        <p className={`px-5 pt-3 text-xs ${message.ok ? "text-sage-ink" : "text-danger"}`}>{message.text}</p>
+        <p className={`px-5 pt-3 text-xs ${message.ok ? "text-success-ink" : "text-danger"}`}>{message.text}</p>
       )}
 
       {students.length === 0 ? (

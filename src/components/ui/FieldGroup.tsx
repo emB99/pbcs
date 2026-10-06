@@ -43,8 +43,8 @@ export function FieldGroup({
 }
 
 export const inputClass =
-  "w-full rounded-full border border-line bg-surface px-4 py-[10px] text-[13.5px] text-ink shadow-[0_1px_2px_rgba(31,27,22,0.04)] outline-none transition-shadow duration-150 placeholder:text-ink-soft focus-visible:border-crust focus-visible:shadow-[0_0_0_3px_rgba(184,101,26,0.14)]";
+  "w-full rounded-full border border-line bg-surface px-4 py-[10px] text-[13.5px] text-ink shadow-[0_1px_2px_rgba(31,27,22,0.04)] outline-none transition-shadow duration-150 placeholder:text-ink-soft focus-visible:border-brand focus-visible:shadow-focus";
 
 /** Multi-line fields stay softly rounded rather than a pill, which reads badly on a tall box. */
 export const textareaClass =
-  "w-full rounded-lg border border-line bg-surface px-4 py-3 text-[13.5px] text-ink shadow-[0_1px_2px_rgba(31,27,22,0.04)] outline-none transition-shadow duration-150 placeholder:text-ink-soft focus-visible:border-crust focus-visible:shadow-[0_0_0_3px_rgba(184,101,26,0.14)]";
+  "w-full rounded-lg border border-line bg-surface px-4 py-3 text-[13.5px] text-ink shadow-[0_1px_2px_rgba(31,27,22,0.04)] outline-none transition-shadow duration-150 placeholder:text-ink-soft focus-visible:border-brand focus-visible:shadow-focus";

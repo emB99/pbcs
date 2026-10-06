@@ -145,7 +145,7 @@ export function PaymentForm({
   if (result && student) {
     return (
       <Card className="flex max-w-lg flex-col items-center gap-4 p-8 text-center">
-        <CheckCircle2 className="h-10 w-10 text-sage-ink" />
+        <CheckCircle2 className="h-10 w-10 text-success-ink" />
         <div>
           <h2 className="font-display text-lg font-semibold">Payment recorded</h2>
           <p className="mt-1 text-[13px] text-ink-mid">{student.full_name}&apos;s new balance:</p>
@@ -206,7 +206,7 @@ export function PaymentForm({
           <button
             type="button"
             onClick={reset}
-            className="text-[12px] font-semibold text-crust-deep hover:underline"
+            className="text-[12px] font-semibold text-brand-deep hover:underline"
           >
             Change
           </button>
@@ -226,7 +226,7 @@ export function PaymentForm({
                 type="button"
                 onClick={() => setEnrolmentId(e.id)}
                 className={`flex items-center justify-between gap-3 border-b border-line-soft px-3.5 py-2.5 text-left last:border-b-0 ${
-                  enrolmentId === e.id ? "bg-crust-tint" : "hover:bg-surface-2"
+                  enrolmentId === e.id ? "bg-brand-tint" : "hover:bg-surface-2"
                 }`}
               >
                 <span>

@@ -81,7 +81,7 @@ export function TransactionLedger({
                 className={cn(
                   "money text-[13px] font-semibold whitespace-nowrap",
                   isReversed && "line-through",
-                  amountNum < 0 && "text-sage-ink",
+                  amountNum < 0 && "text-success-ink",
                   isReversal && "text-danger",
                 )}
               >

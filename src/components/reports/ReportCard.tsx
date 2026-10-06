@@ -1,9 +1,12 @@
 import { formatDate } from "@/lib/dates";
+import { logoUrl } from "@/lib/brand";
+import { SchoolLogo } from "@/components/school/SchoolLogo";
 import type { ReportCardData, ReportTerm } from "@/lib/db/reports";
 import type { GradeBand } from "@/lib/types";
 
 export type SchoolHeader = {
   name: string;
+  logo_path?: string | null;
   address: string | null;
   phone: string | null;
   email: string | null;
@@ -12,12 +15,16 @@ export type SchoolHeader = {
 /** The school letterhead shared by every printout. */
 export function Letterhead({ school, title, right }: { school: SchoolHeader; title: string; right?: string }) {
   const contact = [school.address, school.phone, school.email].filter(Boolean).join(" · ");
+  const logo = logoUrl(school.logo_path);
   return (
     <header className="mb-6 flex items-start justify-between gap-4 border-b border-line-soft pb-5">
-      <div>
-        <h1 className="font-display text-xl font-semibold">{school.name}</h1>
-        {contact && <p className="mt-0.5 text-[11.5px] text-ink-soft">{contact}</p>}
-        <p className="mt-2 text-[13px] font-semibold tracking-[0.04em] text-ink-mid uppercase">{title}</p>
+      <div className="flex items-start gap-3.5">
+        {logo && <SchoolLogo logoUrl={logo} size="lg" />}
+        <div>
+          <h1 className="font-display text-xl font-semibold">{school.name}</h1>
+          {contact && <p className="mt-0.5 text-[11.5px] text-ink-soft">{contact}</p>}
+          <p className="mt-2 text-[13px] font-semibold tracking-[0.04em] text-ink-mid uppercase">{title}</p>
+        </div>
       </div>
       {right && <p className="flex-none text-[12px] text-ink-soft">{right}</p>}
     </header>

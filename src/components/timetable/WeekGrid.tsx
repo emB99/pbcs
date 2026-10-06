@@ -16,11 +16,11 @@ export type GridSlot = {
 
 const HOUR_PX = 56;
 const TINTS = [
-  "bg-butter text-butter-ink border-butter-ink/25",
-  "bg-sage text-sage-ink border-sage-ink/25",
-  "bg-sky text-sky-ink border-sky-ink/25",
-  "bg-rose text-rose-ink border-rose-ink/25",
-  "bg-crust-tint text-crust-deep border-crust/25",
+  "bg-warning text-warning-ink border-warning-ink/25",
+  "bg-success text-success-ink border-success-ink/25",
+  "bg-info text-info-ink border-info-ink/25",
+  "bg-danger-tint text-danger-ink border-danger-ink/25",
+  "bg-brand-tint text-brand-deep border-brand/25",
 ];
 
 function tintFor(key: string) {
@@ -72,7 +72,7 @@ export function WeekGrid({
               key={d}
               className={cn(
                 "border-b border-line-soft px-2 py-2 text-center text-[11px] font-semibold tracking-[0.05em] uppercase",
-                today === d ? "text-crust-deep" : "text-ink-soft",
+                today === d ? "text-brand-deep" : "text-ink-soft",
               )}
             >
               {DAY_LABELS[d - 1]}
@@ -98,7 +98,7 @@ export function WeekGrid({
               className={cn(
                 "relative border-l border-line-soft",
                 onEmptyClick && "cursor-cell hover:bg-surface-2/60",
-                today === d && "bg-crust-tint/30",
+                today === d && "bg-brand-tint/30",
               )}
               style={{
                 height: bodyHeight,

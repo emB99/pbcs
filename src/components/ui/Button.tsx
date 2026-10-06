@@ -29,9 +29,9 @@ export function Button({
         variant === "default" &&
           "border-line bg-surface text-ink",
         variant === "primary" &&
-          "border-crust bg-crust text-white shadow-[0_3px_10px_rgba(184,101,26,0.26)] hover:shadow-[0_6px_16px_rgba(184,101,26,0.32)]",
+          "border-brand bg-brand text-on-brand shadow-brand hover:shadow-brand-lg",
         variant === "danger" &&
-          "border-danger bg-danger text-white",
+          "border-danger bg-danger text-on-danger",
         className,
       )}
       {...props}

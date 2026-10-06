@@ -29,7 +29,7 @@ export default async function TeachHomePage() {
 
       <Card>
         <CardHead title="Today" note={DAY_LABELS[dayNow - 1]}>
-          <Link href="/teach/timetable" className="text-[12.5px] font-semibold text-crust-deep hover:underline">
+          <Link href="/teach/timetable" className="text-[12.5px] font-semibold text-brand-deep hover:underline">
             Full timetable
           </Link>
         </CardHead>
@@ -70,7 +70,7 @@ export default async function TeachHomePage() {
                     <div className="font-display truncate text-[17px] font-semibold">{c.subject_name}</div>
                     {c.subject_code && <div className="text-[12px] text-ink-soft">{c.subject_code}</div>}
                   </div>
-                  <span className="flex flex-none items-center gap-1.5 rounded-full bg-crust-tint px-2.5 py-1 text-[11.5px] font-semibold text-crust-deep">
+                  <span className="flex flex-none items-center gap-1.5 rounded-full bg-brand-tint px-2.5 py-1 text-[11.5px] font-semibold text-brand-deep">
                     <Users className="h-3.5 w-3.5" />
                     {c.student_count}
                   </span>
@@ -104,13 +104,13 @@ export default async function TeachHomePage() {
                     <div className="font-display text-[16px] font-semibold">
                       {c.intake_label || monthYearLabel(c.start_date)}
                     </div>
-                    <span className="flex flex-none items-center gap-1.5 rounded-full bg-crust-tint px-2.5 py-1 text-[11.5px] font-semibold text-crust-deep">
+                    <span className="flex flex-none items-center gap-1.5 rounded-full bg-brand-tint px-2.5 py-1 text-[11.5px] font-semibold text-brand-deep">
                       <Users className="h-3.5 w-3.5" />
                       {c.student_count}
                     </span>
                   </div>
                   <div className="mt-2 text-[13px] text-ink-mid">{c.course_name}</div>
-                  <div className="mt-2 text-[12px] font-semibold text-crust-deep">Report comments →</div>
+                  <div className="mt-2 text-[12px] font-semibold text-brand-deep">Report comments →</div>
                 </Card>
               </Link>
             ))}

@@ -56,7 +56,7 @@ export function IntakeSubjectsCard({
   return (
     <div className="flex flex-col">
       {missingCount > 0 && (
-        <div className="flex items-center justify-between gap-3 border-b border-line-soft bg-butter px-5 py-2.5 text-[12.5px] text-butter-ink">
+        <div className="flex items-center justify-between gap-3 border-b border-line-soft bg-warning px-5 py-2.5 text-[12.5px] text-warning-ink">
           <span>
             {missingCount} {missingCount === 1 ? t.subject.one.toLowerCase() : t.subject.many.toLowerCase()} on
             the {t.course.one.toLowerCase()} {missingCount === 1 ? "is" : "are"} not on this{" "}
@@ -87,7 +87,7 @@ export function IntakeSubjectsCard({
               </div>
               <Link
                 href={`/intakes/${intakeId}/subjects/${r.id}`}
-                className="flex items-center gap-1.5 text-[12.5px] font-semibold text-crust-deep hover:underline"
+                className="flex items-center gap-1.5 text-[12.5px] font-semibold text-brand-deep hover:underline"
               >
                 <ClipboardList className="h-3.5 w-3.5" />
                 Marks

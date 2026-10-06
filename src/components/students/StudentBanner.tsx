@@ -45,11 +45,11 @@ export function StudentBanner({
     <div className="relative overflow-hidden rounded-lg bg-ink px-6 py-7">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -top-14 -right-14 h-44 w-44 rounded-full border-[18px] border-crust/25"
+        className="pointer-events-none absolute -top-14 -right-14 h-44 w-44 rounded-full border-[18px] border-brand/25"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-10 right-6 h-16 w-16 rounded-full border-[10px] border-sage/20"
+        className="pointer-events-none absolute top-10 right-6 h-16 w-16 rounded-full border-[10px] border-success/20"
       />
       <div className="relative flex items-center gap-4">
         <div className="rounded-full ring-2 ring-surface/30 ring-offset-2 ring-offset-ink">

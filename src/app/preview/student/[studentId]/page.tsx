@@ -72,11 +72,11 @@ export default async function StudentPortalPreviewPage(
       <div className="relative overflow-hidden rounded-lg bg-ink px-6 py-7">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -top-14 -right-14 h-44 w-44 rounded-full border-[18px] border-crust/25"
+          className="pointer-events-none absolute -top-14 -right-14 h-44 w-44 rounded-full border-[18px] border-brand/25"
         />
         <div className="relative flex items-center gap-4">
-          <div className="grid h-11 w-11 flex-none place-items-center rounded-[13px] bg-crust">
-            <GraduationCap className="h-5 w-5 text-white" strokeWidth={1.8} />
+          <div className="grid h-11 w-11 flex-none place-items-center rounded-[13px] bg-brand">
+            <GraduationCap className="h-5 w-5 text-on-brand" strokeWidth={1.8} />
           </div>
           <div>
             <p className="text-[12.5px] text-surface/70">{school.name}</p>
@@ -94,7 +94,7 @@ export default async function StudentPortalPreviewPage(
           <AvatarInitials id={student.id} name={student.full_name} size="lg" />
           <div>
             <div
-              className={`font-display text-2xl font-semibold tabular-nums ${totalBalance > 0 ? "text-danger" : "text-sage-ink"}`}
+              className={`font-display text-2xl font-semibold tabular-nums ${totalBalance > 0 ? "text-danger" : "text-success-ink"}`}
             >
               ${totalBalance.toFixed(2)}
             </div>

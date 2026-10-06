@@ -537,6 +537,8 @@ export type Database = {
       school_settings: {
         Row: {
           address: string | null
+          brand_color: string | null
+          color_mode: string
           created_at: string
           email: string | null
           id: boolean
@@ -547,9 +549,12 @@ export type Database = {
           school_type: Database["public"]["Enums"]["school_type"]
           student_number_prefix: string
           terminology: Json
+          theme: string
         }
         Insert: {
           address?: string | null
+          brand_color?: string | null
+          color_mode?: string
           created_at?: string
           email?: string | null
           id?: boolean
@@ -560,9 +565,12 @@ export type Database = {
           school_type?: Database["public"]["Enums"]["school_type"]
           student_number_prefix?: string
           terminology?: Json
+          theme?: string
         }
         Update: {
           address?: string | null
+          brand_color?: string | null
+          color_mode?: string
           created_at?: string
           email?: string | null
           id?: boolean
@@ -573,6 +581,7 @@ export type Database = {
           school_type?: Database["public"]["Enums"]["school_type"]
           student_number_prefix?: string
           terminology?: Json
+          theme?: string
         }
         Relationships: []
       }

@@ -22,7 +22,7 @@ export function CompleteButton({
           e.stopPropagation();
           setOpen(true);
         }}
-        className="text-[11.5px] font-semibold text-sage-ink hover:underline"
+        className="text-[11.5px] font-semibold text-success-ink hover:underline"
       >
         Mark completed
       </button>

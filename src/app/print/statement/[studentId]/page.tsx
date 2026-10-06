@@ -6,6 +6,8 @@ import { PrintButton } from "@/components/ui/PrintButton";
 import { formatDate } from "@/lib/dates";
 import type { Student, Transaction } from "@/lib/types";
 import { requireSchool } from "@/lib/school";
+import { logoUrl } from "@/lib/brand";
+import { SchoolLogo } from "@/components/school/SchoolLogo";
 
 const KIND_LABEL: Record<Transaction["kind"], string> = {
   charge: "Charge",
@@ -62,11 +64,12 @@ export default async function StudentStatementPage(
 
       <div className="rounded-lg border border-line bg-surface p-8 print:rounded-none print:border-0 print:p-0">
         <header className="mb-8 flex items-start justify-between border-b border-line-soft pb-6">
-          <div>
-            <h1 className="font-display text-lg font-semibold">
-              {school.name}
-            </h1>
-            <p className="text-[12.5px] text-ink-soft">Statement of account</p>
+          <div className="flex items-center gap-3">
+            {logoUrl(school.logo_path) && <SchoolLogo logoUrl={logoUrl(school.logo_path)} size="lg" />}
+            <div>
+              <h1 className="font-display text-lg font-semibold">{school.name}</h1>
+              <p className="text-[12.5px] text-ink-soft">Statement of account</p>
+            </div>
           </div>
           <p className="text-[12.5px] text-ink-soft">{formatDate(new Date().toISOString().slice(0, 10))}</p>
         </header>

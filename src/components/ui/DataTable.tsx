@@ -89,7 +89,7 @@ export function DataTable<T>({
                 <td
                   key={col.key}
                   className={cn(
-                    "border-b border-line-soft px-3.5 py-[13px] align-middle group-hover:bg-[#FFF9F0] group-last:border-b-0",
+                    "border-b border-line-soft px-3.5 py-[13px] align-middle group-hover:bg-surface-2 group-last:border-b-0",
                     col.align === "right" && "text-right",
                   )}
                 >

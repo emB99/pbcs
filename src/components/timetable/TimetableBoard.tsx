@@ -339,7 +339,7 @@ export function TimetableBoard({
               )}
             </div>
 
-            {error && <p className="rounded-md bg-rose px-3 py-2 text-[12.5px] text-rose-ink">{error}</p>}
+            {error && <p className="rounded-md bg-danger-tint px-3 py-2 text-[12.5px] text-danger-ink">{error}</p>}
 
             <div className="flex items-center gap-2">
               {draft.id && (

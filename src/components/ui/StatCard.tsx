@@ -3,19 +3,19 @@ import { cn } from "@/lib/cn";
 
 const VARIANTS = {
   money: {
-    bg: "bg-crust-tint",
-    border: "border-[#F0DCC3]",
-    top: "text-crust-deep",
+    bg: "bg-brand-tint",
+    border: "border-brand/20",
+    top: "text-brand-deep",
   },
   people: {
-    bg: "bg-sage",
-    border: "border-[#D9E4D3]",
-    top: "text-sage-ink",
+    bg: "bg-success",
+    border: "border-success-ink/15",
+    top: "text-success-ink",
   },
   intake: {
-    bg: "bg-sky",
-    border: "border-[#D5DDEC]",
-    top: "text-sky-ink",
+    bg: "bg-info",
+    border: "border-info-ink/15",
+    top: "text-info-ink",
   },
 } as const;
 

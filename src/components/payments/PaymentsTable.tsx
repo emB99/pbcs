@@ -73,7 +73,7 @@ export function PaymentsTable({ rows }: { rows: PaymentRow[] }) {
         const n = Number(r.amount_usd);
         return (
           <span
-            className={`money font-semibold ${n < 0 ? "text-sage-ink" : r.reverses_id ? "text-danger" : ""}`}
+            className={`money font-semibold ${n < 0 ? "text-success-ink" : r.reverses_id ? "text-danger" : ""}`}
           >
             {n >= 0 ? "+" : "−"}${Math.abs(n).toFixed(2)}
           </span>

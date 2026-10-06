@@ -55,7 +55,7 @@ export function WithdrawButton({
             should happen to it?
           </p>
           <div className="flex flex-col gap-2">
-            <label className="flex items-start gap-2.5 rounded-md border border-line p-3 text-[13px] has-[:checked]:border-crust has-[:checked]:bg-crust-tint">
+            <label className="flex items-start gap-2.5 rounded-md border border-line p-3 text-[13px] has-[:checked]:border-brand has-[:checked]:bg-brand-tint">
               <input
                 type="radio"
                 name="choice"
@@ -70,7 +70,7 @@ export function WithdrawButton({
                 </span>
               </span>
             </label>
-            <label className="flex items-start gap-2.5 rounded-md border border-line p-3 text-[13px] has-[:checked]:border-crust has-[:checked]:bg-crust-tint">
+            <label className="flex items-start gap-2.5 rounded-md border border-line p-3 text-[13px] has-[:checked]:border-brand has-[:checked]:bg-brand-tint">
               <input
                 type="radio"
                 name="choice"

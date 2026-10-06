@@ -20,7 +20,7 @@ export default function ForgotPasswordPage() {
         <p className="text-[13px] text-ink-mid">
           If that address has an account, we&apos;ve sent a link to reset the password.
         </p>
-        <Link href="/login" className="text-[12.5px] font-semibold text-crust-deep hover:underline">
+        <Link href="/login" className="text-[12.5px] font-semibold text-brand-deep hover:underline">
           Back to sign in
         </Link>
       </div>
@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
         {pending ? "Sending…" : "Send reset link"}
       </Button>
 
-      <Link href="/login" className="text-center text-[12.5px] font-semibold text-crust-deep hover:underline">
+      <Link href="/login" className="text-center text-[12.5px] font-semibold text-brand-deep hover:underline">
         Back to sign in
       </Link>
     </form>

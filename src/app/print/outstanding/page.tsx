@@ -5,6 +5,8 @@ import { PrintButton } from "@/components/ui/PrintButton";
 import { formatDate, monthYearLabel, relativeDays } from "@/lib/dates";
 import { percentPaid } from "@/lib/money";
 import { requireSchool } from "@/lib/school";
+import { logoUrl } from "@/lib/brand";
+import { SchoolLogo } from "@/components/school/SchoolLogo";
 
 export default async function OutstandingPrintPage() {
   const { terms: t, settings: school } = await requireSchool();
@@ -68,11 +70,12 @@ export default async function OutstandingPrintPage() {
 
       <div className="rounded-lg border border-line bg-surface p-8 print:rounded-none print:border-0 print:p-0">
         <header className="mb-8 flex items-start justify-between border-b border-line-soft pb-6">
-          <div>
-            <h1 className="font-display text-lg font-semibold">
-              {school.name}
-            </h1>
-            <p className="text-[12.5px] text-ink-soft">Who owes money</p>
+          <div className="flex items-center gap-3">
+            {logoUrl(school.logo_path) && <SchoolLogo logoUrl={logoUrl(school.logo_path)} size="lg" />}
+            <div>
+              <h1 className="font-display text-lg font-semibold">{school.name}</h1>
+              <p className="text-[12.5px] text-ink-soft">Who owes money</p>
+            </div>
           </div>
           <p className="text-[12.5px] text-ink-soft">{formatDate(new Date().toISOString().slice(0, 10))}</p>
         </header>

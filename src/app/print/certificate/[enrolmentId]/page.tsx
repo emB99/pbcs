@@ -30,7 +30,7 @@ export default async function CertificatePage(props: PageProps<"/print/certifica
         <p className="mt-1 text-[13px] text-ink-mid">
           A certificate can be printed once this {t.enrolment.one.toLowerCase()} is marked completed.
         </p>
-        <Link href={backHref} className="mt-4 inline-block text-[13px] font-semibold text-crust-deep hover:underline">
+        <Link href={backHref} className="mt-4 inline-block text-[13px] font-semibold text-brand-deep hover:underline">
           Back to student
         </Link>
       </div>
@@ -55,8 +55,8 @@ export default async function CertificatePage(props: PageProps<"/print/certifica
         <PrintButton label="Print certificate" />
       </div>
 
-      <div className="rounded-lg border-4 border-double border-crust bg-surface p-10 text-center print:rounded-none print:bg-white">
-        <Award className="mx-auto h-10 w-10 text-crust" strokeWidth={1.4} />
+      <div className="rounded-lg border-4 border-double border-brand bg-surface p-10 text-center print:rounded-none print:bg-white">
+        <Award className="mx-auto h-10 w-10 text-brand" strokeWidth={1.4} />
         <p className="mt-3 text-[13px] font-semibold tracking-[0.2em] text-ink-soft uppercase">{settings.name}</p>
         <h1 className="font-display mt-6 text-[34px] font-semibold">Certificate of Completion</h1>
         <p className="mt-6 text-[14px] text-ink-mid">This is to certify that</p>

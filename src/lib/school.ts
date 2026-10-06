@@ -3,7 +3,7 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { PRODUCT_NAME } from "@/lib/brand";
+import { PRODUCT_NAME, THEME_IDS, isHexColor, type ColorMode, type ThemeId } from "@/lib/brand";
 import { resolveTerms, type TerminologyOverrides, type Terms } from "@/lib/terminology";
 import type { AppRole, SchoolSettings } from "@/lib/types";
 
@@ -104,23 +104,53 @@ export async function hasRole(...roles: AppRole[]): Promise<boolean> {
 
 export const NOT_ALLOWED = "You don't have permission to do that.";
 
+export type PublicBrand = {
+  name: string;
+  logoPath: string | null;
+  theme: ThemeId;
+  brandColor: string | null;
+  colorMode: ColorMode;
+};
+
+const DEFAULT_BRAND: PublicBrand = {
+  name: PRODUCT_NAME,
+  logoPath: null,
+  theme: "neutral",
+  brandColor: null,
+  colorMode: "light",
+};
+
 /**
- * Name shown on pages anyone can see (login, setup). Uses school_status(), a
- * security-definer function, because RLS hides school_settings from signed-out
- * visitors; only the name leaves it.
+ * What signed-out pages (login, setup) and the root layout need to look like
+ * the school: name, logo, theme, brand colour, mode. Uses school_status(), a
+ * security-definer function, because RLS hides school_settings from visitors;
+ * only presentation fields leave it. Values are validated here, since they end
+ * up in an inline style on <html>.
  */
-export const getPublicSchoolName = cache(async (): Promise<string> => {
+export const getPublicBrand = cache(async (): Promise<PublicBrand> => {
   // Reads live data, so opt out of static prerendering.
   await connection();
   try {
     const supabase = await createClient();
     const { data } = await supabase.rpc("school_status");
-    return (data as { name?: string | null } | null)?.name ?? PRODUCT_NAME;
+    const s = (data ?? {}) as Record<string, string | null | undefined>;
+    return {
+      name: s.name ?? PRODUCT_NAME,
+      logoPath: typeof s.logo_path === "string" && /^[\w.-]+$/.test(s.logo_path) ? s.logo_path : null,
+      theme: THEME_IDS.includes(s.theme as ThemeId) ? (s.theme as ThemeId) : "neutral",
+      brandColor: s.brand_color && isHexColor(s.brand_color) ? s.brand_color : null,
+      colorMode: s.color_mode === "dark" || s.color_mode === "system" ? s.color_mode : "light",
+    };
   } catch {
     // A DB hiccup should not stop the login page rendering.
-    return PRODUCT_NAME;
+    return DEFAULT_BRAND;
   }
 });
+
+/** Name shown on pages anyone can see (login, setup). */
+export async function getPublicSchoolName(): Promise<string> {
+  return (await getPublicBrand()).name;
+}
 
 /** For actions that return FormState/DialogResult: the caller's context if they are office staff, else null. */
 export async function getOfficeContext(): Promise<SchoolContext | null> {

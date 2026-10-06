@@ -8,10 +8,13 @@ import { AccountTab } from "@/components/settings/AccountTab";
 import { TeamPanel, type TeamMember } from "@/components/settings/TeamPanel";
 import { TermsPanel } from "@/components/settings/TermsPanel";
 import { GradeScalePanel } from "@/components/settings/GradeScalePanel";
+import { BrandingForm } from "@/components/settings/BrandingForm";
+import { LogoUploader } from "@/components/settings/LogoUploader";
+import { logoUrl, THEME_IDS, type ColorMode, type ThemeId } from "@/lib/brand";
 import { cn } from "@/lib/cn";
 import type { GradeBand, Term } from "@/lib/types";
 
-type Tab = "account" | "school" | "terms" | "grading" | "team";
+type Tab = "account" | "school" | "branding" | "terms" | "grading" | "team";
 
 export default async function SettingsPage(props: PageProps<"/settings">) {
   const ctx = await requireSchool();
@@ -19,13 +22,14 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
 
   const { tab: rawTab } = await props.searchParams;
   const requested = Array.isArray(rawTab) ? rawTab[0] : rawTab;
-  const tab: Tab = isAdmin && (requested === "school" || requested === "terms" || requested === "grading" || requested === "team") ? requested : "account";
+  const tab: Tab = isAdmin && (requested === "school" || requested === "branding" || requested === "terms" || requested === "grading" || requested === "team") ? requested : "account";
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "account", label: "Account" },
     ...(isAdmin
       ? [
           { key: "school" as const, label: "School" },
+          { key: "branding" as const, label: "Branding" },
           { key: "terms" as const, label: ctx.terms.term.many },
           { key: "grading" as const, label: "Grading" },
           { key: "team" as const, label: "Team" },
@@ -47,7 +51,7 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
             className={cn(
               "-mb-px border-b-2 px-3 py-2.5 text-[13px] font-semibold transition-colors",
               tab === t.key
-                ? "border-crust text-crust-deep"
+                ? "border-brand text-brand-deep"
                 : "border-transparent text-ink-soft hover:text-ink-mid",
             )}
           >
@@ -63,6 +67,24 @@ export default async function SettingsPage(props: PageProps<"/settings">) {
           <CardHead title="School" note="Name, type of school, contact details and wording" />
           <div className="px-6 pb-6">
             <SchoolSettingsForm settings={ctx.settings} />
+          </div>
+        </Card>
+      )}
+
+      {tab === "branding" && (
+        <Card>
+          <CardHead title="Branding" note="Your logo, colours and appearance" />
+          <div className="flex flex-col gap-8 px-6 pb-6">
+            <LogoUploader logoUrl={logoUrl(ctx.settings.logo_path)} />
+            <BrandingForm
+              saved={{
+                theme: THEME_IDS.includes(ctx.settings.theme as ThemeId) ? (ctx.settings.theme as ThemeId) : "neutral",
+                brandColor: ctx.settings.brand_color,
+                colorMode: (["light", "dark", "system"].includes(ctx.settings.color_mode)
+                  ? ctx.settings.color_mode
+                  : "light") as ColorMode,
+              }}
+            />
           </div>
         </Card>
       )}

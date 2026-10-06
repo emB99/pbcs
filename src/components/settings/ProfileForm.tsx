@@ -23,7 +23,7 @@ export function ProfileForm({ defaultFullName }: { defaultFullName: string }) {
       </FieldGroup>
 
       {state.status === "error" && <p className="text-xs text-danger">{state.message}</p>}
-      {state.status === "saved" && <p className="text-xs text-sage-ink">Saved.</p>}
+      {state.status === "saved" && <p className="text-xs text-success-ink">Saved.</p>}
 
       <Button type="submit" variant="primary" disabled={pending}>
         {pending ? "Saving…" : "Save name"}

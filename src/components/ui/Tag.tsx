@@ -1,9 +1,9 @@
 import { cn } from "@/lib/cn";
 
 const VARIANTS = {
-  late: "bg-[#F6E3DF] text-danger",
-  due: "bg-butter text-butter-ink",
-  ok: "bg-sage text-sage-ink",
+  late: "bg-danger-tint text-danger",
+  due: "bg-warning text-warning-ink",
+  ok: "bg-success text-success-ink",
 } as const;
 
 export function Tag({

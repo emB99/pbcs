@@ -50,7 +50,7 @@ export function SetupForm({ email }: { email?: string }) {
               key={t.value}
               className={cn(
                 "flex cursor-pointer items-start gap-3 rounded-md border bg-surface p-3 transition-colors",
-                type === t.value ? "border-crust bg-crust-tint" : "border-line hover:bg-surface-2",
+                type === t.value ? "border-brand bg-brand-tint" : "border-line hover:bg-surface-2",
               )}
             >
               <input
@@ -61,7 +61,7 @@ export function SetupForm({ email }: { email?: string }) {
                 onChange={() => setType(t.value)}
                 className="sr-only"
               />
-              <Icon className="mt-0.5 h-5 w-5 flex-none text-crust-deep" strokeWidth={1.7} />
+              <Icon className="mt-0.5 h-5 w-5 flex-none text-brand-deep" strokeWidth={1.7} />
               <span>
                 <b className="block text-[13px] font-semibold">{t.label}</b>
                 <span className="text-xs text-ink-mid">{t.blurb}</span>

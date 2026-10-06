@@ -21,7 +21,7 @@ export function StudentDetailTabs({ tabs }: { tabs: DetailTab[] }) {
             className={cn(
               "-mb-px border-b-2 px-3 py-3.5 text-[13px] font-semibold whitespace-nowrap transition-colors",
               current?.key === t.key
-                ? "border-crust text-crust-deep"
+                ? "border-brand text-brand-deep"
                 : "border-transparent text-ink-soft hover:text-ink-mid",
             )}
           >

@@ -32,7 +32,7 @@ export function BalanceWithBar({
       </span>
       <span className="block h-1 w-[74px] overflow-hidden rounded-full bg-line">
         <i
-          className={cn("block h-full rounded-full", isDone ? "bg-sage-ink" : "bg-crust")}
+          className={cn("block h-full rounded-full", isDone ? "bg-success-ink" : "bg-brand")}
           style={{ width: `${pct}%` }}
         />
       </span>

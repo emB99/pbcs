@@ -77,7 +77,7 @@ export function StudentListPanel({ rows }: { rows: StudentRow[] }) {
               href={`/students/${r.id}`}
               className={cn(
                 "flex items-center gap-2.5 border-t border-line-soft px-4 py-3 first:border-t-0 hover:bg-surface-2",
-                activeId === r.id && "bg-crust-tint hover:bg-crust-tint",
+                activeId === r.id && "bg-brand-tint hover:bg-brand-tint",
               )}
             >
               <AvatarInitials id={r.id} name={r.full_name} />

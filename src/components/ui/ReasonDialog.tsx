@@ -56,7 +56,7 @@ export function ReasonDialog({
             onChange={(e) => setReason(e.target.value)}
             rows={3}
             autoFocus
-            className="w-full rounded-md border border-line bg-surface px-3.5 py-2.5 text-[13.5px] text-ink outline-none focus-visible:border-crust"
+            className="w-full rounded-md border border-line bg-surface px-3.5 py-2.5 text-[13.5px] text-ink outline-none focus-visible:border-brand"
           />
         </FieldGroup>
         <div className="flex justify-end gap-2 pt-1">

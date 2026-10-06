@@ -10,7 +10,7 @@ import type { GradeBand } from "@/lib/types";
 type Row = { key: string; min_mark: string; grade: string; description: string; is_pass: boolean };
 
 const cell =
-  "w-full rounded-full border border-line bg-surface px-3 py-1.5 text-[13px] outline-none focus-visible:border-crust";
+  "w-full rounded-full border border-line bg-surface px-3 py-1.5 text-[13px] outline-none focus-visible:border-brand";
 
 function toRows(bands: GradeBand[]): Row[] {
   return [...bands]
@@ -127,7 +127,7 @@ export function GradeScalePanel({ bands }: { bands: GradeBand[] }) {
         </table>
       </div>
 
-      {message && <p className={`text-xs ${message.ok ? "text-sage-ink" : "text-danger"}`}>{message.text}</p>}
+      {message && <p className={`text-xs ${message.ok ? "text-success-ink" : "text-danger"}`}>{message.text}</p>}
 
       <div className="flex flex-wrap gap-2">
         <Button

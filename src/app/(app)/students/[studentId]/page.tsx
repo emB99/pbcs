@@ -190,11 +190,11 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
               )}
             </Link>
             <div className="flex flex-col items-end gap-1">
-              <Link href={`/print/report/${e.id}`} className="text-[11.5px] font-semibold text-crust-deep hover:underline">
+              <Link href={`/print/report/${e.id}`} className="text-[11.5px] font-semibold text-brand-deep hover:underline">
                 Report card
               </Link>
               {e.status === "completed" && (
-                <Link href={`/print/certificate/${e.id}`} className="text-[11.5px] font-semibold text-crust-deep hover:underline">
+                <Link href={`/print/certificate/${e.id}`} className="text-[11.5px] font-semibold text-brand-deep hover:underline">
                   Certificate
                 </Link>
               )}
@@ -238,7 +238,7 @@ export default async function StudentDetailPage(props: PageProps<"/students/[stu
       />
 
       {guardianFlag === "failed" && (
-        <p className="rounded-md bg-butter px-4 py-3 text-[13px] text-butter-ink">
+        <p className="rounded-md bg-warning px-4 py-3 text-[13px] text-warning-ink">
           The student was saved, but the {t.guardian.one.toLowerCase()} could not be. Add them from the{" "}
           {t.guardian.many} tab below.
         </p>

@@ -57,7 +57,7 @@ export function ChangePasswordForm() {
       </FieldGroup>
 
       {error && <p className="text-xs text-danger">{error}</p>}
-      {saved && <p className="text-xs text-sage-ink">Password updated.</p>}
+      {saved && <p className="text-xs text-success-ink">Password updated.</p>}
 
       <Button type="submit" variant="primary" disabled={pending}>
         {pending ? "Updating…" : "Update password"}

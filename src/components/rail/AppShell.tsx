@@ -1,6 +1,7 @@
 import { Rail } from "@/components/rail/Rail";
 import { Topbar } from "@/components/rail/Topbar";
 import { SchoolProvider } from "@/components/school/SchoolProvider";
+import { logoUrl } from "@/lib/brand";
 import type { SchoolContext } from "@/lib/school";
 
 /** The rail + topbar frame shared by the office area and the teacher portal. */
@@ -12,6 +13,7 @@ export function AppShell({ ctx, children }: { ctx: SchoolContext; children: Reac
         role: ctx.role,
         schoolName: ctx.settings.name,
         schoolType: ctx.settings.school_type,
+        logoUrl: logoUrl(ctx.settings.logo_path),
       }}
     >
       <div className="flex min-h-full items-start gap-[18px] bg-canvas p-[22px] max-[680px]:flex-col max-[680px]:p-3.5">

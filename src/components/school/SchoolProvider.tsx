@@ -9,6 +9,7 @@ type SchoolContextValue = {
   role: AppRole;
   schoolName: string;
   schoolType: SchoolType;
+  logoUrl: string | null;
 };
 
 const Ctx = createContext<SchoolContextValue | null>(null);
@@ -40,6 +41,10 @@ export function useRole(): AppRole {
 
 export function useSchoolName(): string {
   return useSchool().schoolName;
+}
+
+export function useLogoUrl(): string | null {
+  return useSchool().logoUrl;
 }
 
 export function useSchoolType(): SchoolType {

@@ -211,7 +211,7 @@ export default async function DashboardPage() {
             </div>
             <CardFoot>
               <div className="min-w-3 flex-1" />
-              <Link href="/payments" className="font-semibold text-crust-deep hover:underline">
+              <Link href="/payments" className="font-semibold text-brand-deep hover:underline">
                 All payments
               </Link>
             </CardFoot>
@@ -229,7 +229,7 @@ export default async function DashboardPage() {
                   <Link
                     key={i.id}
                     href={`/intakes/${i.id}`}
-                    className="block border-t border-line-soft px-5 py-3 first:border-t-0 hover:bg-[#FFF9F0]"
+                    className="block border-t border-line-soft px-5 py-3 first:border-t-0 hover:bg-surface-2"
                   >
                     <div className="flex items-baseline gap-2.5">
                       <b className="min-w-0 flex-1 truncate text-[13px] font-semibold">

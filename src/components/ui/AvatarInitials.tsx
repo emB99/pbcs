@@ -2,11 +2,11 @@ import { toInitials, tintForId, type AvatarTint } from "@/lib/initials";
 import { cn } from "@/lib/cn";
 
 const TINT_CLASSES: Record<AvatarTint, string> = {
-  a: "bg-butter text-butter-ink",
-  b: "bg-sage text-sage-ink",
-  c: "bg-sky text-sky-ink",
-  d: "bg-rose text-rose-ink",
-  e: "bg-crust-tint text-crust-deep",
+  a: "bg-warning text-warning-ink",
+  b: "bg-success text-success-ink",
+  c: "bg-info text-info-ink",
+  d: "bg-danger-tint text-danger-ink",
+  e: "bg-brand-tint text-brand-deep",
 };
 
 export function AvatarInitials({
